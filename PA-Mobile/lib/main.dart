@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
 import 'package:pa_mobile/firebase_options.dart';
+import 'package:pa_mobile/providers/address_provider.dart';
 import 'package:pa_mobile/providers/cart_provider.dart';
 import 'package:pa_mobile/pages/auth_gate.dart';
 import 'package:pa_mobile/theme/app_colors.dart';
@@ -21,6 +22,8 @@ Future<void> main() async {
       providers: [
         // ChangeNotifierProvider membuat dan menyediakan CartProvider ke semua widget di bawahnya
         ChangeNotifierProvider(create: (_) => CartProvider()),
+        // AddressProvider menyimpan alamat pengiriman
+        ChangeNotifierProvider(create: (_) => AddressProvider()),
       ],
       child: const MyApp(),
     ),

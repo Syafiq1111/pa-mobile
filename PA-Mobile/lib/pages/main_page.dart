@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:pa_mobile/providers/address_provider.dart';
 import 'package:pa_mobile/providers/cart_provider.dart';
 import 'package:pa_mobile/pages/home_page.dart';
 import 'package:pa_mobile/pages/cart_page.dart';
@@ -21,8 +22,16 @@ class _MainPageState extends State<MainPage> {
 
   // Checkout: context.read mengambil provider satu kali tanpa mendengarkan perubahan
   void checkout() {
-    final total = context.read<CartProvider>().grandTotal;
-    context.read<CartProvider>().checkout();
+    final cart = context.read<CartProvider>();
+    final address = context.read<AddressProvider>().mainAddress;
+    final total = cart.grandTotal;
+
+    // Alamat utama ikut tersimpan di riwayat pembelian
+    cart.checkout(
+      address: address == null
+          ? 'Alamat belum diisi'
+          : '${address.name} (${address.phone}) - ${address.detail}',
+    );
     setState(() => lastTotal = total);
   }
 

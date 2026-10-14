@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:pa_mobile/theme/app_colors.dart';
 
-// Kolom input untuk halaman login dan registrasi
+// Kolom input untuk halaman login, registrasi, dan alamat
 class AuthTextField extends StatelessWidget {
   final TextEditingController controller;
   final String hint;
   final IconData icon;
   final bool obscure;
   final TextInputType keyboardType;
+  final int maxLines;
 
   const AuthTextField({
     super.key,
@@ -16,6 +17,7 @@ class AuthTextField extends StatelessWidget {
     required this.icon,
     this.obscure = false,
     this.keyboardType = TextInputType.text,
+    this.maxLines = 1,
   });
 
   @override
@@ -31,6 +33,7 @@ class AuthTextField extends StatelessWidget {
         controller: controller,
         obscureText: obscure,
         keyboardType: keyboardType,
+        maxLines: obscure ? 1 : maxLines,
         style: const TextStyle(color: AppColors.textPrimary),
         decoration: InputDecoration(
           border: InputBorder.none,

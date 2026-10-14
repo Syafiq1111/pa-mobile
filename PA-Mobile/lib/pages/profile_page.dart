@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:pa_mobile/models/product.dart';
+import 'package:pa_mobile/pages/address_page.dart';
+import 'package:pa_mobile/pages/order_history_page.dart';
+import 'package:pa_mobile/providers/address_provider.dart';
 import 'package:pa_mobile/providers/cart_provider.dart';
 import 'package:pa_mobile/theme/app_colors.dart';
 
@@ -10,8 +13,9 @@ class ProfilePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // context.watch mendengarkan perubahan CartProvider
+    // context.watch mendengarkan perubahan provider
     final cart = context.watch<CartProvider>();
+    final address = context.watch<AddressProvider>();
 
     return SingleChildScrollView(
       child: Column(
@@ -36,7 +40,7 @@ class ProfilePage extends StatelessWidget {
                       width: 160,
                       height: 160,
                       decoration: BoxDecoration(
-                        color: AppColors.redDark,
+                        color: AppColors.primaryDark,
                         borderRadius: BorderRadius.circular(80),
                       ),
                     ),
@@ -48,7 +52,7 @@ class ProfilePage extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.all(18),
                           decoration: BoxDecoration(
-                            color: AppColors.red,
+                            color: AppColors.primary,
                             borderRadius: BorderRadius.circular(50),
                           ),
                           child: const Icon(Icons.person, size: 36, color: Colors.white),
@@ -87,7 +91,7 @@ class ProfilePage extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Column(
               children: [
-                // Row ringkasan keranjang
+                // Row ringkasan keranjang, nilainya sama dengan halaman Keranjang
                 Row(
                   children: [
                     Expanded(
@@ -109,11 +113,26 @@ class ProfilePage extends StatelessWidget {
                 ),
                 const SizedBox(height: 20),
 
-                _buildMenuItem(Icons.location_on_outlined, 'Alamat Pengiriman'),
+                // Menu yang bisa diklik, membuka halaman dengan Navigator.push
+                _buildMenuItem(
+                  context,
+                  Icons.location_on_outlined,
+                  'Alamat Pengiriman',
+                  address.addresses.isEmpty
+                      ? 'Belum ada alamat tersimpan'
+                      : '${address.addresses.length} alamat tersimpan',
+                  const AddressPage(),
+                ),
                 const SizedBox(height: 10),
-                _buildMenuItem(Icons.receipt_long_outlined, 'Riwayat Pembelian'),
-                const SizedBox(height: 10),
-                _buildMenuItem(Icons.support_agent, 'Bantuan'),
+                _buildMenuItem(
+                  context,
+                  Icons.receipt_long_outlined,
+                  'Riwayat Pembelian',
+                  cart.orders.isEmpty
+                      ? 'Belum ada pesanan'
+                      : '${cart.orders.length} pesanan',
+                  const OrderHistoryPage(),
+                ),
                 const SizedBox(height: 24),
 
                 // Tombol keluar: signOut dari Firebase Auth
@@ -127,7 +146,7 @@ class ProfilePage extends StatelessWidget {
                     },
                     style: ElevatedButton.styleFrom(
                       elevation: 0,
-                      backgroundColor: AppColors.red,
+                      backgroundColor: AppColors.primary,
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                     ),
@@ -168,11 +187,13 @@ class ProfilePage extends StatelessWidget {
               color: AppColors.surfaceLight,
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(icon, size: 20, color: AppColors.red),
+            child: Icon(icon, size: 20, color: AppColors.primary),
           ),
           const SizedBox(height: 12),
           Text(
             value,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
           ),
           Text(label, style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
@@ -181,27 +202,63 @@ class ProfilePage extends StatelessWidget {
     );
   }
 
-  // Widget baris menu: icon, judul, dan panah
-  Widget _buildMenuItem(IconData icon, String title) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        border: Border.all(color: AppColors.border),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        children: [
-          Icon(icon, size: 22, color: AppColors.red),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              title,
-              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
-            ),
+  // Widget baris menu berupa tombol: icon, judul, keterangan, dan panah
+  Widget _buildMenuItem(
+      BuildContext context,
+      IconData icon,
+      String title,
+      String subtitle,
+      Widget page,
+      ) {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => page),
+          );
+        },
+        style: ElevatedButton.styleFrom(
+          elevation: 0,
+          padding: const EdgeInsets.all(16),
+          backgroundColor: AppColors.surface,
+          foregroundColor: AppColors.textPrimary,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+            side: const BorderSide(color: AppColors.border),
           ),
-          const Icon(Icons.chevron_right, size: 22, color: AppColors.textSecondary),
-        ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: AppColors.surfaceLight,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(icon, size: 20, color: AppColors.primary),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(Icons.chevron_right, size: 22, color: AppColors.textSecondary),
+          ],
+        ),
       ),
     );
   }

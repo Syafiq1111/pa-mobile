@@ -293,15 +293,29 @@ class _MyHomePageState extends State<MyHomePage> {
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Column(
                   children: [
-                    // Pesan jika hasil pencarian kosong
-                    if (visibleProducts.isEmpty)
+                    // Status data produk dari Firestore: loading, error, atau kosong
+                    if (cart.isLoading)
                       const Padding(
                         padding: EdgeInsets.only(top: 40, bottom: 40),
+                        child: CircularProgressIndicator(color: AppColors.primary),
+                      )
+                    else if (cart.errorMessage != null)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 40, bottom: 40),
                         child: Text(
-                          'Produk tidak ditemukan',
-                          style: TextStyle(color: AppColors.textSecondary),
+                          cart.errorMessage!,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(color: AppColors.danger),
                         ),
-                      ),
+                      )
+                    else if (visibleProducts.isEmpty)
+                        const Padding(
+                          padding: EdgeInsets.only(top: 40, bottom: 40),
+                          child: Text(
+                            'Produk tidak ditemukan',
+                            style: TextStyle(color: AppColors.textSecondary),
+                          ),
+                        ),
                     ProductGrid(products: visibleProducts),
                   ],
                 ),
