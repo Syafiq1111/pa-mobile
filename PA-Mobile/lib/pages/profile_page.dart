@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:pa_mobile/models/product.dart';
 import 'package:pa_mobile/providers/cart_provider.dart';
@@ -53,19 +54,25 @@ class ProfilePage extends StatelessWidget {
                           child: const Icon(Icons.person, size: 36, color: Colors.white),
                         ),
                         const SizedBox(width: 16),
-                        const Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Ridho',
-                              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
-                            ),
-                            SizedBox(height: 2),
-                            Text(
-                              'ridho@bengkelkom.id',
-                              style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                            ),
-                          ],
+                        // Expanded agar email panjang tidak melebihi lebar card
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Akun Saya',
+                                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                              ),
+                              const SizedBox(height: 2),
+                              // Email diambil dari akun Firebase yang sedang login
+                              Text(
+                                FirebaseAuth.instance.currentUser?.email ?? '-',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ),
@@ -109,12 +116,15 @@ class ProfilePage extends StatelessWidget {
                 _buildMenuItem(Icons.support_agent, 'Bantuan'),
                 const SizedBox(height: 24),
 
-                // Tombol keluar kembali ke halaman login dengan Navigator.pop
+                // Tombol keluar: signOut dari Firebase Auth
                 SizedBox(
                   width: double.infinity,
                   height: 52,
                   child: ElevatedButton(
-                    onPressed: () => Navigator.pop(context),
+                    // Menghapus sesi akun, AuthGate otomatis mengembalikan ke halaman login
+                    onPressed: () async {
+                      await FirebaseAuth.instance.signOut();
+                    },
                     style: ElevatedButton.styleFrom(
                       elevation: 0,
                       backgroundColor: AppColors.red,

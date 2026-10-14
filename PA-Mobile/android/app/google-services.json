@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1083590555835",
+    "project_id": "bengkelkom-ridho",
+    "storage_bucket": "bengkelkom-ridho.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1083590555835:android:9ac33ff4fc4a33de29d19e",
+        "android_client_info": {
+          "package_name": "com.example.pa_mobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyASf4Plau8YrXgmwpyYwWmB0IJAa3hhMV8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

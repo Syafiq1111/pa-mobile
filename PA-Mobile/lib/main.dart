@@ -1,10 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
+import 'package:pa_mobile/firebase_options.dart';
 import 'package:pa_mobile/providers/cart_provider.dart';
-import 'package:pa_mobile/pages/login_page.dart';
+import 'package:pa_mobile/pages/auth_gate.dart';
 import 'package:pa_mobile/theme/app_colors.dart';
 
-void main() {
+Future<void> main() async {
+  // Memastikan binding Flutter siap sebelum Firebase diinisialisasi
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Menginisialisasi Firebase sebelum aplikasi utama dijalankan
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
   runApp(
     // MultiProvider untuk tempat mendaftarkan provider yang dibutuhkan
     MultiProvider(
@@ -70,8 +80,8 @@ class MyApp extends StatelessWidget {
         ),
       ),
       debugShowCheckedModeBanner: false,
-      // Halaman pertama adalah login
-      home: const LoginPage(),
+      // AuthGate menentukan halaman awal berdasarkan status login
+      home: const AuthGate(),
     );
   }
 }

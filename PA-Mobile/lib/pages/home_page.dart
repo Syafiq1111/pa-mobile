@@ -199,7 +199,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                               decoration: BoxDecoration(
-                                color: AppColors.background,
+                                color: AppColors.textPrimary,
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: const Text(

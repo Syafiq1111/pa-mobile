@@ -37,7 +37,7 @@ class ProductCard extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: AppColors.background,
+                    color: AppColors.textPrimary,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
