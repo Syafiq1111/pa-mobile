@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pa_mobile/theme/app_colors.dart';
 
-// Tombol pilihan filter (kategori, merek, urutan)
+// Tombol filter kategori bergaya modern pill
 class FilterChipButton extends StatelessWidget {
   final String label;
   final bool selected;
@@ -18,23 +18,32 @@ class FilterChipButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(right: 8),
-      child: ElevatedButton(
-        onPressed: onPressed,
-        style: ElevatedButton.styleFrom(
-          elevation: 0,
-          minimumSize: Size.zero,
-          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-          backgroundColor: selected ? AppColors.primary : AppColors.surface,
-          foregroundColor: selected ? Colors.white : AppColors.textSecondary,
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
-          shape: RoundedRectangleBorder(
-            borderRadius: AppStyle.small,
-            side: BorderSide(color: selected ? AppColors.primary : AppColors.border),
+      child: InkWell(
+        onTap: onPressed,
+        borderRadius: BorderRadius.circular(30),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          decoration: BoxDecoration(
+            color: selected ? AppColors.primary : AppColors.surfaceContainerHigh,
+            borderRadius: BorderRadius.circular(30),
+            boxShadow: selected
+                ? [
+                    BoxShadow(
+                      color: AppColors.primary.withValues(alpha: 0.25),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ]
+                : null,
           ),
-        ),
-        child: Text(
-          label,
-          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              color: selected ? Colors.white : AppColors.textSecondary,
+            ),
+          ),
         ),
       ),
     );

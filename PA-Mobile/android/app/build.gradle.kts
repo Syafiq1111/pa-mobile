@@ -9,7 +9,7 @@ plugins {
 
 android {
     namespace = "com.example.pa_mobile"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 35
     ndkVersion = flutter.ndkVersion
 
     compileOptions {

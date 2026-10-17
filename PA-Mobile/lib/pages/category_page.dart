@@ -1,19 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:pa_mobile/models/category.dart';
+import 'package:pa_mobile/models/product.dart';
 import 'package:pa_mobile/providers/cart_provider.dart';
 import 'package:pa_mobile/theme/app_colors.dart';
-import 'package:pa_mobile/widgets/filter_chip_button.dart';
 import 'package:pa_mobile/widgets/product_grid.dart';
 
-// Halaman kategori: filter merek dan urutan harga.
-// Ditampilkan oleh MainPage menggantikan Beranda (bukan Navigator.push),
-// jadi hanya satu halaman yang hidup dan dirender pada satu waktu.
+// Halaman kategori modern BengkelKOM dengan modal filter bersih, tanpa shadow, dan warna solid
 class CategoryPage extends StatefulWidget {
   final Category category;
-  final VoidCallback onBack;
+  final VoidCallback? onBack;
 
-  const CategoryPage({super.key, required this.category, required this.onBack});
+  const CategoryPage({super.key, required this.category, this.onBack});
 
   @override
   State<CategoryPage> createState() => _CategoryPageState();
@@ -21,114 +19,314 @@ class CategoryPage extends StatefulWidget {
 
 class _CategoryPageState extends State<CategoryPage> {
   String selectedBrand = 'Semua';
-  int sortMode = 0; // 0 terlaris, 1 termurah, 2 termahal
+  int sortMode = 0; // 0: Terlaris, 1: Harga Terendah, 2: Harga Tertinggi, 3: Rating Tertinggi
+  int? minPrice;
+  int? maxPrice;
 
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        // Bar atas: tombol kembali dan nama kategori
-        Container(
-          height: 52,
-          decoration: const BoxDecoration(
-            color: AppColors.surface,
-            border: Border(bottom: BorderSide(color: AppColors.border)),
-          ),
-          child: Row(
-            children: [
-              IconButton(
-                onPressed: widget.onBack,
-                icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
+  String _getSortLabel(int mode) {
+    switch (mode) {
+      case 1:
+        return 'Harga Terendah';
+      case 2:
+        return 'Harga Tertinggi';
+      case 3:
+        return 'Rating Tertinggi';
+      case 0:
+      default:
+        return 'Terlaris';
+    }
+  }
+
+  int get _activeFilterCount {
+    int count = 0;
+    if (selectedBrand != 'Semua') count++;
+    if (sortMode != 0) count++;
+    if (minPrice != null || maxPrice != null) count++;
+    return count;
+  }
+
+  void _resetAllFilters() {
+    setState(() {
+      selectedBrand = 'Semua';
+      sortMode = 0;
+      minPrice = null;
+      maxPrice = null;
+    });
+  }
+
+  void _showFilterModal(BuildContext context, List<String> brands) {
+    String tempBrand = selectedBrand;
+    int tempSort = sortMode;
+    final minController = TextEditingController(
+      text: minPrice != null ? minPrice.toString() : '',
+    );
+    final maxController = TextEditingController(
+      text: maxPrice != null ? maxPrice.toString() : '',
+    );
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (modalContext) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+
+            return Container(
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(context).size.height * 0.88,
               ),
-              Icon(widget.category.icon, size: 20, color: AppColors.primary),
-              const SizedBox(width: 8),
-              Text(
-                widget.category.name,
-                style: const TextStyle(
-                  fontSize: 17,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
-                ),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
               ),
-            ],
-          ),
-        ),
-        Expanded(
-          child: Consumer<CartProvider>(
-            builder: (context, cart, child) {
-              final categoryProducts = cart.products.where((product) {
-                return product.category == widget.category.name;
-              }).toList();
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Handle Bar
+                  const SizedBox(height: 12),
+                  Center(
+                    child: Container(
+                      width: 44,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFCBD5E1),
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
 
-              final brands = categoryProducts.map((p) => p.brand).toSet().toList()
-                ..sort();
+                  // Header Modal
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 14, 16, 12),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              width: 36,
+                              height: 36,
+                              decoration: BoxDecoration(
+                                color: AppColors.primary,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: const Icon(
+                                Icons.tune_rounded,
+                                size: 20,
+                                color: Colors.white,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            const Text(
+                              'Filter & Urutkan',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w800,
+                                color: AppColors.textPrimary,
+                                letterSpacing: -0.3,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            InkWell(
+                              onTap: () {
+                                setModalState(() {
+                                  tempBrand = 'Semua';
+                                  tempSort = 0;
+                                  minController.clear();
+                                  maxController.clear();
+                                });
+                              },
+                              borderRadius: BorderRadius.circular(20),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFFFF1EE),
+                                  borderRadius: BorderRadius.circular(20),
+                                  border: Border.all(color: const Color(0xFFFFDAD2)),
+                                ),
+                                child: const Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(Icons.restart_alt_rounded, size: 14, color: AppColors.secondary),
+                                    SizedBox(width: 4),
+                                    Text(
+                                      'Reset',
+                                      style: TextStyle(
+                                        color: AppColors.secondary,
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            IconButton(
+                              onPressed: () => Navigator.pop(modalContext),
+                              icon: const Icon(Icons.close_rounded, color: AppColors.textSecondary),
+                              style: IconButton.styleFrom(
+                                backgroundColor: const Color(0xFFF1F5F9),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Divider(height: 1, color: Color(0xFFE2E8F0)),
 
-              final visibleProducts = categoryProducts.where((product) {
-                return selectedBrand == 'Semua' || product.brand == selectedBrand;
-              }).toList();
-
-              if (sortMode == 1) {
-                visibleProducts.sort((a, b) => a.price.compareTo(b.price));
-              } else if (sortMode == 2) {
-                visibleProducts.sort((a, b) => b.price.compareTo(a.price));
-              } else {
-                visibleProducts.sort((a, b) => b.sold.compareTo(a.sold));
-              }
-
-              return CustomScrollView(
-                slivers: [
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 12, 16, 14),
+                  // Konten Filter
+                  Expanded(
+                    child: SingleChildScrollView(
+                      physics: const BouncingScrollPhysics(),
+                      padding: EdgeInsets.fromLTRB(20, 18, 20, 20 + bottomInset),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            '${visibleProducts.length} produk • ${brands.length} merek',
-                            style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                          // 1. Urutkan Berdasarkan
+                          _modalSectionHeader(
+                            title: 'Urutkan Berdasarkan',
+                            icon: Icons.sort_rounded,
+                            iconColor: AppColors.accent,
                           ),
                           const SizedBox(height: 12),
-                          _label('Merek'),
-                          const SizedBox(height: 6),
-                          SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            child: Row(
-                              children: [
-                                FilterChipButton(
-                                  label: 'Semua',
-                                  selected: selectedBrand == 'Semua',
-                                  onPressed: () => setState(() => selectedBrand = 'Semua'),
-                                ),
-                                for (final brand in brands)
-                                  FilterChipButton(
-                                    label: brand,
-                                    selected: selectedBrand == brand,
-                                    onPressed: () => setState(() => selectedBrand = brand),
-                                  ),
-                              ],
-                            ),
+                          Wrap(
+                            spacing: 10,
+                            runSpacing: 10,
+                            children: [
+                              _sortOptionPill(
+                                label: 'Terlaris',
+                                isSelected: tempSort == 0,
+                                icon: Icons.local_fire_department_rounded,
+                                onTap: () => setModalState(() => tempSort = 0),
+                              ),
+                              _sortOptionPill(
+                                label: 'Harga Terendah',
+                                isSelected: tempSort == 1,
+                                icon: Icons.arrow_downward_rounded,
+                                onTap: () => setModalState(() => tempSort = 1),
+                              ),
+                              _sortOptionPill(
+                                label: 'Harga Tertinggi',
+                                isSelected: tempSort == 2,
+                                icon: Icons.arrow_upward_rounded,
+                                onTap: () => setModalState(() => tempSort = 2),
+                              ),
+                              _sortOptionPill(
+                                label: 'Rating Tertinggi',
+                                isSelected: tempSort == 3,
+                                icon: Icons.star_rounded,
+                                onTap: () => setModalState(() => tempSort = 3),
+                              ),
+                            ],
                           ),
-                          const SizedBox(height: 10),
-                          _label('Urutkan'),
-                          const SizedBox(height: 6),
+
+                          const SizedBox(height: 26),
+
+                          // 2. Filter Merek
+                          _modalSectionHeader(
+                            title: 'Merek Produk',
+                            icon: Icons.business_outlined,
+                            iconColor: AppColors.primary,
+                          ),
+                          const SizedBox(height: 12),
+                          Wrap(
+                            spacing: 10,
+                            runSpacing: 10,
+                            children: [
+                              _brandOptionPill(
+                                label: 'Semua Merek',
+                                isSelected: tempBrand == 'Semua',
+                                onTap: () => setModalState(() => tempBrand = 'Semua'),
+                              ),
+                              for (final brand in brands)
+                                _brandOptionPill(
+                                  label: brand,
+                                  isSelected: tempBrand == brand,
+                                  onTap: () => setModalState(() => tempBrand = brand),
+                                ),
+                            ],
+                          ),
+
+                          const SizedBox(height: 26),
+
+                          // 3. Rentang Harga
+                          _modalSectionHeader(
+                            title: 'Rentang Harga (Rp)',
+                            icon: Icons.payments_outlined,
+                            iconColor: const Color(0xFF2563EB),
+                          ),
+                          const SizedBox(height: 12),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: _priceInputField(
+                                  controller: minController,
+                                  hint: 'Harga Min',
+                                ),
+                              ),
+                              const Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 10),
+                                child: Text('—', style: TextStyle(color: Color(0xFF94A3B8), fontWeight: FontWeight.w800, fontSize: 16)),
+                              ),
+                              Expanded(
+                                child: _priceInputField(
+                                  controller: maxController,
+                                  hint: 'Harga Maks',
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+
+                          // Shortcut preset harga dinamis
                           SingleChildScrollView(
                             scrollDirection: Axis.horizontal,
+                            physics: const BouncingScrollPhysics(),
                             child: Row(
                               children: [
-                                FilterChipButton(
-                                  label: 'Terlaris',
-                                  selected: sortMode == 0,
-                                  onPressed: () => setState(() => sortMode = 0),
+                                _pricePresetChip(
+                                  label: '< 500 Rb',
+                                  onTap: () {
+                                    setModalState(() {
+                                      minController.text = '';
+                                      maxController.text = '500000';
+                                    });
+                                  },
                                 ),
-                                FilterChipButton(
-                                  label: 'Harga Terendah',
-                                  selected: sortMode == 1,
-                                  onPressed: () => setState(() => sortMode = 1),
+                                _pricePresetChip(
+                                  label: '500 Rb - 2 Jt',
+                                  onTap: () {
+                                    setModalState(() {
+                                      minController.text = '500000';
+                                      maxController.text = '2000000';
+                                    });
+                                  },
                                 ),
-                                FilterChipButton(
-                                  label: 'Harga Tertinggi',
-                                  selected: sortMode == 2,
-                                  onPressed: () => setState(() => sortMode = 2),
+                                _pricePresetChip(
+                                  label: '2 Jt - 5 Jt',
+                                  onTap: () {
+                                    setModalState(() {
+                                      minController.text = '2000000';
+                                      maxController.text = '5000000';
+                                    });
+                                  },
+                                ),
+                                _pricePresetChip(
+                                  label: '> 5 Jt',
+                                  onTap: () {
+                                    setModalState(() {
+                                      minController.text = '5000000';
+                                      maxController.text = '';
+                                    });
+                                  },
                                 ),
                               ],
                             ),
@@ -137,46 +335,626 @@ class _CategoryPageState extends State<CategoryPage> {
                       ),
                     ),
                   ),
-                  if (cart.isLoading)
-                    const SliverToBoxAdapter(
-                      child: Padding(
-                        padding: EdgeInsets.only(top: 40),
-                        child: Center(child: CircularProgressIndicator()),
-                      ),
-                    )
-                  else if (visibleProducts.isEmpty)
-                    const SliverToBoxAdapter(
-                      child: Padding(
-                        padding: EdgeInsets.only(top: 40),
-                        child: Center(
-                          child: Text(
-                            'Produk tidak ditemukan',
-                            style: TextStyle(color: AppColors.textSecondary),
+
+                  // Bottom Action Button Solid (Tanpa Shadow dan Tanpa Gradien)
+                  Container(
+                    padding: EdgeInsets.fromLTRB(
+                      20,
+                      14,
+                      20,
+                      16 + MediaQuery.of(context).padding.bottom,
+                    ),
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      border: Border(top: BorderSide(color: Color(0xFFE2E8F0))),
+                    ),
+                    child: SizedBox(
+                      width: double.infinity,
+                      height: 50,
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          final parsedMin = int.tryParse(
+                            minController.text.replaceAll(RegExp(r'[^0-9]'), ''),
+                          );
+                          final parsedMax = int.tryParse(
+                            maxController.text.replaceAll(RegExp(r'[^0-9]'), ''),
+                          );
+
+                          setState(() {
+                            selectedBrand = tempBrand;
+                            sortMode = tempSort;
+                            minPrice = parsedMin;
+                            maxPrice = parsedMax;
+                          });
+
+                          Navigator.pop(modalContext);
+                        },
+                        icon: const Icon(Icons.check_rounded, color: Colors.white, size: 20),
+                        label: const Text(
+                          'Terapkan Filter',
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.white,
+                            letterSpacing: 0.2,
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          elevation: 0,
+                          shadowColor: Colors.transparent,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
                           ),
                         ),
                       ),
-                    )
-                  else
-                    SliverPadding(
-                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                      sliver: SliverProductGrid(products: visibleProducts),
                     ),
+                  ),
                 ],
-              );
-            },
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _modalSectionHeader({
+    required String title,
+    required IconData icon,
+    required Color iconColor,
+  }) {
+    return Row(
+      children: [
+        Icon(icon, size: 18, color: iconColor),
+        const SizedBox(width: 8),
+        Text(
+          title,
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w800,
+            color: AppColors.textPrimary,
           ),
         ),
       ],
     );
   }
 
-  Widget _label(String text) {
-    return Text(
-      text,
-      style: const TextStyle(
-        fontSize: 12,
-        fontWeight: FontWeight.bold,
-        color: AppColors.textSecondary,
+  Widget _sortOptionPill({
+    required String label,
+    required bool isSelected,
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(24),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
+        decoration: BoxDecoration(
+          color: isSelected ? AppColors.accent : Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(
+            color: isSelected ? AppColors.accent : const Color(0xFFE2E8F0),
+            width: 1.2,
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              size: 16,
+              color: isSelected ? Colors.white : const Color(0xFF64748B),
+            ),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                color: isSelected ? Colors.white : AppColors.textPrimary,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _brandOptionPill({
+    required String label,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(24),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
+        decoration: BoxDecoration(
+          color: isSelected ? AppColors.primary : Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(
+            color: isSelected ? AppColors.primary : const Color(0xFFE2E8F0),
+            width: 1.2,
+          ),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+            color: isSelected ? Colors.white : AppColors.textPrimary,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _priceInputField({
+    required TextEditingController controller,
+    required String hint,
+  }) {
+    return Container(
+      height: 46,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: const Color(0xFFCBD5E1), width: 1.2),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: const Color(0xFFE6F4F1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: const Text(
+              'Rp',
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w800,
+                color: AppColors.primary,
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: TextField(
+              controller: controller,
+              keyboardType: TextInputType.number,
+              style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: AppColors.textPrimary,
+              ),
+              decoration: InputDecoration(
+                hintText: hint,
+                hintStyle: const TextStyle(
+                  fontSize: 12,
+                  color: Color(0xFF94A3B8),
+                ),
+                border: InputBorder.none,
+                isDense: true,
+                contentPadding: EdgeInsets.zero,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _pricePresetChip({
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 8),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: BoxDecoration(
+            color: const Color(0xFFFFFBEB),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: const Color(0xFFFDE68A)),
+          ),
+          child: Text(
+            label,
+            style: const TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFFB45309),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      body: SafeArea(
+        child: Column(
+          children: [
+            // Bar atas: Tombol kembali dan teks kategori (Tanpa icon)
+            Container(
+              height: 60,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              decoration: const BoxDecoration(
+                color: AppColors.surface,
+                border: Border(bottom: BorderSide(color: AppColors.borderSubtle)),
+              ),
+              child: Row(
+                children: [
+                  IconButton(
+                    onPressed: widget.onBack ?? () => Navigator.pop(context),
+                    icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary),
+                    style: IconButton.styleFrom(
+                      backgroundColor: const Color(0xFFF1F5F9),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                  ),
+                  const SizedBox(width: 14),
+                  Text(
+                    widget.category.name,
+                    style: const TextStyle(
+                      fontSize: 19,
+                      fontWeight: FontWeight.w900,
+                      color: AppColors.textPrimary,
+                      letterSpacing: -0.3,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            Expanded(
+              child: Consumer<CartProvider>(
+                builder: (context, cart, child) {
+                  final categoryProducts = cart.products.where((product) {
+                    return product.category == widget.category.name;
+                  }).toList();
+
+                  final brands = categoryProducts.map((p) => p.brand).toSet().toList()
+                    ..sort();
+
+                  // Filter Produk
+                  final visibleProducts = categoryProducts.where((product) {
+                    if (selectedBrand != 'Semua' && product.brand != selectedBrand) {
+                      return false;
+                    }
+                    if (minPrice != null && product.price < minPrice!) {
+                      return false;
+                    }
+                    if (maxPrice != null && product.price > maxPrice!) {
+                      return false;
+                    }
+                    return true;
+                  }).toList();
+
+                  // Sorting Produk
+                  if (sortMode == 1) {
+                    visibleProducts.sort((a, b) => a.price.compareTo(b.price));
+                  } else if (sortMode == 2) {
+                    visibleProducts.sort((a, b) => b.price.compareTo(a.price));
+                  } else if (sortMode == 3) {
+                    visibleProducts.sort((a, b) => b.rating.compareTo(a.rating));
+                  } else {
+                    visibleProducts.sort((a, b) => b.sold.compareTo(a.sold));
+                  }
+
+                  final bool hasActiveFilter = _activeFilterCount > 0;
+
+                  return CustomScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    slivers: [
+                      // Bar Kontrol: Ringkasan Produk & Tombol Filter Solid Tanpa Shadow
+                      SliverToBoxAdapter(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          decoration: const BoxDecoration(
+                            color: AppColors.surface,
+                            border: Border(bottom: BorderSide(color: AppColors.borderSubtle)),
+                          ),
+                          child: Row(
+                            children: [
+                              Text(
+                                '${visibleProducts.length} Produk ditemukan',
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
+                              const Spacer(),
+                              InkWell(
+                                onTap: () => _showFilterModal(context, brands),
+                                borderRadius: BorderRadius.circular(20),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                                  decoration: BoxDecoration(
+                                    color: hasActiveFilter ? AppColors.primary : Colors.white,
+                                    border: Border.all(
+                                      color: hasActiveFilter
+                                          ? AppColors.primary
+                                          : AppColors.primary.withValues(alpha: 0.35),
+                                      width: 1.2,
+                                    ),
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(
+                                        Icons.tune_rounded,
+                                        size: 16,
+                                        color: hasActiveFilter ? Colors.white : AppColors.primary,
+                                      ),
+                                      const SizedBox(width: 6),
+                                      Text(
+                                        'Filter & Urutkan',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w800,
+                                          color: hasActiveFilter ? Colors.white : AppColors.primary,
+                                        ),
+                                      ),
+                                      if (hasActiveFilter) ...[
+                                        const SizedBox(width: 6),
+                                        Container(
+                                          padding: const EdgeInsets.all(4),
+                                          decoration: const BoxDecoration(
+                                            color: AppColors.accent,
+                                            shape: BoxShape.circle,
+                                          ),
+                                          constraints: const BoxConstraints(
+                                            minWidth: 18,
+                                            minHeight: 18,
+                                          ),
+                                          child: Center(
+                                            child: Text(
+                                              '$_activeFilterCount',
+                                              style: const TextStyle(
+                                                fontSize: 10,
+                                                fontWeight: FontWeight.w900,
+                                                color: Colors.white,
+                                                height: 1,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+
+                      // Strip Chip Filter Aktif
+                      if (hasActiveFilter)
+                        SliverToBoxAdapter(
+                          child: Container(
+                            color: AppColors.surface,
+                            padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
+                            child: SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              physics: const BouncingScrollPhysics(),
+                              child: Row(
+                                children: [
+                                  if (sortMode != 0)
+                                    _activeFilterPill(
+                                      label: _getSortLabel(sortMode),
+                                      bgColor: const Color(0xFFFFF7ED),
+                                      borderColor: const Color(0xFFFED7AA),
+                                      textColor: const Color(0xFFC2410C),
+                                      icon: Icons.sort_rounded,
+                                      onRemove: () => setState(() => sortMode = 0),
+                                    ),
+                                  if (selectedBrand != 'Semua')
+                                    _activeFilterPill(
+                                      label: selectedBrand,
+                                      bgColor: const Color(0xFFE6F4F1),
+                                      borderColor: const Color(0xFF80CBC4),
+                                      textColor: AppColors.primary,
+                                      icon: Icons.verified_outlined,
+                                      onRemove: () => setState(() => selectedBrand = 'Semua'),
+                                    ),
+                                  if (minPrice != null || maxPrice != null)
+                                    _activeFilterPill(
+                                      label: _formatActivePrice(),
+                                      bgColor: const Color(0xFFEFF6FF),
+                                      borderColor: const Color(0xFFBFDBFE),
+                                      textColor: const Color(0xFF1D4ED8),
+                                      icon: Icons.payments_outlined,
+                                      onRemove: () => setState(() {
+                                        minPrice = null;
+                                        maxPrice = null;
+                                      }),
+                                    ),
+                                  InkWell(
+                                    onTap: _resetAllFilters,
+                                    borderRadius: BorderRadius.circular(20),
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFFFFF1EE),
+                                        borderRadius: BorderRadius.circular(20),
+                                        border: Border.all(color: const Color(0xFFFFDAD2)),
+                                      ),
+                                      child: const Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(Icons.close_rounded, size: 12, color: AppColors.secondary),
+                                          SizedBox(width: 3),
+                                          Text(
+                                            'Hapus Semua',
+                                            style: TextStyle(
+                                              fontSize: 11,
+                                              fontWeight: FontWeight.w800,
+                                              color: AppColors.secondary,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+
+                      if (cart.isLoading)
+                        const SliverToBoxAdapter(
+                          child: Padding(
+                            padding: EdgeInsets.only(top: 40),
+                            child: Center(
+                              child: CircularProgressIndicator(color: AppColors.primary),
+                            ),
+                          ),
+                        )
+                      else if (visibleProducts.isEmpty)
+                        SliverToBoxAdapter(
+                          child: Padding(
+                            padding: const EdgeInsets.only(top: 60),
+                            child: Center(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Container(
+                                    width: 68,
+                                    height: 68,
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFEDF5FA),
+                                      shape: BoxShape.circle,
+                                      border: Border.all(color: const Color(0xFFD6E3E9)),
+                                    ),
+                                    child: const Icon(
+                                      Icons.search_off_rounded,
+                                      size: 34,
+                                      color: AppColors.textSecondary,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 14),
+                                  const Text(
+                                    'Tidak ada produk yang cocok',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w800,
+                                      color: AppColors.textPrimary,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 6),
+                                  const Text(
+                                    'Coba sesuaikan atau reset filter Anda',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: AppColors.textSecondary,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 18),
+                                  ElevatedButton.icon(
+                                    onPressed: _resetAllFilters,
+                                    icon: const Icon(Icons.refresh_rounded, size: 18),
+                                    label: const Text('Reset Filter'),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: AppColors.primary,
+                                      foregroundColor: Colors.white,
+                                      elevation: 0,
+                                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(14),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        )
+                      else
+                        SliverPadding(
+                          padding: EdgeInsets.fromLTRB(
+                            16,
+                            14,
+                            16,
+                            32 + MediaQuery.of(context).padding.bottom,
+                          ),
+                          sliver: SliverProductGrid(products: visibleProducts),
+                        ),
+                    ],
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _formatActivePrice() {
+    if (minPrice != null && maxPrice != null) {
+      return '${formatRupiah(minPrice!)} - ${formatRupiah(maxPrice!)}';
+    } else if (minPrice != null) {
+      return '≥ ${formatRupiah(minPrice!)}';
+    } else if (maxPrice != null) {
+      return '≤ ${formatRupiah(maxPrice!)}';
+    }
+    return '';
+  }
+
+  Widget _activeFilterPill({
+    required String label,
+    required Color bgColor,
+    required Color borderColor,
+    required Color textColor,
+    required IconData icon,
+    required VoidCallback onRemove,
+  }) {
+    return Container(
+      margin: const EdgeInsets.only(right: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: borderColor, width: 1.1),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 13, color: textColor),
+          const SizedBox(width: 5),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w800,
+              color: textColor,
+            ),
+          ),
+          const SizedBox(width: 5),
+          InkWell(
+            onTap: onRemove,
+            borderRadius: BorderRadius.circular(10),
+            child: Icon(
+              Icons.close_rounded,
+              size: 14,
+              color: textColor.withValues(alpha: 0.8),
+            ),
+          ),
+        ],
       ),
     );
   }

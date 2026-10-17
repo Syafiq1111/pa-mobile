@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pa_mobile/models/product.dart';
 import 'package:pa_mobile/widgets/product_card.dart';
 
-// Grid 2 kolom versi sliver: card hanya dibuat saat mendekati layar (lazy),
-// jadi membuka halaman dengan banyak produk tetap ringan.
-// Pakai di dalam CustomScrollView.slivers (bungkus SliverPadding jika perlu).
+// Grid 2 kolom versi sliver untuk katalog produk
 class SliverProductGrid extends StatelessWidget {
   final List<Product> products;
 
@@ -14,7 +12,7 @@ class SliverProductGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     return SliverGrid(
       delegate: SliverChildBuilderDelegate(
-            (context, index) => ProductCard(
+        (context, index) => ProductCard(
           key: ValueKey(products[index].id),
           product: products[index],
         ),
@@ -22,8 +20,8 @@ class SliverProductGrid extends StatelessWidget {
       ),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
-        mainAxisSpacing: 12,
-        crossAxisSpacing: 12,
+        mainAxisSpacing: 14,
+        crossAxisSpacing: 14,
         mainAxisExtent: ProductCard.height,
       ),
     );

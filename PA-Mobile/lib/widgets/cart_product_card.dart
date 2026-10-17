@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:pa_mobile/models/product.dart';
 import 'package:pa_mobile/theme/app_colors.dart';
 import 'package:pa_mobile/widgets/product_image.dart';
 
-// Card produk di keranjang, Stateful karena memegang TextEditingController jumlah
-class CartProductCard extends StatefulWidget {
+// Card item keranjang sesuai desain modern BengkelKOM
+class CartProductCard extends StatelessWidget {
   final Product product;
   final int quantity;
   final int maxQuantity;
@@ -21,153 +20,160 @@ class CartProductCard extends StatefulWidget {
     required this.onRemove,
   });
 
-  @override
-  State<CartProductCard> createState() => _CartProductCardState();
-}
-
-class _CartProductCardState extends State<CartProductCard> {
-  late TextEditingController quantityController;
-
-  @override
-  void initState() {
-    super.initState();
-    quantityController = TextEditingController(text: '${widget.quantity}');
-  }
-
-  // Menyamakan TextField jika quantity berubah dari luar card
-  @override
-  void didUpdateWidget(covariant CartProductCard oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.quantity != widget.quantity &&
-        quantityController.text != '${widget.quantity}') {
-      quantityController.text = '${widget.quantity}';
-    }
-  }
-
-  @override
-  void dispose() {
-    quantityController.dispose();
-    super.dispose();
-  }
-
-  // Validasi: ubah teks jadi angka, batasi 1 sampai maxQuantity
-  void updateQuantity(String value) {
-    final parsed = int.tryParse(value);
-    if (parsed == null || parsed < 1 || widget.maxQuantity < 1) return;
-
-    final clamped = parsed.clamp(1, widget.maxQuantity);
-    if (clamped != parsed) {
-      quantityController.text = '$clamped';
-      quantityController.selection =
-          TextSelection.collapsed(offset: quantityController.text.length);
-    }
-    widget.onQuantityChanged(clamped);
-  }
-
-  // Tombol - dan +
   void step(int delta) {
-    if (widget.maxQuantity < 1) return;
-    final next = (widget.quantity + delta).clamp(1, widget.maxQuantity);
-    if (next != widget.quantity) widget.onQuantityChanged(next);
+    if (maxQuantity < 1) return;
+    final next = (quantity + delta).clamp(1, maxQuantity);
+    if (next != quantity) onQuantityChanged(next);
   }
 
   @override
   Widget build(BuildContext context) {
-    final product = widget.product;
-
     return Container(
-      padding: const EdgeInsets.all(10),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: AppColors.surface,
-        border: Border.all(color: AppColors.border),
-        borderRadius: AppStyle.card,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: AppStyle.softShadow,
       ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          ClipRRect(
-            borderRadius: AppStyle.small,
-            child: ProductImage(path: product.image, width: 84, height: 84),
+          // Product Thumbnail
+          Container(
+            width: 76,
+            height: 76,
+            decoration: BoxDecoration(
+              color: AppColors.surfaceContainerLow,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: ProductImage(
+              path: product.image,
+              width: 76,
+              height: 76,
+              fit: BoxFit.contain,
+            ),
           ),
           const SizedBox(width: 12),
+
+          // Details
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  product.brand.toUpperCase(),
-                  style: const TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 0.4,
-                    color: AppColors.primary,
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      product.brand.toUpperCase(),
+                      style: const TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.5,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                    InkWell(
+                      onTap: onRemove,
+                      borderRadius: BorderRadius.circular(20),
+                      child: Padding(
+                        padding: const EdgeInsets.all(4),
+                        child: Icon(Icons.delete_outline_rounded,
+                            size: 18, color: AppColors.outline.withValues(alpha: 0.8)),
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 2),
                 Text(
                   product.name,
-                  maxLines: 2,
+                  maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
                     color: AppColors.textPrimary,
                   ),
                 ),
-                const SizedBox(height: 2),
                 Text(
-                  formatRupiah(product.price),
-                  style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                  'Stok: $maxQuantity unit',
+                  style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 6),
+
+                // Price and Modern Stepper Pill
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    _QtyButton(
-                      icon: Icons.remove,
-                      onTap: widget.quantity > 1 ? () => step(-1) : null,
-                    ),
-                    const SizedBox(width: 6),
-                    SizedBox(
-                      width: 44,
-                      height: 30,
-                      child: TextField(
-                        controller: quantityController,
-                        keyboardType: TextInputType.number,
-                        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.textPrimary,
-                        ),
-                        onChanged: updateQuantity,
-                        decoration: InputDecoration(
-                          isDense: true,
-                          contentPadding: const EdgeInsets.symmetric(vertical: 7),
-                          filled: true,
-                          fillColor: AppColors.surface,
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: AppStyle.small,
-                            borderSide: const BorderSide(color: AppColors.border),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: AppStyle.small,
-                            borderSide: const BorderSide(color: AppColors.primary),
-                          ),
-                        ),
+                    Text(
+                      formatRupiah(product.price),
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.primary,
                       ),
                     ),
-                    const SizedBox(width: 6),
-                    _QtyButton(
-                      icon: Icons.add,
-                      onTap: widget.quantity < widget.maxQuantity ? () => step(1) : null,
-                    ),
-                    const Spacer(),
-                    IconButton(
-                      onPressed: widget.onRemove,
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints.tightFor(width: 30, height: 30),
-                      icon: const Icon(Icons.delete_outline, size: 20, color: AppColors.danger),
+
+                    // Stepper Pill
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: AppColors.surfaceContainerLow,
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          InkWell(
+                            onTap: quantity > 1 ? () => step(-1) : null,
+                            borderRadius: BorderRadius.circular(20),
+                            child: Container(
+                              width: 26,
+                              height: 26,
+                              decoration: const BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: AppColors.surface,
+                              ),
+                              child: Icon(
+                                Icons.remove,
+                                size: 14,
+                                color: quantity > 1
+                                    ? AppColors.textPrimary
+                                    : AppColors.outlineVariant,
+                              ),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
+                            child: Text(
+                              '$quantity',
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.textPrimary,
+                              ),
+                            ),
+                          ),
+                          InkWell(
+                            onTap: quantity < maxQuantity ? () => step(1) : null,
+                            borderRadius: BorderRadius.circular(20),
+                            child: Container(
+                              width: 26,
+                              height: 26,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: quantity < maxQuantity
+                                    ? AppColors.primaryContainer
+                                    : AppColors.surfaceContainerHighest,
+                              ),
+                              child: const Icon(
+                                Icons.add,
+                                size: 14,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
@@ -175,35 +181,6 @@ class _CartProductCardState extends State<CartProductCard> {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-// Tombol kotak kecil untuk menambah / mengurangi jumlah
-class _QtyButton extends StatelessWidget {
-  final IconData icon;
-  final VoidCallback? onTap;
-
-  const _QtyButton({required this.icon, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: AppColors.surfaceLight,
-      clipBehavior: Clip.antiAlias,
-      shape: RoundedRectangleBorder(borderRadius: AppStyle.small),
-      child: InkWell(
-        onTap: onTap,
-        child: SizedBox(
-          width: 30,
-          height: 30,
-          child: Icon(
-            icon,
-            size: 16,
-            color: onTap == null ? AppColors.textSecondary : AppColors.textPrimary,
-          ),
-        ),
       ),
     );
   }

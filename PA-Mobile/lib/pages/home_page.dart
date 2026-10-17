@@ -7,8 +7,6 @@ import 'package:pa_mobile/widgets/filter_chip_button.dart';
 import 'package:pa_mobile/widgets/product_grid.dart';
 
 class MyHomePage extends StatefulWidget {
-  // Dipanggil saat kategori ditekan; MainPage yang mengganti halaman,
-  // sehingga Beranda ditutup (bukan menumpuk di belakang halaman kategori)
   final void Function(Category category) onCategoryTap;
 
   const MyHomePage({super.key, required this.onCategoryTap});
@@ -19,7 +17,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   String searchQuery = '';
-  String selectedCategory = 'Semua'; // filter kategori pada daftar produk
+  String selectedCategory = 'Semua';
 
   @override
   Widget build(BuildContext context) {
@@ -33,98 +31,228 @@ class _MyHomePageState extends State<MyHomePage> {
           return matchCategory && matchSearch;
         }).toList();
 
-        // CustomScrollView + sliver: produk dibuat lazy (hanya yang terlihat).
-        // PageStorageKey menyimpan posisi scroll saat kembali dari halaman kategori.
         return CustomScrollView(
           key: const PageStorageKey<String>('home_scroll'),
+          physics: const BouncingScrollPhysics(),
           slivers: [
-            SliverToBoxAdapter(child: _buildHeader()),
-            SliverToBoxAdapter(child: _buildBanner()),
-            SliverToBoxAdapter(child: _buildCategories()),
-            SliverToBoxAdapter(child: _buildProductHeader(visibleProducts.length)),
+            SliverToBoxAdapter(child: _buildHeader(context)),
+            SliverToBoxAdapter(child: _buildSearchBar()),
+            SliverToBoxAdapter(child: _buildPromoBanner()),
+            SliverToBoxAdapter(child: _buildCategoriesSection()),
+            SliverToBoxAdapter(child: _buildDealsHeader(visibleProducts.length)),
+
             if (cart.isLoading)
-              SliverToBoxAdapter(child: _statusBox(const CircularProgressIndicator()))
+              const SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(vertical: 40),
+                  child: Center(
+                    child: CircularProgressIndicator(color: AppColors.primary),
+                  ),
+                ),
+              )
             else if (cart.errorMessage != null)
               SliverToBoxAdapter(
-                child: _statusBox(
-                  Text(
-                    cart.errorMessage!,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(color: AppColors.danger),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
+                  child: Center(
+                    child: Text(
+                      cart.errorMessage!,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        color: AppColors.danger,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ),
                 ),
               )
             else if (visibleProducts.isEmpty)
-                SliverToBoxAdapter(
-                  child: _statusBox(
-                    const Text(
-                      'Produk tidak ditemukan',
-                      style: TextStyle(color: AppColors.textSecondary),
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 20),
+                  child: Center(
+                    child: Column(
+                      children: [
+                        Icon(Icons.search_off_rounded,
+                            size: 54, color: AppColors.outline.withValues(alpha: 0.5)),
+                        const SizedBox(height: 10),
+                        const Text(
+                          'Produk tidak ditemukan',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                )
-              else
-                SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                  sliver: SliverProductGrid(products: visibleProducts),
                 ),
+              )
+            else
+              SliverPadding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                sliver: SliverProductGrid(products: visibleProducts),
+              ),
+
+            SliverToBoxAdapter(child: _buildGuaranteeBanner()),
+            const SliverToBoxAdapter(
+              child: Padding(
+                padding: EdgeInsets.only(top: 14, bottom: 6),
+                child: Center(
+                  child: Text(
+                    '© 2025 BengkelKOM. Jl. P. Antasari, Samarinda.',
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: AppColors.outline,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SliverToBoxAdapter(child: SizedBox(height: 160)),
           ],
         );
       },
     );
   }
 
-  Widget _statusBox(Widget child) {
+  // Header Brand & Delivery Location
+  Widget _buildHeader(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 16),
-      child: Center(child: child),
-    );
-  }
-
-  // Header: nama toko dan pencarian
-  Widget _buildHeader() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 8),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Icon(Icons.memory, size: 26, color: AppColors.primary),
-              SizedBox(width: 8),
-              Text(
-                'BengkelKOM-Ridho',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
-                ),
+              const Row(
+                children: [
+                  BengkelKomLogo(size: 34, borderRadius: 10, showShadow: false),
+                  SizedBox(width: 8),
+                  Text.rich(
+                    TextSpan(
+                      text: 'Bengkel',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.primary,
+                        letterSpacing: -0.5,
+                      ),
+                      children: [
+                        TextSpan(
+                          text: 'KOM',
+                          style: TextStyle(
+                            color: AppColors.primaryContainer,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    decoration: BoxDecoration(
+                      color: AppColors.surfaceContainerHigh,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'ID',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                        SizedBox(width: 2),
+                        Icon(Icons.expand_more, size: 14, color: AppColors.textSecondary),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      Container(
+                        width: 36,
+                        height: 36,
+                        decoration: BoxDecoration(
+                          color: AppColors.surfaceContainerHigh.withValues(alpha: 0.8),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.notifications_none_rounded,
+                            size: 20, color: AppColors.textPrimary),
+                      ),
+                      Positioned(
+                        top: 2,
+                        right: 2,
+                        child: Container(
+                          width: 8,
+                          height: 8,
+                          decoration: const BoxDecoration(
+                            color: AppColors.secondary,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ],
           ),
-          const SizedBox(height: 2),
-          const Text(
-            'Rakit & upgrade PC impianmu',
-            style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
-          ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 10),
+
+          // Location Strip
           Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
-              color: AppColors.surface,
-              border: Border.all(color: AppColors.border),
-              borderRadius: AppStyle.card,
+              color: AppColors.surfaceContainerLow.withValues(alpha: 0.9),
+              borderRadius: BorderRadius.circular(14),
             ),
-            child: TextField(
-              style: const TextStyle(color: AppColors.textPrimary),
-              onChanged: (value) =>
-                  setState(() => searchQuery = value.trim().toLowerCase()),
-              decoration: const InputDecoration(
-                border: InputBorder.none,
-                hintText: 'Cari produk atau merek',
-                hintStyle: TextStyle(color: AppColors.textSecondary),
-                contentPadding: EdgeInsets.symmetric(vertical: 13),
-                prefixIcon: Icon(Icons.search, size: 22, color: AppColors.textSecondary),
-              ),
+            child: Row(
+              children: [
+                Container(
+                  width: 28,
+                  height: 28,
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryContainer.withValues(alpha: 0.2),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.location_on, size: 16, color: AppColors.primary),
+                ),
+                const SizedBox(width: 8),
+                const Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Samarinda',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                      Text(
+                        'BTM Layout, Antasari 75119',
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const Icon(Icons.chevron_right, size: 18, color: AppColors.outline),
+              ],
             ),
           ),
         ],
@@ -132,38 +260,148 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  // Banner datar tanpa dekorasi lingkaran
-  Widget _buildBanner() {
+  // Rounded Search Bar
+  Widget _buildSearchBar() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      child: Container(
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(30),
+          border: Border.all(color: AppColors.border, width: 1.2),
+        ),
+        child: TextField(
+          style: const TextStyle(fontSize: 13, color: AppColors.textPrimary),
+          onChanged: (value) => setState(() => searchQuery = value.trim().toLowerCase()),
+          decoration: InputDecoration(
+            border: InputBorder.none,
+            hintText: 'Cari komponen, sparepart, laptop...',
+            hintStyle: const TextStyle(fontSize: 13, color: AppColors.outline),
+            contentPadding: const EdgeInsets.symmetric(vertical: 12),
+            prefixIcon: const Icon(Icons.search_rounded, size: 22, color: AppColors.outline),
+            suffixIcon: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  height: 18,
+                  width: 1,
+                  color: AppColors.border,
+                ),
+                IconButton(
+                  onPressed: () {},
+                  icon: const Icon(Icons.mic_none_rounded, size: 18, color: AppColors.primary),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Promo Hero Banner
+  Widget _buildPromoBanner() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.all(16),
+        height: 140,
         decoration: BoxDecoration(
-          color: AppColors.primary,
-          borderRadius: AppStyle.card,
+          color: const Color(0xFFDAF5E4),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: const Color(0xFFC3ECCF), width: 1),
         ),
-        child: const Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        clipBehavior: Clip.antiAlias,
+        child: Stack(
           children: [
-            Text(
-              'PROMO',
-              style: TextStyle(
-                fontSize: 10,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 1.2,
-                color: Colors.white70,
+            // Ambient circle
+            Positioned(
+              left: -20,
+              bottom: -20,
+              child: Container(
+                width: 120,
+                height: 120,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: AppColors.primary.withValues(alpha: 0.05),
+                ),
               ),
             ),
-            SizedBox(height: 6),
-            Text(
-              'Upgrade PC lebih hemat',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
-            ),
-            SizedBox(height: 2),
-            Text(
-              'Diskon hingga 30% untuk SSD & RAM pilihan',
-              style: TextStyle(fontSize: 12, color: Colors.white),
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text(
+                          'Promo Weekend',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        const Text(
+                          '25% OFF',
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.w900,
+                            color: AppColors.textPrimary,
+                            letterSpacing: -0.5,
+                          ),
+                        ),
+                        const Text(
+                          '*Untuk Komponen & Servis',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                          decoration: BoxDecoration(
+                            color: AppColors.primary,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                'Klaim Promo',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              SizedBox(width: 4),
+                              Icon(Icons.arrow_forward_rounded, size: 12, color: Colors.white),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    width: 100,
+                    height: 100,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.6),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.devices_other_rounded,
+                      size: 56,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         ),
@@ -171,29 +409,89 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Widget _buildCategories() {
+  // Kategori Hardware Grid / Row with Squircle Cards
+  Widget _buildCategoriesSection() {
+    final colors = [
+      AppColors.primary,
+      AppColors.tertiaryContainer,
+      AppColors.secondaryContainer,
+      const Color(0xFF6D3DA3),
+      AppColors.accentYellow,
+      AppColors.primaryContainer,
+    ];
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
-          padding: EdgeInsets.fromLTRB(16, 20, 16, 10),
-          child: Text(
-            'Kategori',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 10),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Kategori',
+                style: TextStyle(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+              GestureDetector(
+                onTap: () {},
+                child: const Row(
+                  children: [
+                    Text(
+                      'Lihat Semua',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                    Icon(Icons.chevron_right, size: 16, color: AppColors.primary),
+                  ],
+                ),
+              ),
+            ],
           ),
         ),
         SizedBox(
-          height: 80,
+          height: 94,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
+            physics: const BouncingScrollPhysics(),
             padding: const EdgeInsets.symmetric(horizontal: 16),
             itemCount: categoryList.length,
-            separatorBuilder: (context, index) => const SizedBox(width: 8),
+            separatorBuilder: (context, index) => const SizedBox(width: 12),
             itemBuilder: (context, index) {
-              final category = categoryList[index];
-              return _CategoryTile(
-                category: category,
-                onTap: () => widget.onCategoryTap(category),
+              final cat = categoryList[index];
+              final catColor = colors[index % colors.length];
+
+              return InkWell(
+                onTap: () => widget.onCategoryTap(cat),
+                borderRadius: BorderRadius.circular(18),
+                child: Column(
+                  children: [
+                    Container(
+                      width: 58,
+                      height: 58,
+                      decoration: BoxDecoration(
+                        color: catColor,
+                        borderRadius: BorderRadius.circular(18),
+                      ),
+                      child: Icon(cat.icon, size: 26, color: Colors.white),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      cat.name,
+                      style: const TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                  ],
+                ),
               );
             },
           ),
@@ -202,19 +500,50 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  // Judul daftar produk dan filter kategori
-  Widget _buildProductHeader(int count) {
+  // Deals Header & Filter Chips
+  Widget _buildDealsHeader(int count) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(16, 20, 16, 10),
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 10),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Produk',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+              Row(
+                children: [
+                  const Text(
+                    'Deals Terlaris',
+                    style: TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: AppColors.secondaryContainer.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: const Row(
+                      children: [
+                        Icon(Icons.local_fire_department,
+                            size: 14, color: AppColors.secondary),
+                        SizedBox(width: 2),
+                        Text(
+                          'Flash Sale',
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.secondary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
               Text(
                 '$count produk',
@@ -225,6 +554,7 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
+          physics: const BouncingScrollPhysics(),
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Row(
             children: [
@@ -233,11 +563,11 @@ class _MyHomePageState extends State<MyHomePage> {
                 selected: selectedCategory == 'Semua',
                 onPressed: () => setState(() => selectedCategory = 'Semua'),
               ),
-              for (final category in categoryList)
+              for (final cat in categoryList)
                 FilterChipButton(
-                  label: category.name,
-                  selected: selectedCategory == category.name,
-                  onPressed: () => setState(() => selectedCategory = category.name),
+                  label: cat.name,
+                  selected: selectedCategory == cat.name,
+                  onPressed: () => setState(() => selectedCategory = cat.name),
                 ),
             ],
           ),
@@ -246,43 +576,54 @@ class _MyHomePageState extends State<MyHomePage> {
       ],
     );
   }
-}
 
-// Kotak kategori: icon dan label
-class _CategoryTile extends StatelessWidget {
-  final Category category;
-  final VoidCallback onTap;
-
-  const _CategoryTile({required this.category, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: AppColors.surface,
-      clipBehavior: Clip.antiAlias,
-      shape: RoundedRectangleBorder(
-        borderRadius: AppStyle.card,
-        side: const BorderSide(color: AppColors.border),
-      ),
-      child: InkWell(
-        onTap: onTap,
-        child: SizedBox(
-          width: 80,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(category.icon, size: 26, color: AppColors.primary),
-              const SizedBox(height: 6),
-              Text(
-                category.name,
-                style: const TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
-                ),
+  // Garansi Servis Samarinda Micro-Banner
+  Widget _buildGuaranteeBanner() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: AppColors.surfaceContainerLow,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: AppColors.primaryContainer.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(14),
               ),
-            ],
-          ),
+              child: const Icon(Icons.verified_user_rounded,
+                  size: 24, color: AppColors.primary),
+            ),
+            const SizedBox(width: 12),
+            const Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Garansi Servis Samarinda',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                  Text(
+                    'Teknisi tersertifikasi, gratis konsultasi & cek fisik unit.',
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(Icons.chevron_right, size: 20, color: AppColors.outline),
+          ],
         ),
       ),
     );

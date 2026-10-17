@@ -1,7 +1,7 @@
 import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:pa_mobile/models/product.dart';
 import 'package:pa_mobile/models/purchase_order.dart';
@@ -14,8 +14,7 @@ import 'package:pa_mobile/models/purchase_order.dart';
 class CartProvider extends ChangeNotifier {
   CartProvider() {
     // Memantau status login: data dimuat saat login dan dibersihkan saat logout
-    _authSubscription =
-        FirebaseAuth.instance.authStateChanges().listen(_onAuthChanged);
+    _authSubscription = FirebaseAuth.instance.authStateChanges().listen(_onAuthChanged);
   }
 
   final FirebaseFirestore _db = FirebaseFirestore.instance;
@@ -38,12 +37,9 @@ class CartProvider extends ChangeNotifier {
   StreamSubscription<QuerySnapshot<Map<String, dynamic>>>? _productSubscription;
   StreamSubscription<QuerySnapshot<Map<String, dynamic>>>? _orderSubscription;
 
-  DocumentReference<Map<String, dynamic>> _userDoc(String uid) =>
-      _db.collection('users').doc(uid);
-  CollectionReference<Map<String, dynamic>> _cartRef(String uid) =>
-      _userDoc(uid).collection('cart');
-  CollectionReference<Map<String, dynamic>> _orderRef(String uid) =>
-      _userDoc(uid).collection('orders');
+  DocumentReference<Map<String, dynamic>> _userDoc(String uid) => _db.collection('users').doc(uid);
+  CollectionReference<Map<String, dynamic>> _cartRef(String uid) => _userDoc(uid).collection('cart');
+  CollectionReference<Map<String, dynamic>> _orderRef(String uid) => _userDoc(uid).collection('orders');
 
   void _onAuthChanged(User? user) {
     if (user == null) {
@@ -60,12 +56,7 @@ class CartProvider extends ChangeNotifier {
     _currentUid = user.uid;
 
     // Simpan identitas akun (email) di users/{uid}
-    _userDoc(user.uid)
-        .set({
-      'email': user.email,
-      'lastLogin': FieldValue.serverTimestamp(),
-    }, SetOptions(merge: true))
-        .catchError((_) {});
+    _userDoc(user.uid).set({'email': user.email, 'lastLogin': FieldValue.serverTimestamp()}, SetOptions(merge: true)).catchError((_) {});
 
     _start(user.uid);
   }
@@ -97,29 +88,28 @@ class CartProvider extends ChangeNotifier {
         .collection('products')
         .orderBy('name')
         .snapshots()
-        .listen((snapshot) {
-      products
-        ..clear()
-        ..addAll(snapshot.docs.map((doc) => Product.fromFirestore(doc.id, doc.data())));
+        .listen(
+          (snapshot) {
+            products
+              ..clear()
+              ..addAll(snapshot.docs.map((doc) => Product.fromFirestore(doc.id, doc.data())));
 
-      _fitCartToStock();
+            _fitCartToStock();
 
-      isLoading = false;
-      errorMessage = null;
-      notifyListeners();
-    }, onError: (error) {
-      isLoading = false;
-      errorMessage =
-      'Gagal memuat produk. Periksa koneksi internet dan rules Firestore.';
-      notifyListeners();
-    });
+            isLoading = false;
+            errorMessage = null;
+            notifyListeners();
+          },
+          onError: (error) {
+            isLoading = false;
+            errorMessage = 'Gagal memuat produk. Periksa koneksi internet dan rules Firestore.';
+            notifyListeners();
+          },
+        );
   }
 
   void _listenOrders(String uid) {
-    _orderSubscription = _orderRef(uid)
-        .orderBy('date', descending: true)
-        .snapshots()
-        .listen((snapshot) {
+    _orderSubscription = _orderRef(uid).orderBy('date', descending: true).snapshots().listen((snapshot) {
       orders
         ..clear()
         ..addAll(snapshot.docs.map((doc) => PurchaseOrder.fromMap(doc.data())));
@@ -226,15 +216,7 @@ class CartProvider extends ChangeNotifier {
   void _saveCartItem(Product product, int quantity) {
     final uid = _currentUid;
     if (uid == null) return;
-    _cartRef(uid)
-        .doc(product.id)
-        .set({
-      'productId': product.id,
-      'name': product.name,
-      'quantity': quantity,
-      'updatedAt': FieldValue.serverTimestamp(),
-    })
-        .catchError((_) {});
+    _cartRef(uid).doc(product.id).set({'productId': product.id, 'name': product.name, 'quantity': quantity, 'updatedAt': FieldValue.serverTimestamp()}).catchError((_) {});
   }
 
   void _deleteCartItem(String productId) {
@@ -267,16 +249,7 @@ class CartProvider extends ChangeNotifier {
     final order = PurchaseOrder(
       id: _newInvoiceId(),
       date: DateTime.now(),
-      items: [
-        for (final product in items)
-          PurchaseItem(
-            productId: product.id,
-            name: product.name,
-            brand: product.brand,
-            price: product.price,
-            quantity: quantities[product.id] ?? 0,
-          ),
-      ],
+      items: [for (final product in items) PurchaseItem(productId: product.id, name: product.name, brand: product.brand, price: product.price, quantity: quantities[product.id] ?? 0)],
       total: grandTotal,
       address: address,
     );
@@ -287,8 +260,7 @@ class CartProvider extends ChangeNotifier {
         // 1. Semua pembacaan harus dilakukan sebelum penulisan
         final snapshots = <String, DocumentSnapshot<Map<String, dynamic>>>{};
         for (final product in items) {
-          snapshots[product.id] =
-          await transaction.get(_db.collection('products').doc(product.id));
+          snapshots[product.id] = await transaction.get(_db.collection('products').doc(product.id));
         }
 
         // 2. Validasi stok terbaru lalu kurangi stok di database
@@ -302,15 +274,10 @@ class CartProvider extends ChangeNotifier {
           final stock = (data['stock'] as num?)?.toInt() ?? 0;
           final sold = (data['sold'] as num?)?.toInt() ?? 0;
           if (stock < quantity) {
-            throw StateError(stock <= 0
-                ? '${product.name} sudah habis'
-                : 'Stok ${product.name} tinggal $stock');
+            throw StateError(stock <= 0 ? '${product.name} sudah habis' : 'Stok ${product.name} tinggal $stock');
           }
 
-          transaction.update(_db.collection('products').doc(product.id), {
-            'stock': stock - quantity,
-            'sold': sold + quantity,
-          });
+          transaction.update(_db.collection('products').doc(product.id), {'stock': stock - quantity, 'sold': sold + quantity});
           transaction.delete(_cartRef(uid).doc(product.id));
         }
 
