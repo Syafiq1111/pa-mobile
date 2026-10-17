@@ -6,12 +6,11 @@ class Product {
   final String category;
   final String description;
   final int price;
-  int stock; // stok bisa berubah saat masuk keranjang
+  final int stock; // stok asli dari Firestore (berkurang saat checkout)
   final String image;
   final double rating;
   final int sold;
 
-  // Constructor dengan named parameter
   Product({
     required this.id,
     required this.name,
@@ -26,7 +25,6 @@ class Product {
   });
 
   // Membuat Product dari dokumen Firestore (koleksi 'products')
-  // Field yang kosong diberi nilai bawaan agar aplikasi tidak error
   factory Product.fromFirestore(String id, Map<String, dynamic> data) {
     final category = (data['category'] as String?) ?? 'Lainnya';
     final image = (data['image'] as String?) ?? '';
@@ -36,7 +34,7 @@ class Product {
       name: (data['name'] as String?) ?? 'Tanpa Nama',
       brand: (data['brand'] as String?) ?? '-',
       category: category,
-      description: (data['description'] as String?) ?? '',
+      description: ((data['description'] as String?) ?? '').trim(),
       price: (data['price'] as num?)?.toInt() ?? 0,
       stock: (data['stock'] as num?)?.toInt() ?? 0,
       image: image.isEmpty ? defaultImage(category) : image,

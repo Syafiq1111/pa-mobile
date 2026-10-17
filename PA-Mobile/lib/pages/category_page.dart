@@ -6,11 +6,14 @@ import 'package:pa_mobile/theme/app_colors.dart';
 import 'package:pa_mobile/widgets/filter_chip_button.dart';
 import 'package:pa_mobile/widgets/product_grid.dart';
 
-// Halaman kategori: filter berdasarkan merek dan urutan harga
+// Halaman kategori: filter merek dan urutan harga.
+// Ditampilkan oleh MainPage menggantikan Beranda (bukan Navigator.push),
+// jadi hanya satu halaman yang hidup dan dirender pada satu waktu.
 class CategoryPage extends StatefulWidget {
   final Category category;
+  final VoidCallback onBack;
 
-  const CategoryPage({super.key, required this.category});
+  const CategoryPage({super.key, required this.category, required this.onBack});
 
   @override
   State<CategoryPage> createState() => _CategoryPageState();
@@ -18,199 +21,163 @@ class CategoryPage extends StatefulWidget {
 
 class _CategoryPageState extends State<CategoryPage> {
   String selectedBrand = 'Semua';
-  int sortMode = 0; // 0 default, 1 termurah, 2 termahal
+  int sortMode = 0; // 0 terlaris, 1 termurah, 2 termahal
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<CartProvider>(
-      builder: (context, cart, child) {
-        // Semua produk pada kategori ini
-        final categoryProducts = cart.products.where((product) {
-          return product.category == widget.category.name;
-        }).toList();
-
-        // Set menyimpan merek unik tanpa duplikat
-        final Set<String> brands = {};
-        for (final product in categoryProducts) {
-          brands.add(product.brand);
-        }
-
-        // Produk tampil: stok > 0 DAN sesuai merek yang dipilih
-        final visibleProducts = categoryProducts.where((product) {
-          return product.stock > 0 &&
-              (selectedBrand == 'Semua' || product.brand == selectedBrand);
-        }).toList();
-
-        // Mengurutkan berdasarkan harga
-        if (sortMode == 1) {
-          visibleProducts.sort((a, b) => a.price.compareTo(b.price));
-        } else if (sortMode == 2) {
-          visibleProducts.sort((a, b) => b.price.compareTo(a.price));
-        }
-
-        // Scaffold dengan appBar untuk judul dan tombol kembali (Navigator.pop otomatis)
-        return Scaffold(
-          backgroundColor: AppColors.background,
-          appBar: AppBar(
-            backgroundColor: AppColors.background,
-            foregroundColor: Colors.white,
-            title: Text(
-              widget.category.name,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            actions: [
-              Padding(
-                padding: const EdgeInsets.only(right: 20),
-                child: Row(
-                  children: [
-                    const Icon(Icons.shopping_bag_outlined, size: 20),
-                    const SizedBox(width: 4),
-                    Text(
-                      '${cart.totalItems}',
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ],
+    return Column(
+      children: [
+        // Bar atas: tombol kembali dan nama kategori
+        Container(
+          height: 52,
+          decoration: const BoxDecoration(
+            color: AppColors.surface,
+            border: Border(bottom: BorderSide(color: AppColors.border)),
+          ),
+          child: Row(
+            children: [
+              IconButton(
+                onPressed: widget.onBack,
+                icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
+              ),
+              Icon(widget.category.icon, size: 20, color: AppColors.primary),
+              const SizedBox(width: 8),
+              Text(
+                widget.category.name,
+                style: const TextStyle(
+                  fontSize: 17,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.textPrimary,
                 ),
               ),
             ],
           ),
-          body: SafeArea(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Header kategori
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: AppColors.surface,
-                      border: Border.all(color: AppColors.border),
-                      borderRadius: BorderRadius.circular(18),
-                    ),
-                    child: Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: AppColors.red,
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                          child: Icon(widget.category.icon, size: 24, color: Colors.white),
-                        ),
-                        const SizedBox(width: 14),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                widget.category.name,
-                                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
-                              ),
-                              Text(
-                                '${visibleProducts.length} produk • ${brands.length} merek',
-                                style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
+        ),
+        Expanded(
+          child: Consumer<CartProvider>(
+            builder: (context, cart, child) {
+              final categoryProducts = cart.products.where((product) {
+                return product.category == widget.category.name;
+              }).toList();
 
-                // Filter merek
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20),
-                  child: Text(
-                    'Merek',
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.textSecondary),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Row(
-                    children: [
-                      FilterChipButton(
-                        label: 'Semua',
-                        selected: selectedBrand == 'Semua',
-                        onPressed: () => setState(() => selectedBrand = 'Semua'),
-                      ),
-                      for (final brand in brands)
-                        FilterChipButton(
-                          label: brand,
-                          selected: selectedBrand == brand,
-                          onPressed: () => setState(() => selectedBrand = brand),
-                        ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 12),
+              final brands = categoryProducts.map((p) => p.brand).toSet().toList()
+                ..sort();
 
-                // Filter urutan harga
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20),
-                  child: Text(
-                    'Urutkan',
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.textSecondary),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Row(
-                    children: [
-                      FilterChipButton(
-                        label: 'Terlaris',
-                        selected: sortMode == 0,
-                        onPressed: () => setState(() => sortMode = 0),
-                      ),
-                      FilterChipButton(
-                        label: 'Harga Terendah',
-                        selected: sortMode == 1,
-                        onPressed: () => setState(() => sortMode = 1),
-                      ),
-                      FilterChipButton(
-                        label: 'Harga Tertinggi',
-                        selected: sortMode == 2,
-                        onPressed: () => setState(() => sortMode = 2),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 16),
+              final visibleProducts = categoryProducts.where((product) {
+                return selectedBrand == 'Semua' || product.brand == selectedBrand;
+              }).toList();
 
-                // Expanded agar daftar produk mengisi sisa ruang
-                Expanded(
-                  child: SingleChildScrollView(
+              if (sortMode == 1) {
+                visibleProducts.sort((a, b) => a.price.compareTo(b.price));
+              } else if (sortMode == 2) {
+                visibleProducts.sort((a, b) => b.price.compareTo(a.price));
+              } else {
+                visibleProducts.sort((a, b) => b.sold.compareTo(a.sold));
+              }
+
+              return CustomScrollView(
+                slivers: [
+                  SliverToBoxAdapter(
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      padding: const EdgeInsets.fromLTRB(16, 12, 16, 14),
                       child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          if (visibleProducts.isEmpty)
-                            const Padding(
-                              padding: EdgeInsets.only(top: 40),
-                              child: Text(
-                                'Produk tidak ditemukan',
-                                style: TextStyle(color: AppColors.textSecondary),
-                              ),
+                          Text(
+                            '${visibleProducts.length} produk • ${brands.length} merek',
+                            style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                          ),
+                          const SizedBox(height: 12),
+                          _label('Merek'),
+                          const SizedBox(height: 6),
+                          SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Row(
+                              children: [
+                                FilterChipButton(
+                                  label: 'Semua',
+                                  selected: selectedBrand == 'Semua',
+                                  onPressed: () => setState(() => selectedBrand = 'Semua'),
+                                ),
+                                for (final brand in brands)
+                                  FilterChipButton(
+                                    label: brand,
+                                    selected: selectedBrand == brand,
+                                    onPressed: () => setState(() => selectedBrand = brand),
+                                  ),
+                              ],
                             ),
-                          ProductGrid(products: visibleProducts),
+                          ),
+                          const SizedBox(height: 10),
+                          _label('Urutkan'),
+                          const SizedBox(height: 6),
+                          SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Row(
+                              children: [
+                                FilterChipButton(
+                                  label: 'Terlaris',
+                                  selected: sortMode == 0,
+                                  onPressed: () => setState(() => sortMode = 0),
+                                ),
+                                FilterChipButton(
+                                  label: 'Harga Terendah',
+                                  selected: sortMode == 1,
+                                  onPressed: () => setState(() => sortMode = 1),
+                                ),
+                                FilterChipButton(
+                                  label: 'Harga Tertinggi',
+                                  selected: sortMode == 2,
+                                  onPressed: () => setState(() => sortMode = 2),
+                                ),
+                              ],
+                            ),
+                          ),
                         ],
                       ),
                     ),
                   ),
-                ),
-              ],
-            ),
+                  if (cart.isLoading)
+                    const SliverToBoxAdapter(
+                      child: Padding(
+                        padding: EdgeInsets.only(top: 40),
+                        child: Center(child: CircularProgressIndicator()),
+                      ),
+                    )
+                  else if (visibleProducts.isEmpty)
+                    const SliverToBoxAdapter(
+                      child: Padding(
+                        padding: EdgeInsets.only(top: 40),
+                        child: Center(
+                          child: Text(
+                            'Produk tidak ditemukan',
+                            style: TextStyle(color: AppColors.textSecondary),
+                          ),
+                        ),
+                      ),
+                    )
+                  else
+                    SliverPadding(
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                      sliver: SliverProductGrid(products: visibleProducts),
+                    ),
+                ],
+              );
+            },
           ),
-        );
-      },
+        ),
+      ],
+    );
+  }
+
+  Widget _label(String text) {
+    return Text(
+      text,
+      style: const TextStyle(
+        fontSize: 12,
+        fontWeight: FontWeight.bold,
+        color: AppColors.textSecondary,
+      ),
     );
   }
 }

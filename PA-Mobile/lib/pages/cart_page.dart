@@ -19,10 +19,8 @@ class _CartPageState extends State<CartPage> {
 
   @override
   Widget build(BuildContext context) {
-    // Consumer mendengarkan perubahan CartProvider
     return Consumer<CartProvider>(
       builder: (context, cart, child) {
-        // Produk di keranjang yang nama/mereknya mengandung searchQuery
         final cartItems = cart.cartProducts.where((product) {
           return product.name.toLowerCase().contains(searchQuery) ||
               product.brand.toLowerCase().contains(searchQuery);
@@ -32,105 +30,89 @@ class _CartPageState extends State<CartPage> {
           children: [
             // Header judul dan pencarian
             Padding(
-              padding: const EdgeInsets.only(left: 20, top: 16, right: 20),
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
                     'Keranjang',
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     '${cart.totalItems} item siap dibeli',
-                    style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                    style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 14),
                   Container(
-                    padding: const EdgeInsets.only(left: 16),
                     decoration: BoxDecoration(
                       color: AppColors.surface,
                       border: Border.all(color: AppColors.border),
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: AppStyle.card,
                     ),
                     child: TextField(
-                      cursorColor: AppColors.red,
                       style: const TextStyle(color: AppColors.textPrimary),
                       onChanged: (value) =>
-                          setState(() => searchQuery = value.toLowerCase()),
+                          setState(() => searchQuery = value.trim().toLowerCase()),
                       decoration: const InputDecoration(
                         border: InputBorder.none,
                         hintText: 'Cari di keranjang',
                         hintStyle: TextStyle(color: AppColors.textSecondary),
-                        contentPadding: EdgeInsets.symmetric(vertical: 14),
-                        suffixIcon: Padding(
-                          padding: EdgeInsets.only(right: 16),
-                          child: Icon(Icons.search, size: 22, color: AppColors.textSecondary),
-                        ),
+                        contentPadding: EdgeInsets.symmetric(vertical: 13),
+                        prefixIcon: Icon(Icons.search, size: 22, color: AppColors.textSecondary),
                       ),
                     ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 14),
 
-            // Expanded agar daftar keranjang mengisi sisa ruang
+            // Daftar keranjang lazy (ListView.builder) dan mengisi sisa ruang
             Expanded(
-              child: SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Column(
-                    children: [
-                      if (cartItems.isEmpty)
-                        const Padding(
-                          padding: EdgeInsets.only(top: 60),
-                          child: Column(
-                            children: [
-                              Icon(Icons.shopping_bag_outlined, size: 64, color: AppColors.border),
-                              SizedBox(height: 12),
-                              Text(
-                                'Keranjang masih kosong',
-                                style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
-                              ),
-                            ],
-                          ),
-                        ),
-                      for (final product in cartItems) ...[
-                        CartProductCard(
-                          product: product,
-                          quantity: cart.cartQuantities[product.id] ?? 0,
-                          // jumlah maksimal = yang sudah di keranjang + sisa stok
-                          maxQuantity: (cart.cartQuantities[product.id] ?? 0) + product.stock,
-                          onQuantityChanged: (value) =>
-                              context.read<CartProvider>().changeQuantity(product, value),
-                          onRemove: () =>
-                              context.read<CartProvider>().removeFromCart(product),
-                        ),
-                        const SizedBox(height: 12),
-                      ],
-                    ],
-                  ),
+              child: cartItems.isEmpty
+                  ? Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.shopping_bag_outlined, size: 56, color: AppColors.border),
+                    const SizedBox(height: 10),
+                    Text(
+                      cart.cartProducts.isEmpty
+                          ? 'Keranjang masih kosong'
+                          : 'Tidak ada hasil pencarian',
+                      style: const TextStyle(fontSize: 14, color: AppColors.textSecondary),
+                    ),
+                  ],
                 ),
+              )
+                  : ListView.separated(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                itemCount: cartItems.length,
+                separatorBuilder: (context, index) => const SizedBox(height: 10),
+                itemBuilder: (context, index) {
+                  final product = cartItems[index];
+                  return CartProductCard(
+                    key: ValueKey(product.id),
+                    product: product,
+                    quantity: cart.cartQuantities[product.id] ?? 0,
+                    // jumlah maksimal = stok asli di database
+                    maxQuantity: product.stock,
+                    onQuantityChanged: (value) =>
+                        context.read<CartProvider>().changeQuantity(product, value),
+                    onRemove: () =>
+                        context.read<CartProvider>().removeFromCart(product),
+                  );
+                },
               ),
             ),
 
-            // Bar total dan checkout dengan BoxShadow
+            // Bar total dan checkout
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: const BoxDecoration(
                 color: AppColors.surface,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(24),
-                  topRight: Radius.circular(24),
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black,
-                    blurRadius: 12,
-                    offset: Offset(0, -3),
-                  ),
-                ],
+                border: Border(top: BorderSide(color: AppColors.border)),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -145,25 +127,27 @@ class _CartPageState extends State<CartPage> {
                       ),
                     ],
                   ),
-                  // Tombol checkout hanya aktif jika Grand Total lebih dari 0
+                  // Aktif jika ada isi keranjang dan checkout tidak sedang diproses
                   ElevatedButton(
-                    onPressed: cart.grandTotal > 0 ? widget.onCheckout : null,
+                    onPressed: cart.grandTotal > 0 && !cart.isCheckingOut
+                        ? widget.onCheckout
+                        : null,
                     style: ElevatedButton.styleFrom(
                       elevation: 0,
-                      backgroundColor: AppColors.red,
+                      backgroundColor: AppColors.primary,
                       foregroundColor: Colors.white,
                       disabledBackgroundColor: AppColors.surfaceLight,
                       disabledForegroundColor: AppColors.textSecondary,
-                      padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                      padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: AppStyle.small),
                     ),
-                    child: const Row(
-                      children: [
-                        Icon(Icons.shopping_bag_outlined, size: 18),
-                        SizedBox(width: 8),
-                        Text('Checkout', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
-                      ],
-                    ),
+                    child: cart.isCheckingOut
+                        ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.textSecondary),
+                    )
+                        : const Text('Checkout', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
                   ),
                 ],
               ),

@@ -16,81 +16,62 @@ class TotalPage extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // Stack menumpuk lingkaran luar di belakang lingkaran icon
-          SizedBox(
-            width: 160,
-            height: 160,
-            child: Stack(
+          Container(
+            width: 64,
+            height: 64,
+            decoration: BoxDecoration(
+              color: AppColors.success,
+              borderRadius: AppStyle.card,
+            ),
+            child: const Icon(Icons.check, size: 38, color: Colors.white),
+          ),
+          const SizedBox(height: 24),
+          const Text(
+            'Pembayaran Berhasil',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+          ),
+          const SizedBox(height: 20),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              border: Border.all(color: AppColors.border),
+              borderRadius: AppStyle.card,
+            ),
+            child: Column(
               children: [
-                Positioned(
-                  left: 0,
-                  right: 0,
-                  top: 0,
-                  bottom: 0,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: AppColors.surface,
-                      border: Border.all(color: AppColors.border),
-                      borderRadius: BorderRadius.circular(80),
-                    ),
-                  ),
+                const Text(
+                  'Total pembayaran',
+                  style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
                 ),
-                Positioned(
-                  left: 28,
-                  right: 28,
-                  top: 28,
-                  bottom: 28,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: AppColors.red,
-                      borderRadius: BorderRadius.circular(52),
-                      boxShadow: const [
-                        BoxShadow(
-                          color: AppColors.redDark,
-                          blurRadius: 20,
-                          offset: Offset(0, 6),
-                        ),
-                      ],
-                    ),
-                    child: const Icon(Icons.check, size: 52, color: Colors.white),
-                  ),
+                const SizedBox(height: 4),
+                Text(
+                  formatRupiah(total),
+                  style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 28),
-          const Text(
-            'Pembayaran Berhasil',
-            style: TextStyle(fontSize: 16, color: AppColors.textSecondary),
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            'Total',
-            style: TextStyle(fontSize: 26, color: AppColors.textPrimary),
-          ),
-          Text(
-            formatRupiah(total),
-            style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: AppColors.red),
-          ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 12),
           const Text(
             'Terima kasih sudah berbelanja di BengkelKOM-Ridho',
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: 28),
           SizedBox(
             width: double.infinity,
-            height: 52,
+            height: 48,
             child: ElevatedButton(
               onPressed: onBack,
               style: ElevatedButton.styleFrom(
                 elevation: 0,
-                backgroundColor: AppColors.red,
+                backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                shape: RoundedRectangleBorder(borderRadius: AppStyle.small),
               ),
-              child: const Text('Kembali', style: TextStyle(fontWeight: FontWeight.bold)),
+              child: const Text('Kembali ke Beranda', style: TextStyle(fontWeight: FontWeight.bold)),
             ),
           ),
         ],

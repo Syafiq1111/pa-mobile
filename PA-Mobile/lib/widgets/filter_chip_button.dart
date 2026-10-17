@@ -22,12 +22,14 @@ class FilterChipButton extends StatelessWidget {
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
           elevation: 0,
-          backgroundColor: selected ? AppColors.red : AppColors.surface,
+          minimumSize: Size.zero,
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          backgroundColor: selected ? AppColors.primary : AppColors.surface,
           foregroundColor: selected ? Colors.white : AppColors.textSecondary,
-          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(30),
-            side: BorderSide(color: selected ? AppColors.red : AppColors.border),
+            borderRadius: AppStyle.small,
+            side: BorderSide(color: selected ? AppColors.primary : AppColors.border),
           ),
         ),
         child: Text(

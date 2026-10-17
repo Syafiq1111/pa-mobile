@@ -3,132 +3,159 @@ import 'package:provider/provider.dart';
 import 'package:pa_mobile/models/product.dart';
 import 'package:pa_mobile/providers/cart_provider.dart';
 import 'package:pa_mobile/theme/app_colors.dart';
+import 'package:pa_mobile/widgets/product_image.dart';
 
-// Card produk versi grid: gambar, merek, rating, nama, spesifikasi, harga, tombol
+// Card produk versi grid. Tinggi card tetap agar semua card seragam.
 class ProductCard extends StatelessWidget {
+  static const double height = 288;
+  static const double imageHeight = 128;
+
   final Product product;
 
   const ProductCard({super.key, required this.product});
 
+  void addToCart(BuildContext context) {
+    context.read<CartProvider>().addToCart(product);
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text('${product.name} masuk keranjang'),
+          duration: const Duration(milliseconds: 900),
+        ),
+      );
+  }
+
   @override
   Widget build(BuildContext context) {
+    // select: card hanya dibangun ulang jika sisa stok produk ini berubah
+    final available =
+    context.select<CartProvider, int>((cart) => cart.availableStock(product));
+    final soldOut = product.stock <= 0;
+
     return Container(
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         color: AppColors.surface,
         border: Border.all(color: AppColors.border),
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: AppStyle.card,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Stack menumpuk gambar, badge merek, dan rating
           Stack(
             children: [
-              Image.asset(
-                product.image,
-                width: double.infinity,
-                height: 140,
-                fit: BoxFit.cover,
-              ),
-              Positioned(
-                top: 8,
-                left: 8,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: AppColors.textPrimary,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    product.brand,
-                    style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.white),
+              ProductImage(path: product.image, height: imageHeight),
+              if (soldOut)
+                Positioned.fill(
+                  child: Container(
+                    color: Colors.white70,
+                    alignment: Alignment.center,
+                    child: const Text(
+                      'HABIS',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
                   ),
                 ),
-              ),
-              Positioned(
-                top: 8,
-                right: 8,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: AppColors.red,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Row(
+            ],
+          ),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
                     children: [
-                      const Icon(Icons.star, size: 11, color: Colors.white),
+                      Expanded(
+                        child: Text(
+                          product.brand.toUpperCase(),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 0.4,
+                            color: AppColors.primary,
+                          ),
+                        ),
+                      ),
+                      const Icon(Icons.star, size: 12, color: AppColors.warning),
                       const SizedBox(width: 2),
                       Text(
                         '${product.rating}',
-                        style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.white),
+                        style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.textPrimary,
+                        ),
                       ),
                     ],
                   ),
-                ),
-              ),
-            ],
-          ),
-
-          Padding(
-            padding: const EdgeInsets.all(10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  product.name,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  product.description,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  formatRupiah(product.price),
-                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  'Stok ${product.stock} • ${product.sold} terjual',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontSize: 10, color: AppColors.textSecondary),
-                ),
-                const SizedBox(height: 10),
-
-                // SizedBox mengatur lebar tombol agar memenuhi card
-                SizedBox(
-                  width: double.infinity,
-                  height: 36,
-                  // context.read memanggil addToCart tanpa mendengarkan perubahan
-                  child: ElevatedButton(
-                    onPressed: product.stock > 0
-                        ? () => context.read<CartProvider>().addToCart(product)
-                        : null,
-                    style: ElevatedButton.styleFrom(
-                      elevation: 0,
-                      padding: EdgeInsets.zero,
-                      backgroundColor: AppColors.red,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                    ),
-                    child: const Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.add_shopping_cart, size: 15),
-                        SizedBox(width: 6),
-                        Text('Tambah', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                      ],
+                  const SizedBox(height: 4),
+                  Text(
+                    product.name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textPrimary,
                     ),
                   ),
-                ),
-              ],
+                  const SizedBox(height: 2),
+                  Text(
+                    product.description,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    formatRupiah(product.price),
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    'Stok ${available < 0 ? 0 : available} • ${product.sold} terjual',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(fontSize: 10, color: AppColors.textSecondary),
+                  ),
+                  const Spacer(),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 34,
+                    child: ElevatedButton(
+                      onPressed: available > 0 ? () => addToCart(context) : null,
+                      style: ElevatedButton.styleFrom(
+                        elevation: 0,
+                        padding: EdgeInsets.zero,
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: Colors.white,
+                        disabledBackgroundColor: AppColors.surfaceLight,
+                        disabledForegroundColor: AppColors.textSecondary,
+                        shape: RoundedRectangleBorder(borderRadius: AppStyle.small),
+                      ),
+                      child: Text(
+                        available > 0
+                            ? 'Tambah'
+                            : (soldOut ? 'Habis' : 'Maks. di keranjang'),
+                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ],

@@ -1,31 +1,23 @@
 import 'dart:async';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:pa_mobile/models/address.dart';
 
-// Provider alamat pengiriman (disimpan di memori selama aplikasi berjalan)
+// Alamat disimpan per akun di Firestore: users/{uid}/addresses/{addressId}
 class AddressProvider extends ChangeNotifier {
   AddressProvider() {
-    // Alamat dikosongkan saat logout atau ganti akun
     _authSubscription =
-        FirebaseAuth.instance.authStateChanges().listen((user) {
-          if (user?.uid != _currentUid) {
-            _currentUid = user?.uid;
-            addresses.clear();
-            mainAddressId = null;
-            notifyListeners();
-          }
-        });
+        FirebaseAuth.instance.authStateChanges().listen(_onAuthChanged);
   }
 
   final List<Address> addresses = [];
-  String? mainAddressId; // id alamat utama
+  String? mainAddressId;
 
   String? _currentUid;
   StreamSubscription<User?>? _authSubscription;
-  int _counter = 0;
+  StreamSubscription<QuerySnapshot<Map<String, dynamic>>>? _subscription;
 
-  // Alamat utama, null jika belum ada alamat
   Address? get mainAddress {
     for (final address in addresses) {
       if (address.id == mainAddressId) return address;
@@ -33,39 +25,108 @@ class AddressProvider extends ChangeNotifier {
     return null;
   }
 
-  void addAddress({
+  CollectionReference<Map<String, dynamic>>? get _collection {
+    final uid = _currentUid;
+    if (uid == null) return null;
+    return FirebaseFirestore.instance
+        .collection('users')
+        .doc(uid)
+        .collection('addresses');
+  }
+
+  void _onAuthChanged(User? user) {
+    if (user == null) {
+      _subscription?.cancel();
+      _subscription = null;
+      addresses.clear();
+      mainAddressId = null;
+      _currentUid = null;
+      notifyListeners();
+      return;
+    }
+    if (user.uid == _currentUid) return;
+
+    _subscription?.cancel();
+    addresses.clear();
+    mainAddressId = null;
+    _currentUid = user.uid;
+
+    _subscription = _collection!.orderBy('createdAt').snapshots().listen(
+          (snapshot) {
+        addresses
+          ..clear()
+          ..addAll(snapshot.docs
+              .map((doc) => Address.fromFirestore(doc.id, doc.data())));
+
+        String? main;
+        for (final doc in snapshot.docs) {
+          if (doc.data()['isMain'] == true) {
+            main = doc.id;
+            break;
+          }
+        }
+        // Jika belum ada yang ditandai utama, alamat pertama dianggap utama
+        mainAddressId = main ?? (addresses.isNotEmpty ? addresses.first.id : null);
+        notifyListeners();
+      },
+      onError: (_) {},
+    );
+  }
+
+  // Alamat pertama otomatis menjadi alamat utama
+  Future<void> addAddress({
     required String name,
     required String phone,
     required String detail,
-  }) {
-    _counter++;
-    final address = Address(
-      id: 'addr$_counter',
-      name: name,
-      phone: phone,
-      detail: detail,
-    );
-    addresses.add(address);
-    // Alamat pertama otomatis menjadi alamat utama
-    mainAddressId ??= address.id;
-    notifyListeners();
+  }) async {
+    final collection = _collection;
+    if (collection == null) return;
+    try {
+      await collection.add({
+        'name': name,
+        'phone': phone,
+        'detail': detail,
+        'isMain': addresses.isEmpty,
+        'createdAt': Timestamp.now(),
+      });
+    } catch (_) {}
   }
 
-  void setMain(String id) {
-    mainAddressId = id;
-    notifyListeners();
-  }
-
-  void removeAddress(String id) {
-    addresses.removeWhere((address) => address.id == id);
-    if (mainAddressId == id) {
-      mainAddressId = addresses.isEmpty ? null : addresses.first.id;
+  Future<void> setMain(String id) async {
+    final collection = _collection;
+    if (collection == null) return;
+    final batch = FirebaseFirestore.instance.batch();
+    for (final address in addresses) {
+      batch.update(collection.doc(address.id), {'isMain': address.id == id});
     }
-    notifyListeners();
+    try {
+      await batch.commit();
+    } catch (_) {}
+  }
+
+  Future<void> removeAddress(String id) async {
+    final collection = _collection;
+    if (collection == null) return;
+
+    final wasMain = mainAddressId == id;
+    final batch = FirebaseFirestore.instance.batch();
+    batch.delete(collection.doc(id));
+
+    // Jika alamat utama dihapus, alamat berikutnya menjadi utama
+    if (wasMain) {
+      final rest = addresses.where((address) => address.id != id).toList();
+      if (rest.isNotEmpty) {
+        batch.update(collection.doc(rest.first.id), {'isMain': true});
+      }
+    }
+    try {
+      await batch.commit();
+    } catch (_) {}
   }
 
   @override
   void dispose() {
+    _subscription?.cancel();
     _authSubscription?.cancel();
     super.dispose();
   }

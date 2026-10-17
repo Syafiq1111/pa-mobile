@@ -1,4 +1,4 @@
-// Class Address data alamat pengiriman
+// Alamat pengiriman, disimpan di users/{uid}/addresses
 class Address {
   final String id;
   final String name;
@@ -11,4 +11,13 @@ class Address {
     required this.phone,
     required this.detail,
   });
+
+  factory Address.fromFirestore(String id, Map<String, dynamic> data) {
+    return Address(
+      id: id,
+      name: (data['name'] as String?) ?? '',
+      phone: (data['phone'] as String?) ?? '',
+      detail: (data['detail'] as String?) ?? '',
+    );
+  }
 }
