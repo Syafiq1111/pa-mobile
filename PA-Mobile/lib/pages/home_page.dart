@@ -6,6 +6,10 @@ import 'package:pa_mobile/theme/app_colors.dart';
 import 'package:pa_mobile/widgets/filter_chip_button.dart';
 import 'package:pa_mobile/widgets/product_grid.dart';
 
+const String _logoAsset = 'assets/images/logo.png';
+const String _promoBannerAsset = 'assets/images/card.png';
+const String _promoCircleAsset = 'assets/images/roundedcard.png';
+
 class MyHomePage extends StatefulWidget {
   final void Function(Category category) onCategoryTap;
 
@@ -67,33 +71,33 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               )
             else if (visibleProducts.isEmpty)
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 20),
-                  child: Center(
-                    child: Column(
-                      children: [
-                        Icon(Icons.search_off_rounded,
-                            size: 54, color: AppColors.outline.withValues(alpha: 0.5)),
-                        const SizedBox(height: 10),
-                        const Text(
-                          'Produk tidak ditemukan',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.textSecondary,
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 20),
+                    child: Center(
+                      child: Column(
+                        children: [
+                          Icon(Icons.search_off_rounded,
+                              size: 54, color: AppColors.outline.withValues(alpha: 0.5)),
+                          const SizedBox(height: 10),
+                          const Text(
+                            'Produk tidak ditemukan',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.textSecondary,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
+                )
+              else
+                SliverPadding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                  sliver: SliverProductGrid(products: visibleProducts),
                 ),
-              )
-            else
-              SliverPadding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                sliver: SliverProductGrid(products: visibleProducts),
-              ),
 
             SliverToBoxAdapter(child: _buildGuaranteeBanner()),
             const SliverToBoxAdapter(
@@ -126,11 +130,22 @@ class _MyHomePageState extends State<MyHomePage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Row(
+              Row(
                 children: [
-                  BengkelKomLogo(size: 34, borderRadius: 10, showShadow: false),
-                  SizedBox(width: 8),
-                  Text.rich(
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: Image.asset(
+                      _logoAsset,
+                      width: 34,
+                      height: 34,
+                      fit: BoxFit.cover,
+                      cacheWidth: (34 * MediaQuery.devicePixelRatioOf(context)).round(),
+                      errorBuilder: (context, error, stackTrace) =>
+                      const SizedBox(width: 34, height: 34),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  const Text.rich(
                     TextSpan(
                       text: 'Bengkel',
                       style: TextStyle(
@@ -251,7 +266,6 @@ class _MyHomePageState extends State<MyHomePage> {
                     ],
                   ),
                 ),
-                const Icon(Icons.chevron_right, size: 18, color: AppColors.outline),
               ],
             ),
           ),
@@ -299,31 +313,46 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  // Promo Hero Banner
+  // Promo Hero Banner (latar foto dari assets lokal, tanpa Firestore)
   Widget _buildPromoBanner() {
+    final pixelRatio = MediaQuery.devicePixelRatioOf(context);
+    final screenWidth = MediaQuery.sizeOf(context).width;
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
       child: Container(
         width: double.infinity,
         height: 140,
         decoration: BoxDecoration(
-          color: const Color(0xFFDAF5E4),
+          color: const Color(0xFFDAF5E4), // warna cadangan jika foto gagal dimuat
           borderRadius: BorderRadius.circular(24),
           border: Border.all(color: const Color(0xFFC3ECCF), width: 1),
         ),
         clipBehavior: Clip.antiAlias,
         child: Stack(
           children: [
-            // Ambient circle
-            Positioned(
-              left: -20,
-              bottom: -20,
-              child: Container(
-                width: 120,
-                height: 120,
+            // Foto latar
+            Positioned.fill(
+              child: Image.asset(
+                _promoBannerAsset,
+                fit: BoxFit.cover,
+                cacheWidth: (screenWidth * pixelRatio).round(),
+                errorBuilder: (context, error, stackTrace) => const SizedBox.shrink(),
+              ),
+            ),
+            // Lapisan putih tipis agar tulisan tetap terbaca di atas foto
+            // (hapus blok ini jika ingin foto tampil penuh)
+            Positioned.fill(
+              child: DecoratedBox(
                 decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: AppColors.primary.withValues(alpha: 0.05),
+                  gradient: LinearGradient(
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                    colors: [
+                      Colors.white.withValues(alpha: 0.85),
+                      Colors.white.withValues(alpha: 0.30),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -387,17 +416,19 @@ class _MyHomePageState extends State<MyHomePage> {
                       ],
                     ),
                   ),
-                  Container(
-                    width: 100,
-                    height: 100,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.6),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.devices_other_rounded,
-                      size: 56,
-                      color: AppColors.primary,
+                  // Bulatan depan: foto dari assets lokal
+                  ClipOval(
+                    child: Image.asset(
+                      _promoCircleAsset,
+                      width: 100,
+                      height: 100,
+                      fit: BoxFit.cover,
+                      cacheWidth: (100 * pixelRatio).round(),
+                      errorBuilder: (context, error, stackTrace) => Container(
+                        width: 100,
+                        height: 100,
+                        color: Colors.white.withValues(alpha: 0.6),
+                      ),
                     ),
                   ),
                 ],
@@ -425,34 +456,13 @@ class _MyHomePageState extends State<MyHomePage> {
       children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 10),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'Kategori',
-                style: TextStyle(
-                  fontSize: 17,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.textPrimary,
-                ),
-              ),
-              GestureDetector(
-                onTap: () {},
-                child: const Row(
-                  children: [
-                    Text(
-                      'Lihat Semua',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.primary,
-                      ),
-                    ),
-                    Icon(Icons.chevron_right, size: 16, color: AppColors.primary),
-                  ],
-                ),
-              ),
-            ],
+          child: const Text(
+            'Kategori',
+            style: TextStyle(
+              fontSize: 17,
+              fontWeight: FontWeight.w700,
+              color: AppColors.textPrimary,
+            ),
           ),
         ),
         SizedBox(
