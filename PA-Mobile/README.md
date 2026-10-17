@@ -13,9 +13,6 @@ Aplikasi mobile toko peralatan komputer (keyboard, mouse, storage, monitor, head
 5. [Penerapan Materi per Modul](#penerapan-materi-per-modul)
 6. [Menghubungkan dengan Firebase dan Firestore](#menghubungkan-dengan-firebase-dan-firestore)
 7. [Struktur Database Firestore](#struktur-database-firestore)
-8. [Menjalankan Aplikasi](#menjalankan-aplikasi)
-9. [Pemecahan Masalah](#pemecahan-masalah)
-10. [Catatan](#catatan)
 
 ---
 
