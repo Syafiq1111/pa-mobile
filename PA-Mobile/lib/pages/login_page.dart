@@ -13,45 +13,58 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  // Controller untuk menyimpan input email dan kata sandi pengguna.
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
+  // Menyimpan status proses login dan pesan kesalahan autentikasi.
   bool isLoading = false;
   String errorMessage = '';
+
+  // Mengatur visibilitas kata sandi dan status pilihan Ingat Saya.
   bool obscurePassword = true;
   bool rememberMe = true;
 
   @override
   void dispose() {
+    // Melepaskan controller agar tidak menggunakan memori setelah halaman ditutup.
     emailController.dispose();
     passwordController.dispose();
     super.dispose();
   }
 
+  // Memvalidasi input dan melakukan autentikasi menggunakan Firebase.
   Future<void> login() async {
-    if (emailController.text.trim().isEmpty || passwordController.text.isEmpty) {
+    // Memastikan email dan kata sandi telah diisi sebelum login diproses.
+    if (emailController.text.trim().isEmpty ||
+        passwordController.text.isEmpty) {
       setState(() => errorMessage = 'Email dan kata sandi wajib diisi');
       return;
     }
 
+    // Mengaktifkan indikator loading dan menghapus pesan kesalahan sebelumnya.
     setState(() {
       isLoading = true;
       errorMessage = '';
     });
 
     try {
+      // Memverifikasi akun menggunakan email dan kata sandi melalui Firebase.
       await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: emailController.text.trim(),
         password: passwordController.text,
       );
     } on FirebaseAuthException catch (e) {
+      // Menampilkan pesan kesalahan sesuai kode error dari Firebase.
       if (!mounted) return;
       setState(() => errorMessage = authErrorMessage(e.code));
     }
 
+    // Menghentikan indikator loading jika halaman masih aktif.
     if (mounted) setState(() => isLoading = false);
   }
 
+  // Membuka halaman pendaftaran akun baru.
   void openRegister() {
     Navigator.push(
       context,
@@ -65,7 +78,7 @@ class _LoginPageState extends State<LoginPage> {
       backgroundColor: AppColors.background,
       body: Stack(
         children: [
-          // Ambient Pastel Blobs
+          // Dekorasi lingkaran pastel sebagai latar belakang halaman login.
           Positioned(
             top: -60,
             right: -60,
@@ -103,6 +116,7 @@ class _LoginPageState extends State<LoginPage> {
             ),
           ),
 
+          // Menjaga konten tetap berada di area aman layar dan dapat digulir.
           SafeArea(
             child: SingleChildScrollView(
               physics: const BouncingScrollPhysics(),
@@ -113,11 +127,14 @@ class _LoginPageState extends State<LoginPage> {
                   children: [
                     const SizedBox(height: 14),
 
-                    // Top Bar Pill: Lokasi Cabang
+                    // Menampilkan informasi lokasi cabang BengkelKOM.
                     Align(
                       alignment: Alignment.centerLeft,
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 7,
+                        ),
                         decoration: BoxDecoration(
                           color: AppColors.surfaceContainerLow,
                           borderRadius: BorderRadius.circular(30),
@@ -132,7 +149,11 @@ class _LoginPageState extends State<LoginPage> {
                         child: const Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.location_on, size: 16, color: AppColors.primary),
+                            Icon(
+                              Icons.location_on,
+                              size: 16,
+                              color: AppColors.primary,
+                            ),
                             SizedBox(width: 6),
                             Text(
                               'Samarinda • Cabang Antasari',
@@ -149,11 +170,14 @@ class _LoginPageState extends State<LoginPage> {
 
                     const SizedBox(height: 20),
 
-                    // Brand Hero Header
+                    // Menampilkan logo, nama merek, dan deskripsi layanan.
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        const BengkelKomLogo(size: 54, borderRadius: 18),
+                        const BengkelKomLogo(
+                          size: 54,
+                          borderRadius: 18,
+                        ),
                         const SizedBox(width: 12),
                         const Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -193,7 +217,7 @@ class _LoginPageState extends State<LoginPage> {
 
                     const SizedBox(height: 18),
 
-                    // Greeting
+                    // Menampilkan salam dan informasi singkat bagi pengguna.
                     const Text(
                       'Selamat Datang Kembali! 👋',
                       style: TextStyle(
@@ -215,7 +239,7 @@ class _LoginPageState extends State<LoginPage> {
 
                     const SizedBox(height: 24),
 
-                    // Main Login Card
+                    // Kartu utama yang menampung seluruh formulir login.
                     Container(
                       width: double.infinity,
                       decoration: BoxDecoration(
@@ -227,7 +251,7 @@ class _LoginPageState extends State<LoginPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Accent Bar
+                          // Garis dekoratif dengan warna gradien di bagian atas kartu.
                           Container(
                             height: 5,
                             width: double.infinity,
@@ -241,7 +265,7 @@ class _LoginPageState extends State<LoginPage> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                // Judul form (menggantikan tab Masuk Akun / Daftar Baru)
+                                // Judul formulir autentikasi pengguna.
                                 const Center(
                                   child: Text(
                                     'Masuk Akun',
@@ -256,7 +280,7 @@ class _LoginPageState extends State<LoginPage> {
 
                                 const SizedBox(height: 18),
 
-                                // Email Input
+                                // Kolom input email akun pengguna.
                                 AuthTextField(
                                   controller: emailController,
                                   label: 'Email Akun',
@@ -267,7 +291,7 @@ class _LoginPageState extends State<LoginPage> {
 
                                 const SizedBox(height: 14),
 
-                                // Password Input
+                                // Kolom kata sandi dengan tombol untuk mengubah visibilitas.
                                 AuthTextField(
                                   controller: passwordController,
                                   label: 'Kata Sandi',
@@ -283,19 +307,22 @@ class _LoginPageState extends State<LoginPage> {
                                       color: AppColors.outline,
                                     ),
                                     onPressed: () => setState(
-                                            () => obscurePassword = !obscurePassword),
+                                          () => obscurePassword = !obscurePassword,
+                                    ),
                                   ),
                                 ),
 
                                 const SizedBox(height: 10),
 
-                                // Remember Me & Forgot Password
+                                // Menyediakan pilihan Ingat Saya dan Lupa Sandi.
                                 Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment:
+                                  MainAxisAlignment.spaceBetween,
                                   children: [
                                     GestureDetector(
-                                      onTap: () =>
-                                          setState(() => rememberMe = !rememberMe),
+                                      onTap: () => setState(
+                                            () => rememberMe = !rememberMe,
+                                      ),
                                       child: Row(
                                         children: [
                                           SizedBox(
@@ -304,10 +331,12 @@ class _LoginPageState extends State<LoginPage> {
                                             child: Checkbox(
                                               value: rememberMe,
                                               onChanged: (v) => setState(
-                                                      () => rememberMe = v ?? true),
+                                                    () => rememberMe = v ?? true,
+                                              ),
                                               activeColor: AppColors.primary,
                                               shape: RoundedRectangleBorder(
-                                                borderRadius: BorderRadius.circular(4),
+                                                borderRadius:
+                                                BorderRadius.circular(4),
                                               ),
                                             ),
                                           ),
@@ -322,19 +351,24 @@ class _LoginPageState extends State<LoginPage> {
                                         ],
                                       ),
                                     ),
+
+                                    // Menampilkan pemberitahuan saat opsi lupa sandi dipilih.
                                     TextButton(
                                       onPressed: () {
-                                        ScaffoldMessenger.of(context).showSnackBar(
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
                                           const SnackBar(
                                             content: Text(
-                                                'Fitur Reset Password dikirimkan ke email Anda.'),
+                                              'Fitur Reset Password dikirimkan ke email Anda.',
+                                            ),
                                           ),
                                         );
                                       },
                                       style: TextButton.styleFrom(
                                         padding: EdgeInsets.zero,
                                         minimumSize: Size.zero,
-                                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                        tapTargetSize:
+                                        MaterialTapTargetSize.shrinkWrap,
                                       ),
                                       child: const Text(
                                         'Lupa Sandi?',
@@ -348,19 +382,25 @@ class _LoginPageState extends State<LoginPage> {
                                   ],
                                 ),
 
+                                // Menampilkan pesan kesalahan jika validasi atau login gagal.
                                 if (errorMessage.isNotEmpty) ...[
                                   const SizedBox(height: 12),
                                   Container(
                                     padding: const EdgeInsets.symmetric(
-                                        horizontal: 12, vertical: 8),
+                                      horizontal: 12,
+                                      vertical: 8,
+                                    ),
                                     decoration: BoxDecoration(
                                       color: AppColors.errorContainer,
                                       borderRadius: BorderRadius.circular(10),
                                     ),
                                     child: Row(
                                       children: [
-                                        const Icon(Icons.error_outline,
-                                            size: 16, color: AppColors.danger),
+                                        const Icon(
+                                          Icons.error_outline,
+                                          size: 16,
+                                          color: AppColors.danger,
+                                        ),
                                         const SizedBox(width: 8),
                                         Expanded(
                                           child: Text(
@@ -379,7 +419,7 @@ class _LoginPageState extends State<LoginPage> {
 
                                 const SizedBox(height: 18),
 
-                                // Submit Button Gradient
+                                // Tombol login dengan gradien dan indikator proses.
                                 SizedBox(
                                   width: double.infinity,
                                   height: 48,
@@ -389,7 +429,9 @@ class _LoginPageState extends State<LoginPage> {
                                       borderRadius: BorderRadius.circular(16),
                                       boxShadow: [
                                         BoxShadow(
-                                          color: AppColors.primary.withValues(alpha: 0.3),
+                                          color: AppColors.primary.withValues(
+                                            alpha: 0.3,
+                                          ),
                                           blurRadius: 12,
                                           offset: const Offset(0, 4),
                                         ),
@@ -402,10 +444,12 @@ class _LoginPageState extends State<LoginPage> {
                                         foregroundColor: Colors.white,
                                         shadowColor: Colors.transparent,
                                         shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(16),
+                                          borderRadius:
+                                          BorderRadius.circular(16),
                                         ),
                                       ),
                                       child: isLoading
+                                      // Menampilkan animasi selama proses login berlangsung.
                                           ? const SizedBox(
                                         width: 20,
                                         height: 20,
@@ -414,6 +458,7 @@ class _LoginPageState extends State<LoginPage> {
                                           color: Colors.white,
                                         ),
                                       )
+                                      // Menampilkan label dan ikon saat tombol siap digunakan.
                                           : const Row(
                                         mainAxisAlignment:
                                         MainAxisAlignment.center,
@@ -426,8 +471,10 @@ class _LoginPageState extends State<LoginPage> {
                                             ),
                                           ),
                                           SizedBox(width: 8),
-                                          Icon(Icons.arrow_forward_rounded,
-                                              size: 18),
+                                          Icon(
+                                            Icons.arrow_forward_rounded,
+                                            size: 18,
+                                          ),
                                         ],
                                       ),
                                     ),
@@ -436,7 +483,7 @@ class _LoginPageState extends State<LoginPage> {
 
                                 const SizedBox(height: 20),
 
-                                // Register footer text
+                                // Mengarahkan pengguna yang belum memiliki akun ke halaman pendaftaran.
                                 Center(
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,
@@ -456,7 +503,8 @@ class _LoginPageState extends State<LoginPage> {
                                             fontSize: 13,
                                             fontWeight: FontWeight.w700,
                                             color: AppColors.secondary,
-                                            decoration: TextDecoration.underline,
+                                            decoration:
+                                            TextDecoration.underline,
                                           ),
                                         ),
                                       ),
@@ -471,6 +519,8 @@ class _LoginPageState extends State<LoginPage> {
                     ),
 
                     const SizedBox(height: 24),
+
+                    // Menampilkan informasi hak cipta dan alamat cabang.
                     const Center(
                       child: Text(
                         '© 2025 BengkelKOM. Jl. P. Antasari, Samarinda.',

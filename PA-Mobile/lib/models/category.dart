@@ -1,14 +1,19 @@
 import 'package:flutter/material.dart';
 
-// Class Category untuk filter kategori produk
+// Model untuk menyimpan nama dan ikon kategori produk.
+// Data kategori digunakan sebagai pilihan filter pada halaman produk.
 class Category {
   final String name;
   final IconData icon;
 
-  const Category({required this.name, required this.icon});
+  const Category({
+    required this.name,
+    required this.icon,
+  });
 }
 
-// Daftar kategori yang tersedia di toko
+// Daftar kategori produk yang tersedia di toko.
+// Setiap kategori memiliki nama dan ikon untuk memudahkan identifikasi.
 const List<Category> categoryList = [
   Category(name: 'Keyboard', icon: Icons.keyboard),
   Category(name: 'Mouse', icon: Icons.mouse),

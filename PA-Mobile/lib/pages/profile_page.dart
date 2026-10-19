@@ -12,12 +12,14 @@ class ProfilePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Mengambil data keranjang, alamat, dan akun yang sedang aktif.
     final cart = context.watch<CartProvider>();
     final address = context.watch<AddressProvider>();
     final user = FirebaseAuth.instance.currentUser;
     final email = user?.email ?? 'pengguna@bengkelkom.id';
     final name = user?.displayName ?? email.split('@').first;
 
+    // Membuat halaman profil dapat digulir pada layar berukuran kecil.
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
       child: Padding(
@@ -27,7 +29,7 @@ class ProfilePage extends StatelessWidget {
           children: [
             const SizedBox(height: 14),
 
-            // Profile Header Card
+            // Menampilkan informasi utama akun pengguna.
             Container(
               width: double.infinity,
               decoration: BoxDecoration(
@@ -38,7 +40,7 @@ class ProfilePage extends StatelessWidget {
               clipBehavior: Clip.antiAlias,
               child: Stack(
                 children: [
-                  // Ambient Blob
+                  // Elemen dekoratif pada latar kartu profil.
                   Positioned(
                     top: -30,
                     right: -30,
@@ -58,6 +60,7 @@ class ProfilePage extends StatelessWidget {
                       children: [
                         Row(
                           children: [
+                            // Menampilkan inisial nama sebagai avatar pengguna.
                             Stack(
                               children: [
                                 Container(
@@ -92,8 +95,11 @@ class ProfilePage extends StatelessWidget {
                                       shape: BoxShape.circle,
                                       color: AppColors.primaryContainer,
                                     ),
-                                    child: const Icon(Icons.check,
-                                        size: 12, color: Colors.white),
+                                    child: const Icon(
+                                      Icons.check,
+                                      size: 12,
+                                      color: Colors.white,
+                                    ),
                                   ),
                                 ),
                               ],
@@ -103,6 +109,7 @@ class ProfilePage extends StatelessWidget {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
+                                  // Menampilkan nama, status keanggotaan, dan email.
                                   Row(
                                     children: [
                                       Flexible(
@@ -120,7 +127,9 @@ class ProfilePage extends StatelessWidget {
                                       const SizedBox(width: 6),
                                       Container(
                                         padding: const EdgeInsets.symmetric(
-                                            horizontal: 8, vertical: 2),
+                                          horizontal: 8,
+                                          vertical: 2,
+                                        ),
                                         decoration: BoxDecoration(
                                           color: AppColors.secondaryFixed,
                                           borderRadius: BorderRadius.circular(12),
@@ -128,8 +137,11 @@ class ProfilePage extends StatelessWidget {
                                         child: const Row(
                                           mainAxisSize: MainAxisSize.min,
                                           children: [
-                                            Icon(Icons.stars_rounded,
-                                                size: 12, color: AppColors.secondary),
+                                            Icon(
+                                              Icons.stars_rounded,
+                                              size: 12,
+                                              color: AppColors.secondary,
+                                            ),
                                             SizedBox(width: 2),
                                             Text(
                                               'Gold Member',
@@ -184,10 +196,12 @@ class ProfilePage extends StatelessWidget {
 
                         const SizedBox(height: 16),
 
-                        // Priority Club Strip
+                        // Menampilkan informasi keanggotaan dan keuntungan pengguna.
                         Container(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 10),
+                            horizontal: 12,
+                            vertical: 10,
+                          ),
                           decoration: BoxDecoration(
                             color: AppColors.surfaceContainerLow,
                             borderRadius: BorderRadius.circular(16),
@@ -202,8 +216,11 @@ class ProfilePage extends StatelessWidget {
                                       .withValues(alpha: 0.15),
                                   shape: BoxShape.circle,
                                 ),
-                                child: const Icon(Icons.military_tech_rounded,
-                                    size: 18, color: AppColors.primary),
+                                child: const Icon(
+                                  Icons.military_tech_rounded,
+                                  size: 18,
+                                  color: AppColors.primary,
+                                ),
                               ),
                               const SizedBox(width: 10),
                               const Expanded(
@@ -228,8 +245,11 @@ class ProfilePage extends StatelessWidget {
                                   ],
                                 ),
                               ),
-                              const Icon(Icons.chevron_right,
-                                  size: 18, color: AppColors.primary),
+                              const Icon(
+                                Icons.chevron_right,
+                                size: 18,
+                                color: AppColors.primary,
+                              ),
                             ],
                           ),
                         ),
@@ -242,7 +262,7 @@ class ProfilePage extends StatelessWidget {
 
             const SizedBox(height: 16),
 
-            // Quick Stats Grid
+            // Ringkasan jumlah pesanan, item keranjang, dan poin reward.
             Row(
               children: [
                 Expanded(
@@ -266,12 +286,17 @@ class ProfilePage extends StatelessWidget {
                                 color: AppColors.primaryFixed.withValues(alpha: 0.4),
                                 borderRadius: BorderRadius.circular(12),
                               ),
-                              child: const Icon(Icons.shopping_bag_outlined,
-                                  size: 18, color: AppColors.primary),
+                              child: const Icon(
+                                Icons.shopping_bag_outlined,
+                                size: 18,
+                                color: AppColors.primary,
+                              ),
                             ),
                             Container(
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 8, vertical: 3),
+                                horizontal: 8,
+                                vertical: 3,
+                              ),
                               decoration: BoxDecoration(
                                 color: AppColors.primaryFixed.withValues(alpha: 0.3),
                                 borderRadius: BorderRadius.circular(10),
@@ -337,12 +362,17 @@ class ProfilePage extends StatelessWidget {
                                 color: AppColors.secondaryFixed,
                                 borderRadius: BorderRadius.circular(12),
                               ),
-                              child: const Icon(Icons.toll_rounded,
-                                  size: 18, color: AppColors.secondary),
+                              child: const Icon(
+                                Icons.toll_rounded,
+                                size: 18,
+                                color: AppColors.secondary,
+                              ),
                             ),
                             Container(
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 8, vertical: 3),
+                                horizontal: 8,
+                                vertical: 3,
+                              ),
                               decoration: BoxDecoration(
                                 color: AppColors.secondaryFixed.withValues(alpha: 0.5),
                                 borderRadius: BorderRadius.circular(10),
@@ -391,7 +421,7 @@ class ProfilePage extends StatelessWidget {
 
             const SizedBox(height: 18),
 
-            // Layanan Cepat Grid (4 Actions)
+            // Menyediakan akses cepat ke layanan yang sering digunakan.
             const Text(
               'Layanan Cepat',
               style: TextStyle(
@@ -418,7 +448,11 @@ class ProfilePage extends StatelessWidget {
                     iconColor: AppColors.primary,
                     onTap: () {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Status servis: Tidak ada unit dalam antrean.')),
+                        const SnackBar(
+                          content: Text(
+                            'Status servis: Tidak ada unit dalam antrean.',
+                          ),
+                        ),
                       );
                     },
                   ),
@@ -430,7 +464,9 @@ class ProfilePage extends StatelessWidget {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const OrderHistoryPage()),
+                        MaterialPageRoute(
+                          builder: (context) => const OrderHistoryPage(),
+                        ),
                       );
                     },
                   ),
@@ -441,7 +477,11 @@ class ProfilePage extends StatelessWidget {
                     iconColor: AppColors.secondary,
                     onTap: () {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Jl. P. Antasari No. 18, Samarinda Ulu')),
+                        const SnackBar(
+                          content: Text(
+                            'Jl. P. Antasari No. 18, Samarinda Ulu',
+                          ),
+                        ),
                       );
                     },
                   ),
@@ -452,7 +492,11 @@ class ProfilePage extends StatelessWidget {
                     iconColor: AppColors.textSecondary,
                     onTap: () {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Semua produk bergaransi resmi 1 tahun.')),
+                        const SnackBar(
+                          content: Text(
+                            'Semua produk bergaransi resmi 1 tahun.',
+                          ),
+                        ),
                       );
                     },
                   ),
@@ -462,7 +506,7 @@ class ProfilePage extends StatelessWidget {
 
             const SizedBox(height: 18),
 
-            // Preferensi & Akun Menu
+            // Menampilkan pengaturan akun dan tautan ke halaman terkait.
             const Text(
               'Preferensi & Akun',
               style: TextStyle(
@@ -491,11 +535,18 @@ class ProfilePage extends StatelessWidget {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const AddressPage()),
+                        MaterialPageRoute(
+                          builder: (context) => const AddressPage(),
+                        ),
                       );
                     },
                   ),
-                  const Divider(height: 1, indent: 64, endIndent: 16, color: AppColors.surfaceContainerHigh),
+                  const Divider(
+                    height: 1,
+                    indent: 64,
+                    endIndent: 16,
+                    color: AppColors.surfaceContainerHigh,
+                  ),
                   _profileMenuItem(
                     icon: Icons.history_edu_rounded,
                     iconBg: AppColors.tertiaryFixed.withValues(alpha: 0.6),
@@ -507,11 +558,18 @@ class ProfilePage extends StatelessWidget {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const OrderHistoryPage()),
+                        MaterialPageRoute(
+                          builder: (context) => const OrderHistoryPage(),
+                        ),
                       );
                     },
                   ),
-                  const Divider(height: 1, indent: 64, endIndent: 16, color: AppColors.surfaceContainerHigh),
+                  const Divider(
+                    height: 1,
+                    indent: 64,
+                    endIndent: 16,
+                    color: AppColors.surfaceContainerHigh,
+                  ),
                   _profileMenuItem(
                     icon: Icons.engineering_rounded,
                     iconBg: AppColors.secondaryFixed.withValues(alpha: 0.5),
@@ -520,11 +578,20 @@ class ProfilePage extends StatelessWidget {
                     subtitle: 'Tanya rakit PC, upgrade RAM/SSD',
                     onTap: () {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Menghubungkan ke teknisi via WhatsApp BengkelKOM...')),
+                        const SnackBar(
+                          content: Text(
+                            'Menghubungkan ke teknisi via WhatsApp BengkelKOM...',
+                          ),
+                        ),
                       );
                     },
                   ),
-                  const Divider(height: 1, indent: 64, endIndent: 16, color: AppColors.surfaceContainerHigh),
+                  const Divider(
+                    height: 1,
+                    indent: 64,
+                    endIndent: 16,
+                    color: AppColors.surfaceContainerHigh,
+                  ),
                   _profileMenuItem(
                     icon: Icons.support_agent_rounded,
                     iconBg: AppColors.surfaceContainerHigh,
@@ -533,7 +600,11 @@ class ProfilePage extends StatelessWidget {
                     subtitle: 'Fast response 08:30 - 21:00 WITA',
                     onTap: () {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Customer Service: +62 812-5890-XXXX')),
+                        const SnackBar(
+                          content: Text(
+                            'Customer Service: +62 812-5890-XXXX',
+                          ),
+                        ),
                       );
                     },
                   ),
@@ -543,7 +614,7 @@ class ProfilePage extends StatelessWidget {
 
             const SizedBox(height: 20),
 
-            // Logout Button
+            // Mengakhiri sesi pengguna melalui Firebase Authentication.
             SizedBox(
               width: double.infinity,
               height: 48,
@@ -554,7 +625,10 @@ class ProfilePage extends StatelessWidget {
                 icon: const Icon(Icons.logout_rounded, size: 18),
                 label: const Text(
                   'Keluar dari Akun',
-                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.errorContainer,
@@ -584,6 +658,7 @@ class ProfilePage extends StatelessWidget {
     );
   }
 
+  // Membuat tombol pintasan dengan ikon, label, dan aksi yang dapat disesuaikan.
   Widget _quickAction({
     required IconData icon,
     required String label,
@@ -619,6 +694,7 @@ class ProfilePage extends StatelessWidget {
     );
   }
 
+  // Membuat baris menu profil yang dapat membuka halaman atau menjalankan aksi.
   Widget _profileMenuItem({
     required IconData icon,
     required Color iconBg,
@@ -666,7 +742,11 @@ class ProfilePage extends StatelessWidget {
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right, size: 20, color: AppColors.outline),
+            const Icon(
+              Icons.chevron_right,
+              size: 20,
+              color: AppColors.outline,
+            ),
           ],
         ),
       ),

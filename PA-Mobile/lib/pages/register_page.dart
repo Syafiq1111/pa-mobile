@@ -4,6 +4,7 @@ import 'package:pa_mobile/theme/app_colors.dart';
 import 'package:pa_mobile/utils/auth_messages.dart';
 import 'package:pa_mobile/widgets/auth_text_field.dart';
 
+// Halaman pendaftaran akun.
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
 
@@ -12,16 +13,19 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
+  // Mengelola nilai dari setiap kolom formulir.
   final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmController = TextEditingController();
 
+  // Menyimpan status proses dan validasi formulir.
   bool isLoading = false;
   String errorMessage = '';
   bool obscurePassword = true;
   bool agreeTerms = true;
 
+  // Melepaskan controller saat halaman ditutup.
   @override
   void dispose() {
     nameController.dispose();
@@ -31,7 +35,7 @@ class _RegisterPageState extends State<RegisterPage> {
     super.dispose();
   }
 
-  // Menghitung kekuatan kata sandi (0 = belum diisi, 1 = lemah, 2 = sedang, 3 = kuat)
+  // Menentukan tingkat kekuatan sandi berdasarkan panjangnya.
   int get passwordStrength {
     final text = passwordController.text;
     if (text.isEmpty) return 0;
@@ -40,6 +44,7 @@ class _RegisterPageState extends State<RegisterPage> {
     return 3;
   }
 
+  // Label untuk tingkat kekuatan sandi.
   String get strengthLabel {
     switch (passwordStrength) {
       case 1:
@@ -53,6 +58,7 @@ class _RegisterPageState extends State<RegisterPage> {
     }
   }
 
+  // Warna indikator mengikuti tingkat kekuatan sandi.
   Color get strengthColor {
     switch (passwordStrength) {
       case 1:
@@ -66,7 +72,9 @@ class _RegisterPageState extends State<RegisterPage> {
     }
   }
 
+  // Memvalidasi data lalu membuat akun melalui Firebase Authentication.
   Future<void> register() async {
+    // Pastikan kolom wajib sudah diisi.
     if (emailController.text.trim().isEmpty ||
         passwordController.text.isEmpty ||
         confirmController.text.isEmpty) {
@@ -74,11 +82,13 @@ class _RegisterPageState extends State<RegisterPage> {
       return;
     }
 
+    // Pendaftaran hanya dilanjutkan jika syarat disetujui.
     if (!agreeTerms) {
       setState(() => errorMessage = 'Harap menyetujui syarat & ketentuan');
       return;
     }
 
+    // Periksa kesesuaian kata sandi dan konfirmasinya.
     if (passwordController.text != confirmController.text) {
       setState(() => errorMessage = 'Konfirmasi password tidak sama');
       return;
@@ -90,12 +100,14 @@ class _RegisterPageState extends State<RegisterPage> {
     });
 
     try {
-      final credential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      // Buat akun menggunakan email dan kata sandi.
+      final credential =
+      await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: emailController.text.trim(),
         password: passwordController.text,
       );
 
-      // Simpan display name jika diisi
+      // Simpan nama pengguna jika kolom nama diisi.
       if (nameController.text.trim().isNotEmpty) {
         await credential.user?.updateDisplayName(nameController.text.trim());
       }
@@ -116,6 +128,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
   @override
   Widget build(BuildContext context) {
+    // Status kecocokan sandi untuk indikator konfirmasi.
     final passwordsMatch = confirmController.text.isNotEmpty &&
         confirmController.text == passwordController.text;
 
@@ -123,7 +136,7 @@ class _RegisterPageState extends State<RegisterPage> {
       backgroundColor: AppColors.background,
       body: Stack(
         children: [
-          // Ambient Blobs
+          // Dekorasi latar belakang.
           Positioned(
             top: -60,
             right: -60,
@@ -158,7 +171,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   children: [
                     const SizedBox(height: 12),
 
-                    // Top Bar
+                    // Navigasi dan judul halaman.
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -184,7 +197,8 @@ class _RegisterPageState extends State<RegisterPage> {
                           onPressed: () {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
-                                content: Text('Bantuan pendaftaran: Hubungi CS BengkelKOM di 0812-5890-XXXX'),
+                                content: Text(
+                                    'Bantuan pendaftaran: Hubungi CS BengkelKOM di 0812-5890-XXXX'),
                               ),
                             );
                           },
@@ -201,7 +215,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
                     const SizedBox(height: 18),
 
-                    // Hero Identity Avatar
+                    // Ilustrasi identitas pada bagian pembuka.
                     Stack(
                       alignment: Alignment.center,
                       clipBehavior: Clip.none,
@@ -251,8 +265,10 @@ class _RegisterPageState extends State<RegisterPage> {
 
                     const SizedBox(height: 12),
 
+                    // Identitas lokasi layanan.
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 5),
                       decoration: BoxDecoration(
                         color: AppColors.surfaceContainerLow,
                         borderRadius: BorderRadius.circular(20),
@@ -260,7 +276,8 @@ class _RegisterPageState extends State<RegisterPage> {
                       child: const Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.location_on, size: 14, color: AppColors.primary),
+                          Icon(Icons.location_on,
+                              size: 14, color: AppColors.primary),
                           SizedBox(width: 4),
                           Text(
                             'BengkelKOM Samarinda',
@@ -298,7 +315,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
                     const SizedBox(height: 22),
 
-                    // Card Form
+                    // Kartu utama formulir pendaftaran.
                     Container(
                       width: double.infinity,
                       padding: const EdgeInsets.all(22),
@@ -354,7 +371,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
                           const SizedBox(height: 20),
 
-                          // Nama Lengkap
+                          // Input nama pengguna.
                           AuthTextField(
                             controller: nameController,
                             label: 'Nama Lengkap',
@@ -364,7 +381,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
                           const SizedBox(height: 14),
 
-                          // Email
+                          // Input email untuk autentikasi.
                           AuthTextField(
                             controller: emailController,
                             label: 'Alamat Email',
@@ -375,7 +392,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
                           const SizedBox(height: 14),
 
-                          // Password
+                          // Input sandi dengan kontrol visibilitas.
                           AuthTextField(
                             controller: passwordController,
                             label: 'Kata Sandi',
@@ -391,12 +408,12 @@ class _RegisterPageState extends State<RegisterPage> {
                                 size: 20,
                                 color: AppColors.outline,
                               ),
-                              onPressed: () =>
-                                  setState(() => obscurePassword = !obscurePassword),
+                              onPressed: () => setState(
+                                      () => obscurePassword = !obscurePassword),
                             ),
                           ),
 
-                          // Password Strength Indicator
+                          // Indikator kekuatan sandi.
                           const SizedBox(height: 8),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -440,7 +457,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
                           const SizedBox(height: 14),
 
-                          // Konfirmasi Password
+                          // Input untuk memastikan sandi sesuai.
                           AuthTextField(
                             controller: confirmController,
                             label: 'Konfirmasi Sandi',
@@ -463,7 +480,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
                           const SizedBox(height: 12),
 
-                          // Agreement Checkbox
+                          // Persetujuan syarat dan kebijakan privasi.
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -486,7 +503,8 @@ class _RegisterPageState extends State<RegisterPage> {
                                   TextSpan(
                                     text: 'Saya menyetujui ',
                                     style: TextStyle(
-                                        fontSize: 12, color: AppColors.textSecondary),
+                                        fontSize: 12,
+                                        color: AppColors.textSecondary),
                                     children: [
                                       TextSpan(
                                         text: 'Syarat & Ketentuan',
@@ -511,6 +529,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             ],
                           ),
 
+                          // Tampilkan pesan jika validasi atau autentikasi gagal.
                           if (errorMessage.isNotEmpty) ...[
                             const SizedBox(height: 12),
                             Container(
@@ -542,7 +561,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
                           const SizedBox(height: 18),
 
-                          // Submit Action
+                          // Tombol untuk mengirim formulir.
                           SizedBox(
                             width: double.infinity,
                             height: 48,
@@ -567,7 +586,8 @@ class _RegisterPageState extends State<RegisterPage> {
                                 ),
                               )
                                   : const Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
+                                mainAxisAlignment:
+                                MainAxisAlignment.center,
                                 children: [
                                   Text(
                                     'Daftar Sekarang',
@@ -577,7 +597,8 @@ class _RegisterPageState extends State<RegisterPage> {
                                     ),
                                   ),
                                   SizedBox(width: 8),
-                                  Icon(Icons.arrow_forward_rounded, size: 18),
+                                  Icon(Icons.arrow_forward_rounded,
+                                      size: 18),
                                 ],
                               ),
                             ),
@@ -585,7 +606,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
                           const SizedBox(height: 16),
 
-                          // Already have account
+                          // Akses kembali ke halaman masuk.
                           Center(
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
@@ -616,6 +637,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       ),
                     ),
 
+                    // Informasi hak cipta dan alamat.
                     const SizedBox(height: 24),
                     const Text(
                       '© 2025 BengkelKOM. Jl. P. Antasari, Samarinda.',

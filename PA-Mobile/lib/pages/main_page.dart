@@ -18,34 +18,47 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
-  int currentTab = 0; // 0 Beranda, 1 Keranjang, 2 Profil
+  // Menyimpan tab aktif: 0 Beranda, 1 Keranjang, dan 2 Profil.
+  int currentTab = 0;
+
+  // Menyimpan total transaksi untuk ditampilkan setelah checkout berhasil.
   int? lastTotal;
 
+  // Memproses checkout menggunakan data keranjang dan alamat utama pengguna.
   Future<void> checkout() async {
     final cart = context.read<CartProvider>();
     final address = context.read<AddressProvider>().mainAddress;
     final total = cart.grandTotal;
 
+    // Mengirim data alamat ke proses checkout.
     final error = await cart.checkout(
       address: address == null
           ? 'Alamat belum diisi'
           : '${address.name} (${address.phone}) - ${address.detail}',
     );
+
+    // Memastikan widget masih aktif sebelum memperbarui tampilan.
     if (!mounted) return;
 
+    // Menampilkan pesan apabila checkout gagal.
     if (error != null) {
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
         ..showSnackBar(SnackBar(content: Text(error)));
       return;
     }
+
+    // Menyimpan total transaksi untuk ditampilkan pada halaman konfirmasi.
     setState(() => lastTotal = total);
   }
 
   @override
   Widget build(BuildContext context) {
     Widget page;
+
+    // Menentukan halaman yang ditampilkan sesuai kondisi navigasi.
     if (lastTotal != null) {
+      // Menampilkan ringkasan transaksi setelah checkout berhasil.
       page = TotalPage(
         total: lastTotal!,
         onBack: () => setState(() {
@@ -54,6 +67,7 @@ class _MainPageState extends State<MainPage> {
         }),
       );
     } else if (currentTab == 0) {
+      // Menampilkan beranda beserta navigasi menuju halaman kategori.
       page = MyHomePage(
         onCategoryTap: (category) {
           Navigator.push(
@@ -65,17 +79,23 @@ class _MainPageState extends State<MainPage> {
         },
       );
     } else if (currentTab == 1) {
+      // Menampilkan keranjang dan menyediakan aksi checkout.
       page = CartPage(onCheckout: checkout);
     } else {
+      // Menampilkan informasi akun dan pengaturan profil pengguna.
       page = const ProfilePage();
     }
 
+    // Navigation dock disembunyikan pada halaman konfirmasi transaksi.
     final bool showNavBar = lastTotal == null;
 
     return PopScope(
+      // Mengizinkan tombol kembali sistem keluar saat berada di beranda.
       canPop: lastTotal == null && currentTab == 0,
       onPopInvokedWithResult: (didPop, result) {
         if (didPop) return;
+
+        // Mengembalikan pengguna ke beranda saat tombol kembali ditekan.
         setState(() {
           if (lastTotal != null) {
             lastTotal = null;
@@ -91,7 +111,7 @@ class _MainPageState extends State<MainPage> {
           children: [
             SafeArea(bottom: false, child: page),
 
-            // Floating Navigation Dock
+            // Navigation dock mengambang untuk berpindah antartab utama.
             if (showNavBar)
               Positioned(
                 left: 20,
@@ -116,6 +136,7 @@ class _MainPageState extends State<MainPage> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
+                          // Tombol navigasi menuju beranda.
                           _buildDockItem(
                             index: 0,
                             icon: Icons.storefront_outlined,
@@ -123,6 +144,8 @@ class _MainPageState extends State<MainPage> {
                             label: 'Beranda',
                             activeColor: AppColors.accent,
                           ),
+
+                          // Tombol keranjang dengan indikator jumlah item.
                           _buildDockItem(
                             index: 1,
                             icon: Icons.shopping_bag_outlined,
@@ -131,6 +154,8 @@ class _MainPageState extends State<MainPage> {
                             activeColor: AppColors.accentYellow,
                             isCart: true,
                           ),
+
+                          // Tombol navigasi menuju profil pengguna.
                           _buildDockItem(
                             index: 2,
                             icon: Icons.person_outline_rounded,
@@ -150,6 +175,7 @@ class _MainPageState extends State<MainPage> {
     );
   }
 
+  // Membuat item navigation dock dengan ikon dan label sesuai tab.
   Widget _buildDockItem({
     required int index,
     required IconData icon,
@@ -159,13 +185,16 @@ class _MainPageState extends State<MainPage> {
     bool isCart = false,
   }) {
     final bool isActive = currentTab == index;
+
+    // Mengambil jumlah item keranjang agar badge diperbarui secara otomatis.
     final int cartCount =
-        context.select<CartProvider, int>((cart) => cart.totalItems);
+    context.select<CartProvider, int>((cart) => cart.totalItems);
 
     return Expanded(
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: () {
+          // Mengubah tab aktif dan menutup tampilan konfirmasi transaksi.
           setState(() {
             currentTab = index;
             lastTotal = null;
@@ -174,82 +203,96 @@ class _MainPageState extends State<MainPage> {
         child: SizedBox(
           height: 64,
           child: isActive
+          // Menampilkan ikon aktif dengan warna sesuai tab terpilih.
               ? Column(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Transform.translate(
-                      offset: const Offset(0, -6),
-                      child: Container(
-                        width: 44,
-                        height: 44,
-                        decoration: BoxDecoration(
-                          color: activeColor,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(activeIcon, size: 22, color: Colors.white),
-                      ),
-                    ),
-                    Transform.translate(
-                      offset: const Offset(0, -4),
-                      child: Text(
-                        label,
-                        style: TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w700,
-                          color: activeColor,
-                        ),
-                      ),
-                    ),
-                  ],
-                )
-              : Column(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Stack(
-                      clipBehavior: Clip.none,
-                      children: [
-                        Icon(icon, size: 22, color: const Color(0xFF64748B)),
-                        if (isCart && cartCount > 0)
-                          Positioned(
-                            top: -4,
-                            right: -6,
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 4, vertical: 1),
-                              decoration: BoxDecoration(
-                                color: AppColors.secondary,
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              constraints: const BoxConstraints(
-                                minWidth: 15,
-                                minHeight: 15,
-                              ),
-                              child: Text(
-                                '$cartCount',
-                                textAlign: TextAlign.center,
-                                style: const TextStyle(
-                                  fontSize: 9,
-                                  fontWeight: FontWeight.w800,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      label,
-                      style: const TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w500,
-                        color: Color(0xFF64748B),
-                      ),
-                    ),
-                  ],
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Transform.translate(
+                offset: const Offset(0, -6),
+                child: Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: activeColor,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    activeIcon,
+                    size: 22,
+                    color: Colors.white,
+                  ),
                 ),
+              ),
+              Transform.translate(
+                offset: const Offset(0, -4),
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                    color: activeColor,
+                  ),
+                ),
+              ),
+            ],
+          )
+          // Menampilkan ikon standar untuk tab yang tidak aktif.
+              : Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Icon(
+                    icon,
+                    size: 22,
+                    color: const Color(0xFF64748B),
+                  ),
+
+                  // Badge jumlah item hanya muncul pada tab keranjang.
+                  if (isCart && cartCount > 0)
+                    Positioned(
+                      top: -4,
+                      right: -6,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 4,
+                          vertical: 1,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.secondary,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        constraints: const BoxConstraints(
+                          minWidth: 15,
+                          minHeight: 15,
+                        ),
+                        child: Text(
+                          '$cartCount',
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 9,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 2),
+              Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w500,
+                  color: Color(0xFF64748B),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

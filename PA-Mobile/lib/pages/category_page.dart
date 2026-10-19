@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:pa_mobile/models/category.dart';
@@ -6,23 +7,29 @@ import 'package:pa_mobile/providers/cart_provider.dart';
 import 'package:pa_mobile/theme/app_colors.dart';
 import 'package:pa_mobile/widgets/product_grid.dart';
 
-// Halaman kategori modern BengkelKOM dengan modal filter bersih, tanpa shadow, dan warna solid
+// Halaman kategori produk dengan fitur filter dan pengurutan.
 class CategoryPage extends StatefulWidget {
   final Category category;
   final VoidCallback? onBack;
 
-  const CategoryPage({super.key, required this.category, this.onBack});
+  const CategoryPage({
+    super.key,
+    required this.category,
+    this.onBack,
+  });
 
   @override
   State<CategoryPage> createState() => _CategoryPageState();
 }
 
 class _CategoryPageState extends State<CategoryPage> {
+  // Menyimpan merek, metode pengurutan, dan rentang harga yang dipilih.
   String selectedBrand = 'Semua';
   int sortMode = 0; // 0: Terlaris, 1: Harga Terendah, 2: Harga Tertinggi, 3: Rating Tertinggi
   int? minPrice;
   int? maxPrice;
 
+  // Mengubah kode pengurutan menjadi teks yang ditampilkan pada antarmuka.
   String _getSortLabel(int mode) {
     switch (mode) {
       case 1:
@@ -37,14 +44,18 @@ class _CategoryPageState extends State<CategoryPage> {
     }
   }
 
+  // Menghitung jumlah filter yang sedang aktif.
   int get _activeFilterCount {
     int count = 0;
+
     if (selectedBrand != 'Semua') count++;
     if (sortMode != 0) count++;
     if (minPrice != null || maxPrice != null) count++;
+
     return count;
   }
 
+  // Mengembalikan seluruh filter ke pengaturan awal.
   void _resetAllFilters() {
     setState(() {
       selectedBrand = 'Semua';
@@ -54,12 +65,16 @@ class _CategoryPageState extends State<CategoryPage> {
     });
   }
 
+  // Menampilkan modal untuk memilih pengurutan, merek, dan rentang harga.
   void _showFilterModal(BuildContext context, List<String> brands) {
     String tempBrand = selectedBrand;
     int tempSort = sortMode;
+
+    // Menyiapkan input harga berdasarkan filter yang sedang digunakan.
     final minController = TextEditingController(
       text: minPrice != null ? minPrice.toString() : '',
     );
+
     final maxController = TextEditingController(
       text: maxPrice != null ? maxPrice.toString() : '',
     );
@@ -79,12 +94,14 @@ class _CategoryPageState extends State<CategoryPage> {
               ),
               decoration: const BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+                borderRadius: BorderRadius.vertical(
+                  top: Radius.circular(28),
+                ),
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Handle Bar
+                  // Handle bar sebagai penanda modal dapat digeser.
                   const SizedBox(height: 12),
                   Center(
                     child: Container(
@@ -97,7 +114,7 @@ class _CategoryPageState extends State<CategoryPage> {
                     ),
                   ),
 
-                  // Header Modal
+                  // Header modal berisi judul, tombol reset, dan tombol tutup.
                   Padding(
                     padding: const EdgeInsets.fromLTRB(20, 14, 16, 12),
                     child: Row(
@@ -132,6 +149,7 @@ class _CategoryPageState extends State<CategoryPage> {
                         ),
                         Row(
                           children: [
+                            // Reset pilihan sementara di dalam modal.
                             InkWell(
                               onTap: () {
                                 setModalState(() {
@@ -143,16 +161,25 @@ class _CategoryPageState extends State<CategoryPage> {
                               },
                               borderRadius: BorderRadius.circular(20),
                               child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 6,
+                                ),
                                 decoration: BoxDecoration(
                                   color: const Color(0xFFFFF1EE),
                                   borderRadius: BorderRadius.circular(20),
-                                  border: Border.all(color: const Color(0xFFFFDAD2)),
+                                  border: Border.all(
+                                    color: const Color(0xFFFFDAD2),
+                                  ),
                                 ),
                                 child: const Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    Icon(Icons.restart_alt_rounded, size: 14, color: AppColors.secondary),
+                                    Icon(
+                                      Icons.restart_alt_rounded,
+                                      size: 14,
+                                      color: AppColors.secondary,
+                                    ),
                                     SizedBox(width: 4),
                                     Text(
                                       'Reset',
@@ -169,10 +196,15 @@ class _CategoryPageState extends State<CategoryPage> {
                             const SizedBox(width: 8),
                             IconButton(
                               onPressed: () => Navigator.pop(modalContext),
-                              icon: const Icon(Icons.close_rounded, color: AppColors.textSecondary),
+                              icon: const Icon(
+                                Icons.close_rounded,
+                                color: AppColors.textSecondary,
+                              ),
                               style: IconButton.styleFrom(
                                 backgroundColor: const Color(0xFFF1F5F9),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
                               ),
                             ),
                           ],
@@ -180,17 +212,25 @@ class _CategoryPageState extends State<CategoryPage> {
                       ],
                     ),
                   ),
-                  const Divider(height: 1, color: Color(0xFFE2E8F0)),
+                  const Divider(
+                    height: 1,
+                    color: Color(0xFFE2E8F0),
+                  ),
 
-                  // Konten Filter
+                  // Area pengaturan filter yang dapat digulir.
                   Expanded(
                     child: SingleChildScrollView(
                       physics: const BouncingScrollPhysics(),
-                      padding: EdgeInsets.fromLTRB(20, 18, 20, 20 + bottomInset),
+                      padding: EdgeInsets.fromLTRB(
+                        20,
+                        18,
+                        20,
+                        20 + bottomInset,
+                      ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // 1. Urutkan Berdasarkan
+                          // Pilihan metode pengurutan produk.
                           _modalSectionHeader(
                             title: 'Urutkan Berdasarkan',
                             icon: Icons.sort_rounded,
@@ -205,32 +245,40 @@ class _CategoryPageState extends State<CategoryPage> {
                                 label: 'Terlaris',
                                 isSelected: tempSort == 0,
                                 icon: Icons.local_fire_department_rounded,
-                                onTap: () => setModalState(() => tempSort = 0),
+                                onTap: () => setModalState(
+                                      () => tempSort = 0,
+                                ),
                               ),
                               _sortOptionPill(
                                 label: 'Harga Terendah',
                                 isSelected: tempSort == 1,
                                 icon: Icons.arrow_downward_rounded,
-                                onTap: () => setModalState(() => tempSort = 1),
+                                onTap: () => setModalState(
+                                      () => tempSort = 1,
+                                ),
                               ),
                               _sortOptionPill(
                                 label: 'Harga Tertinggi',
                                 isSelected: tempSort == 2,
                                 icon: Icons.arrow_upward_rounded,
-                                onTap: () => setModalState(() => tempSort = 2),
+                                onTap: () => setModalState(
+                                      () => tempSort = 2,
+                                ),
                               ),
                               _sortOptionPill(
                                 label: 'Rating Tertinggi',
                                 isSelected: tempSort == 3,
                                 icon: Icons.star_rounded,
-                                onTap: () => setModalState(() => tempSort = 3),
+                                onTap: () => setModalState(
+                                      () => tempSort = 3,
+                                ),
                               ),
                             ],
                           ),
 
                           const SizedBox(height: 26),
 
-                          // 2. Filter Merek
+                          // Pilihan merek berdasarkan produk dalam kategori.
                           _modalSectionHeader(
                             title: 'Merek Produk',
                             icon: Icons.business_outlined,
@@ -244,20 +292,24 @@ class _CategoryPageState extends State<CategoryPage> {
                               _brandOptionPill(
                                 label: 'Semua Merek',
                                 isSelected: tempBrand == 'Semua',
-                                onTap: () => setModalState(() => tempBrand = 'Semua'),
+                                onTap: () => setModalState(
+                                      () => tempBrand = 'Semua',
+                                ),
                               ),
                               for (final brand in brands)
                                 _brandOptionPill(
                                   label: brand,
                                   isSelected: tempBrand == brand,
-                                  onTap: () => setModalState(() => tempBrand = brand),
+                                  onTap: () => setModalState(
+                                        () => tempBrand = brand,
+                                  ),
                                 ),
                             ],
                           ),
 
                           const SizedBox(height: 26),
 
-                          // 3. Rentang Harga
+                          // Input batas harga minimum dan maksimum.
                           _modalSectionHeader(
                             title: 'Rentang Harga (Rp)',
                             icon: Icons.payments_outlined,
@@ -273,8 +325,17 @@ class _CategoryPageState extends State<CategoryPage> {
                                 ),
                               ),
                               const Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 10),
-                                child: Text('—', style: TextStyle(color: Color(0xFF94A3B8), fontWeight: FontWeight.w800, fontSize: 16)),
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                ),
+                                child: Text(
+                                  '—',
+                                  style: TextStyle(
+                                    color: Color(0xFF94A3B8),
+                                    fontWeight: FontWeight.w800,
+                                    fontSize: 16,
+                                  ),
+                                ),
                               ),
                               Expanded(
                                 child: _priceInputField(
@@ -286,7 +347,7 @@ class _CategoryPageState extends State<CategoryPage> {
                           ),
                           const SizedBox(height: 12),
 
-                          // Shortcut preset harga dinamis
+                          // Pilihan rentang harga cepat untuk mempermudah input.
                           SingleChildScrollView(
                             scrollDirection: Axis.horizontal,
                             physics: const BouncingScrollPhysics(),
@@ -336,7 +397,7 @@ class _CategoryPageState extends State<CategoryPage> {
                     ),
                   ),
 
-                  // Bottom Action Button Solid (Tanpa Shadow dan Tanpa Gradien)
+                  // Tombol untuk menerapkan pilihan filter ke halaman kategori.
                   Container(
                     padding: EdgeInsets.fromLTRB(
                       20,
@@ -346,20 +407,31 @@ class _CategoryPageState extends State<CategoryPage> {
                     ),
                     decoration: const BoxDecoration(
                       color: Colors.white,
-                      border: Border(top: BorderSide(color: Color(0xFFE2E8F0))),
+                      border: Border(
+                        top: BorderSide(color: Color(0xFFE2E8F0)),
+                      ),
                     ),
                     child: SizedBox(
                       width: double.infinity,
                       height: 50,
                       child: ElevatedButton.icon(
                         onPressed: () {
+                          // Mengubah input harga menjadi angka sebelum disimpan.
                           final parsedMin = int.tryParse(
-                            minController.text.replaceAll(RegExp(r'[^0-9]'), ''),
-                          );
-                          final parsedMax = int.tryParse(
-                            maxController.text.replaceAll(RegExp(r'[^0-9]'), ''),
+                            minController.text.replaceAll(
+                              RegExp(r'[^0-9]'),
+                              '',
+                            ),
                           );
 
+                          final parsedMax = int.tryParse(
+                            maxController.text.replaceAll(
+                              RegExp(r'[^0-9]'),
+                              '',
+                            ),
+                          );
+
+                          // Menyimpan filter yang dipilih pengguna.
                           setState(() {
                             selectedBrand = tempBrand;
                             sortMode = tempSort;
@@ -369,7 +441,11 @@ class _CategoryPageState extends State<CategoryPage> {
 
                           Navigator.pop(modalContext);
                         },
-                        icon: const Icon(Icons.check_rounded, color: Colors.white, size: 20),
+                        icon: const Icon(
+                          Icons.check_rounded,
+                          color: Colors.white,
+                          size: 20,
+                        ),
                         label: const Text(
                           'Terapkan Filter',
                           style: TextStyle(
@@ -399,6 +475,7 @@ class _CategoryPageState extends State<CategoryPage> {
     );
   }
 
+  // Membuat judul bagian filter dengan ikon dan warna yang dapat disesuaikan.
   Widget _modalSectionHeader({
     required String title,
     required IconData icon,
@@ -420,6 +497,7 @@ class _CategoryPageState extends State<CategoryPage> {
     );
   }
 
+  // Membuat tombol pilihan metode pengurutan dengan penanda pilihan aktif.
   Widget _sortOptionPill({
     required String label,
     required bool isSelected,
@@ -430,12 +508,17 @@ class _CategoryPageState extends State<CategoryPage> {
       onTap: onTap,
       borderRadius: BorderRadius.circular(24),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
+        padding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 9,
+        ),
         decoration: BoxDecoration(
           color: isSelected ? AppColors.accent : Colors.white,
           borderRadius: BorderRadius.circular(24),
           border: Border.all(
-            color: isSelected ? AppColors.accent : const Color(0xFFE2E8F0),
+            color: isSelected
+                ? AppColors.accent
+                : const Color(0xFFE2E8F0),
             width: 1.2,
           ),
         ),
@@ -445,15 +528,21 @@ class _CategoryPageState extends State<CategoryPage> {
             Icon(
               icon,
               size: 16,
-              color: isSelected ? Colors.white : const Color(0xFF64748B),
+              color: isSelected
+                  ? Colors.white
+                  : const Color(0xFF64748B),
             ),
             const SizedBox(width: 6),
             Text(
               label,
               style: TextStyle(
                 fontSize: 12,
-                fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                color: isSelected ? Colors.white : AppColors.textPrimary,
+                fontWeight: isSelected
+                    ? FontWeight.w800
+                    : FontWeight.w600,
+                color: isSelected
+                    ? Colors.white
+                    : AppColors.textPrimary,
               ),
             ),
           ],
@@ -462,6 +551,7 @@ class _CategoryPageState extends State<CategoryPage> {
     );
   }
 
+  // Membuat tombol pilihan merek produk.
   Widget _brandOptionPill({
     required String label,
     required bool isSelected,
@@ -471,12 +561,17 @@ class _CategoryPageState extends State<CategoryPage> {
       onTap: onTap,
       borderRadius: BorderRadius.circular(24),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
+        padding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 9,
+        ),
         decoration: BoxDecoration(
           color: isSelected ? AppColors.primary : Colors.white,
           borderRadius: BorderRadius.circular(24),
           border: Border.all(
-            color: isSelected ? AppColors.primary : const Color(0xFFE2E8F0),
+            color: isSelected
+                ? AppColors.primary
+                : const Color(0xFFE2E8F0),
             width: 1.2,
           ),
         ),
@@ -484,14 +579,19 @@ class _CategoryPageState extends State<CategoryPage> {
           label,
           style: TextStyle(
             fontSize: 12,
-            fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-            color: isSelected ? Colors.white : AppColors.textPrimary,
+            fontWeight: isSelected
+                ? FontWeight.w800
+                : FontWeight.w600,
+            color: isSelected
+                ? Colors.white
+                : AppColors.textPrimary,
           ),
         ),
       ),
     );
   }
 
+  // Membuat kolom input harga dengan awalan mata uang rupiah.
   Widget _priceInputField({
     required TextEditingController controller,
     required String hint,
@@ -501,13 +601,19 @@ class _CategoryPageState extends State<CategoryPage> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFFCBD5E1), width: 1.2),
+        border: Border.all(
+          color: const Color(0xFFCBD5E1),
+          width: 1.2,
+        ),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 10),
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 8,
+              vertical: 4,
+            ),
             decoration: BoxDecoration(
               color: const Color(0xFFE6F4F1),
               borderRadius: BorderRadius.circular(8),
@@ -548,6 +654,7 @@ class _CategoryPageState extends State<CategoryPage> {
     );
   }
 
+  // Membuat tombol rentang harga yang dapat langsung mengisi kolom harga.
   Widget _pricePresetChip({
     required String label,
     required VoidCallback onTap,
@@ -558,11 +665,16 @@ class _CategoryPageState extends State<CategoryPage> {
         onTap: onTap,
         borderRadius: BorderRadius.circular(20),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          padding: const EdgeInsets.symmetric(
+            horizontal: 12,
+            vertical: 6,
+          ),
           decoration: BoxDecoration(
             color: const Color(0xFFFFFBEB),
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: const Color(0xFFFDE68A)),
+            border: Border.all(
+              color: const Color(0xFFFDE68A),
+            ),
           ),
           child: Text(
             label,
@@ -584,22 +696,29 @@ class _CategoryPageState extends State<CategoryPage> {
       body: SafeArea(
         child: Column(
           children: [
-            // Bar atas: Tombol kembali dan teks kategori (Tanpa icon)
+            // Bar navigasi atas yang menampilkan tombol kembali dan nama kategori.
             Container(
               height: 60,
               padding: const EdgeInsets.symmetric(horizontal: 16),
               decoration: const BoxDecoration(
                 color: AppColors.surface,
-                border: Border(bottom: BorderSide(color: AppColors.borderSubtle)),
+                border: Border(
+                  bottom: BorderSide(color: AppColors.borderSubtle),
+                ),
               ),
               child: Row(
                 children: [
                   IconButton(
                     onPressed: widget.onBack ?? () => Navigator.pop(context),
-                    icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary),
+                    icon: const Icon(
+                      Icons.arrow_back_rounded,
+                      color: AppColors.textPrimary,
+                    ),
                     style: IconButton.styleFrom(
                       backgroundColor: const Color(0xFFF1F5F9),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                     ),
                   ),
                   const SizedBox(width: 14),
@@ -616,53 +735,79 @@ class _CategoryPageState extends State<CategoryPage> {
               ),
             ),
 
+            // Consumer memperbarui daftar ketika data pada CartProvider berubah.
             Expanded(
               child: Consumer<CartProvider>(
                 builder: (context, cart, child) {
+                  // Mengambil produk yang termasuk dalam kategori saat ini.
                   final categoryProducts = cart.products.where((product) {
                     return product.category == widget.category.name;
                   }).toList();
 
-                  final brands = categoryProducts.map((p) => p.brand).toSet().toList()
+                  // Mengumpulkan merek unik untuk ditampilkan pada pilihan filter.
+                  final brands = categoryProducts
+                      .map((product) => product.brand)
+                      .toSet()
+                      .toList()
                     ..sort();
 
-                  // Filter Produk
+                  // Menyaring produk berdasarkan merek dan rentang harga.
                   final visibleProducts = categoryProducts.where((product) {
-                    if (selectedBrand != 'Semua' && product.brand != selectedBrand) {
+                    if (selectedBrand != 'Semua' &&
+                        product.brand != selectedBrand) {
                       return false;
                     }
+
                     if (minPrice != null && product.price < minPrice!) {
                       return false;
                     }
+
                     if (maxPrice != null && product.price > maxPrice!) {
                       return false;
                     }
+
                     return true;
                   }).toList();
 
-                  // Sorting Produk
+                  // Mengurutkan produk sesuai metode yang dipilih pengguna.
                   if (sortMode == 1) {
-                    visibleProducts.sort((a, b) => a.price.compareTo(b.price));
+                    visibleProducts.sort(
+                          (a, b) => a.price.compareTo(b.price),
+                    );
                   } else if (sortMode == 2) {
-                    visibleProducts.sort((a, b) => b.price.compareTo(a.price));
+                    visibleProducts.sort(
+                          (a, b) => b.price.compareTo(a.price),
+                    );
                   } else if (sortMode == 3) {
-                    visibleProducts.sort((a, b) => b.rating.compareTo(a.rating));
+                    visibleProducts.sort(
+                          (a, b) => b.rating.compareTo(a.rating),
+                    );
                   } else {
-                    visibleProducts.sort((a, b) => b.sold.compareTo(a.sold));
+                    visibleProducts.sort(
+                          (a, b) => b.sold.compareTo(a.sold),
+                    );
                   }
 
+                  // Menentukan apakah terdapat filter selain pengaturan awal.
                   final bool hasActiveFilter = _activeFilterCount > 0;
 
                   return CustomScrollView(
                     physics: const BouncingScrollPhysics(),
                     slivers: [
-                      // Bar Kontrol: Ringkasan Produk & Tombol Filter Solid Tanpa Shadow
+                      // Menampilkan jumlah produk dan tombol pengaturan filter.
                       SliverToBoxAdapter(
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
                           decoration: const BoxDecoration(
                             color: AppColors.surface,
-                            border: Border(bottom: BorderSide(color: AppColors.borderSubtle)),
+                            border: Border(
+                              bottom: BorderSide(
+                                color: AppColors.borderSubtle,
+                              ),
+                            ),
                           ),
                           child: Row(
                             children: [
@@ -676,16 +821,26 @@ class _CategoryPageState extends State<CategoryPage> {
                               ),
                               const Spacer(),
                               InkWell(
-                                onTap: () => _showFilterModal(context, brands),
+                                onTap: () => _showFilterModal(
+                                  context,
+                                  brands,
+                                ),
                                 borderRadius: BorderRadius.circular(20),
                                 child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 14,
+                                    vertical: 8,
+                                  ),
                                   decoration: BoxDecoration(
-                                    color: hasActiveFilter ? AppColors.primary : Colors.white,
+                                    color: hasActiveFilter
+                                        ? AppColors.primary
+                                        : Colors.white,
                                     border: Border.all(
                                       color: hasActiveFilter
                                           ? AppColors.primary
-                                          : AppColors.primary.withValues(alpha: 0.35),
+                                          : AppColors.primary.withValues(
+                                        alpha: 0.35,
+                                      ),
                                       width: 1.2,
                                     ),
                                     borderRadius: BorderRadius.circular(20),
@@ -696,7 +851,9 @@ class _CategoryPageState extends State<CategoryPage> {
                                       Icon(
                                         Icons.tune_rounded,
                                         size: 16,
-                                        color: hasActiveFilter ? Colors.white : AppColors.primary,
+                                        color: hasActiveFilter
+                                            ? Colors.white
+                                            : AppColors.primary,
                                       ),
                                       const SizedBox(width: 6),
                                       Text(
@@ -704,9 +861,13 @@ class _CategoryPageState extends State<CategoryPage> {
                                         style: TextStyle(
                                           fontSize: 12,
                                           fontWeight: FontWeight.w800,
-                                          color: hasActiveFilter ? Colors.white : AppColors.primary,
+                                          color: hasActiveFilter
+                                              ? Colors.white
+                                              : AppColors.primary,
                                         ),
                                       ),
+
+                                      // Menampilkan jumlah filter yang sedang aktif.
                                       if (hasActiveFilter) ...[
                                         const SizedBox(width: 6),
                                         Container(
@@ -741,17 +902,23 @@ class _CategoryPageState extends State<CategoryPage> {
                         ),
                       ),
 
-                      // Strip Chip Filter Aktif
+                      // Menampilkan chip filter agar pilihan dapat dihapus satu per satu.
                       if (hasActiveFilter)
                         SliverToBoxAdapter(
                           child: Container(
                             color: AppColors.surface,
-                            padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
+                            padding: const EdgeInsets.fromLTRB(
+                              16,
+                              4,
+                              16,
+                              12,
+                            ),
                             child: SingleChildScrollView(
                               scrollDirection: Axis.horizontal,
                               physics: const BouncingScrollPhysics(),
                               child: Row(
                                 children: [
+                                  // Chip untuk metode pengurutan yang aktif.
                                   if (sortMode != 0)
                                     _activeFilterPill(
                                       label: _getSortLabel(sortMode),
@@ -759,8 +926,12 @@ class _CategoryPageState extends State<CategoryPage> {
                                       borderColor: const Color(0xFFFED7AA),
                                       textColor: const Color(0xFFC2410C),
                                       icon: Icons.sort_rounded,
-                                      onRemove: () => setState(() => sortMode = 0),
+                                      onRemove: () {
+                                        setState(() => sortMode = 0);
+                                      },
                                     ),
+
+                                  // Chip untuk merek yang sedang dipilih.
                                   if (selectedBrand != 'Semua')
                                     _activeFilterPill(
                                       label: selectedBrand,
@@ -768,8 +939,14 @@ class _CategoryPageState extends State<CategoryPage> {
                                       borderColor: const Color(0xFF80CBC4),
                                       textColor: AppColors.primary,
                                       icon: Icons.verified_outlined,
-                                      onRemove: () => setState(() => selectedBrand = 'Semua'),
+                                      onRemove: () {
+                                        setState(() {
+                                          selectedBrand = 'Semua';
+                                        });
+                                      },
                                     ),
+
+                                  // Chip untuk rentang harga yang sedang diterapkan.
                                   if (minPrice != null || maxPrice != null)
                                     _activeFilterPill(
                                       label: _formatActivePrice(),
@@ -777,25 +954,38 @@ class _CategoryPageState extends State<CategoryPage> {
                                       borderColor: const Color(0xFFBFDBFE),
                                       textColor: const Color(0xFF1D4ED8),
                                       icon: Icons.payments_outlined,
-                                      onRemove: () => setState(() {
-                                        minPrice = null;
-                                        maxPrice = null;
-                                      }),
+                                      onRemove: () {
+                                        setState(() {
+                                          minPrice = null;
+                                          maxPrice = null;
+                                        });
+                                      },
                                     ),
+
+                                  // Menghapus seluruh filter sekaligus.
                                   InkWell(
                                     onTap: _resetAllFilters,
                                     borderRadius: BorderRadius.circular(20),
                                     child: Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 10,
+                                        vertical: 5,
+                                      ),
                                       decoration: BoxDecoration(
                                         color: const Color(0xFFFFF1EE),
                                         borderRadius: BorderRadius.circular(20),
-                                        border: Border.all(color: const Color(0xFFFFDAD2)),
+                                        border: Border.all(
+                                          color: const Color(0xFFFFDAD2),
+                                        ),
                                       ),
                                       child: const Row(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
-                                          Icon(Icons.close_rounded, size: 12, color: AppColors.secondary),
+                                          Icon(
+                                            Icons.close_rounded,
+                                            size: 12,
+                                            color: AppColors.secondary,
+                                          ),
                                           SizedBox(width: 3),
                                           Text(
                                             'Hapus Semua',
@@ -815,15 +1005,20 @@ class _CategoryPageState extends State<CategoryPage> {
                           ),
                         ),
 
+                      // Menampilkan indikator saat data produk sedang dimuat.
                       if (cart.isLoading)
                         const SliverToBoxAdapter(
                           child: Padding(
                             padding: EdgeInsets.only(top: 40),
                             child: Center(
-                              child: CircularProgressIndicator(color: AppColors.primary),
+                              child: CircularProgressIndicator(
+                                color: AppColors.primary,
+                              ),
                             ),
                           ),
                         )
+
+                      // Menampilkan pesan ketika tidak ada produk yang sesuai filter.
                       else if (visibleProducts.isEmpty)
                         SliverToBoxAdapter(
                           child: Padding(
@@ -838,7 +1033,9 @@ class _CategoryPageState extends State<CategoryPage> {
                                     decoration: BoxDecoration(
                                       color: const Color(0xFFEDF5FA),
                                       shape: BoxShape.circle,
-                                      border: Border.all(color: const Color(0xFFD6E3E9)),
+                                      border: Border.all(
+                                        color: const Color(0xFFD6E3E9),
+                                      ),
                                     ),
                                     child: const Icon(
                                       Icons.search_off_rounded,
@@ -864,15 +1061,23 @@ class _CategoryPageState extends State<CategoryPage> {
                                     ),
                                   ),
                                   const SizedBox(height: 18),
+
+                                  // Tombol untuk mengembalikan filter ke pengaturan awal.
                                   ElevatedButton.icon(
                                     onPressed: _resetAllFilters,
-                                    icon: const Icon(Icons.refresh_rounded, size: 18),
+                                    icon: const Icon(
+                                      Icons.refresh_rounded,
+                                      size: 18,
+                                    ),
                                     label: const Text('Reset Filter'),
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: AppColors.primary,
                                       foregroundColor: Colors.white,
                                       elevation: 0,
-                                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 20,
+                                        vertical: 12,
+                                      ),
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(14),
                                       ),
@@ -883,6 +1088,8 @@ class _CategoryPageState extends State<CategoryPage> {
                             ),
                           ),
                         )
+
+                      // Menampilkan produk dalam bentuk grid ketika data tersedia.
                       else
                         SliverPadding(
                           padding: EdgeInsets.fromLTRB(
@@ -891,7 +1098,9 @@ class _CategoryPageState extends State<CategoryPage> {
                             16,
                             32 + MediaQuery.of(context).padding.bottom,
                           ),
-                          sliver: SliverProductGrid(products: visibleProducts),
+                          sliver: SliverProductGrid(
+                            products: visibleProducts,
+                          ),
                         ),
                     ],
                   );
@@ -904,6 +1113,7 @@ class _CategoryPageState extends State<CategoryPage> {
     );
   }
 
+  // Menyusun teks rentang harga untuk ditampilkan pada chip filter aktif.
   String _formatActivePrice() {
     if (minPrice != null && maxPrice != null) {
       return '${formatRupiah(minPrice!)} - ${formatRupiah(maxPrice!)}';
@@ -912,9 +1122,11 @@ class _CategoryPageState extends State<CategoryPage> {
     } else if (maxPrice != null) {
       return '≤ ${formatRupiah(maxPrice!)}';
     }
+
     return '';
   }
 
+  // Membuat chip filter aktif dengan warna, ikon, dan tombol hapus yang dinamis.
   Widget _activeFilterPill({
     required String label,
     required Color bgColor,
@@ -925,11 +1137,17 @@ class _CategoryPageState extends State<CategoryPage> {
   }) {
     return Container(
       margin: const EdgeInsets.only(right: 8),
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 10,
+        vertical: 5,
+      ),
       decoration: BoxDecoration(
         color: bgColor,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: borderColor, width: 1.1),
+        border: Border.all(
+          color: borderColor,
+          width: 1.1,
+        ),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -945,6 +1163,8 @@ class _CategoryPageState extends State<CategoryPage> {
             ),
           ),
           const SizedBox(width: 5),
+
+          // Menghapus filter tertentu tanpa memengaruhi filter lainnya.
           InkWell(
             onTap: onRemove,
             borderRadius: BorderRadius.circular(10),

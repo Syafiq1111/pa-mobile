@@ -6,7 +6,7 @@ import 'package:pa_mobile/providers/cart_provider.dart';
 import 'package:pa_mobile/theme/app_colors.dart';
 import 'package:pa_mobile/utils/format_date.dart';
 
-// Halaman riwayat pembelian, diisi dari hasil checkout
+// Menampilkan riwayat pembelian berdasarkan data pesanan hasil checkout.
 class OrderHistoryPage extends StatelessWidget {
   const OrderHistoryPage({super.key});
 
@@ -21,28 +21,41 @@ class OrderHistoryPage extends StatelessWidget {
         ),
       ),
       body: SafeArea(
+        // Memperbarui tampilan ketika data pesanan pada CartProvider berubah.
         child: Consumer<CartProvider>(
           builder: (context, cart, child) {
             return SingleChildScrollView(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 8,
+                ),
                 child: Column(
                   children: [
-                    // Pesan jika belum ada pesanan
+                    // Menampilkan pesan ketika belum ada riwayat pembelian.
                     if (cart.orders.isEmpty)
                       const Padding(
                         padding: EdgeInsets.only(top: 80),
                         child: Column(
                           children: [
-                            Icon(Icons.receipt_long_outlined, size: 64, color: AppColors.border),
+                            Icon(
+                              Icons.receipt_long_outlined,
+                              size: 64,
+                              color: AppColors.border,
+                            ),
                             SizedBox(height: 12),
                             Text(
                               'Belum ada riwayat pembelian',
-                              style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: AppColors.textSecondary,
+                              ),
                             ),
                           ],
                         ),
                       ),
+
+                    // Menampilkan setiap pesanan dalam bentuk kartu.
                     for (final order in cart.orders) ...[
                       _buildOrderCard(order),
                       const SizedBox(height: 14),
@@ -57,7 +70,7 @@ class OrderHistoryPage extends StatelessWidget {
     );
   }
 
-  // Widget card pesanan: nomor, tanggal, daftar barang, alamat, dan total
+  // Menyusun kartu pesanan yang berisi detail transaksi dan pengiriman.
   Widget _buildOrderCard(PurchaseOrder order) {
     return Container(
       width: double.infinity,
@@ -70,34 +83,51 @@ class OrderHistoryPage extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Menampilkan nomor pesanan dan status transaksi.
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
                 order.id,
-                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.textPrimary,
+                ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: AppColors.success,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Text(
                   'Selesai',
-                  style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.white),
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
                 ),
               ),
             ],
           ),
           const SizedBox(height: 2),
+
+          // Memformat tanggal transaksi agar mudah dibaca.
           Text(
             formatTanggal(order.date),
-            style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+            style: const TextStyle(
+              fontSize: 11,
+              color: AppColors.textSecondary,
+            ),
           ),
           const SizedBox(height: 12),
 
-          // Daftar barang dalam pesanan
+          // Menampilkan nama, merek, jumlah, harga, dan subtotal barang.
           for (final item in order.items)
             Padding(
               padding: const EdgeInsets.only(bottom: 8),
@@ -111,11 +141,18 @@ class OrderHistoryPage extends StatelessWidget {
                           item.name,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.textPrimary,
+                          ),
                         ),
                         Text(
                           '${item.brand} • ${item.quantity} x ${formatRupiah(item.price)}',
-                          style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                          style: const TextStyle(
+                            fontSize: 11,
+                            color: AppColors.textSecondary,
+                          ),
                         ),
                       ],
                     ),
@@ -123,38 +160,59 @@ class OrderHistoryPage extends StatelessWidget {
                   const SizedBox(width: 8),
                   Text(
                     formatRupiah(item.subtotal),
-                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textPrimary,
+                    ),
                   ),
                 ],
               ),
             ),
 
-          // Garis pemisah
+          // Memisahkan daftar barang dari informasi pengiriman.
           Container(
             margin: const EdgeInsets.symmetric(vertical: 6),
             height: 1,
             color: AppColors.border,
           ),
+
+          // Menampilkan alamat tujuan pengiriman pesanan.
           const Text(
             'Dikirim ke',
-            style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
+            style: TextStyle(
+              fontSize: 11,
+              color: AppColors.textSecondary,
+            ),
           ),
           const SizedBox(height: 2),
           Text(
             order.address,
-            style: const TextStyle(fontSize: 12, color: AppColors.textPrimary),
+            style: const TextStyle(
+              fontSize: 12,
+              color: AppColors.textPrimary,
+            ),
           ),
           const SizedBox(height: 10),
+
+          // Menampilkan total biaya seluruh barang dalam pesanan.
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
                 'Total',
-                style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                style: TextStyle(
+                  fontSize: 12,
+                  color: AppColors.textSecondary,
+                ),
               ),
               Text(
                 formatRupiah(order.total),
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.primary),
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.primary,
+                ),
               ),
             ],
           ),
