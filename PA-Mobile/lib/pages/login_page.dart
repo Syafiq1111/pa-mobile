@@ -241,65 +241,20 @@ class _LoginPageState extends State<LoginPage> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                // Tab Switcher
-                                Container(
-                                  padding: const EdgeInsets.all(4),
-                                  decoration: BoxDecoration(
-                                    color: AppColors.surfaceContainerLow,
-                                    borderRadius: BorderRadius.circular(14),
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Expanded(
-                                        child: Container(
-                                          padding: const EdgeInsets.symmetric(vertical: 9),
-                                          decoration: BoxDecoration(
-                                            color: AppColors.surface,
-                                            borderRadius: BorderRadius.circular(10),
-                                            boxShadow: [
-                                              BoxShadow(
-                                                color: Colors.black.withValues(alpha: 0.05),
-                                                blurRadius: 4,
-                                                offset: const Offset(0, 2),
-                                              ),
-                                            ],
-                                          ),
-                                          child: const Center(
-                                            child: Text(
-                                              'Masuk Akun',
-                                              style: TextStyle(
-                                                fontSize: 12,
-                                                fontWeight: FontWeight.w700,
-                                                color: AppColors.primary,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      Expanded(
-                                        child: InkWell(
-                                          onTap: openRegister,
-                                          borderRadius: BorderRadius.circular(10),
-                                          child: const Padding(
-                                            padding: EdgeInsets.symmetric(vertical: 9),
-                                            child: Center(
-                                              child: Text(
-                                                'Daftar Baru',
-                                                style: TextStyle(
-                                                  fontSize: 12,
-                                                  fontWeight: FontWeight.w600,
-                                                  color: AppColors.textSecondary,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
+                                // Judul form (menggantikan tab Masuk Akun / Daftar Baru)
+                                const Center(
+                                  child: Text(
+                                    'Masuk Akun',
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w800,
+                                      color: AppColors.primary,
+                                      letterSpacing: -0.3,
+                                    ),
                                   ),
                                 ),
 
-                                const SizedBox(height: 20),
+                                const SizedBox(height: 18),
 
                                 // Email Input
                                 AuthTextField(
@@ -328,7 +283,7 @@ class _LoginPageState extends State<LoginPage> {
                                       color: AppColors.outline,
                                     ),
                                     onPressed: () => setState(
-                                        () => obscurePassword = !obscurePassword),
+                                            () => obscurePassword = !obscurePassword),
                                   ),
                                 ),
 
@@ -349,7 +304,7 @@ class _LoginPageState extends State<LoginPage> {
                                             child: Checkbox(
                                               value: rememberMe,
                                               onChanged: (v) => setState(
-                                                  () => rememberMe = v ?? true),
+                                                      () => rememberMe = v ?? true),
                                               activeColor: AppColors.primary,
                                               shape: RoundedRectangleBorder(
                                                 borderRadius: BorderRadius.circular(4),
@@ -452,126 +407,34 @@ class _LoginPageState extends State<LoginPage> {
                                       ),
                                       child: isLoading
                                           ? const SizedBox(
-                                              width: 20,
-                                              height: 20,
-                                              child: CircularProgressIndicator(
-                                                strokeWidth: 2,
-                                                color: Colors.white,
-                                              ),
-                                            )
+                                        width: 20,
+                                        height: 20,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          color: Colors.white,
+                                        ),
+                                      )
                                           : const Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: [
-                                                Text(
-                                                  'Masuk ke Akun',
-                                                  style: TextStyle(
-                                                    fontSize: 14,
-                                                    fontWeight: FontWeight.w700,
-                                                  ),
-                                                ),
-                                                SizedBox(width: 8),
-                                                Icon(Icons.arrow_forward_rounded,
-                                                    size: 18),
-                                              ],
+                                        mainAxisAlignment:
+                                        MainAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            'Masuk ke Akun',
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w700,
                                             ),
+                                          ),
+                                          SizedBox(width: 8),
+                                          Icon(Icons.arrow_forward_rounded,
+                                              size: 18),
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ),
 
                                 const SizedBox(height: 20),
-
-                                // Divider
-                                const Row(
-                                  children: [
-                                    Expanded(
-                                        child: Divider(color: AppColors.border)),
-                                    Padding(
-                                      padding: EdgeInsets.symmetric(horizontal: 10),
-                                      child: Text(
-                                        'atau masuk lebih cepat',
-                                        style: TextStyle(
-                                          fontSize: 11,
-                                          color: AppColors.outline,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                    ),
-                                    Expanded(
-                                        child: Divider(color: AppColors.border)),
-                                  ],
-                                ),
-
-                                const SizedBox(height: 16),
-
-                                // Quick Social Button
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: OutlinedButton.icon(
-                                        onPressed: () {
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                            const SnackBar(
-                                              content: Text(
-                                                  'Fitur masuk Google segera hadir.'),
-                                            ),
-                                          );
-                                        },
-                                        icon: const Icon(Icons.g_mobiledata_rounded,
-                                            size: 24, color: Color(0xFF4285F4)),
-                                        label: const Text(
-                                          'Google',
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w600,
-                                            color: AppColors.textPrimary,
-                                          ),
-                                        ),
-                                        style: OutlinedButton.styleFrom(
-                                          padding: const EdgeInsets.symmetric(vertical: 10),
-                                          backgroundColor: AppColors.surfaceContainerLow,
-                                          side: BorderSide.none,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(14),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 10),
-                                    Expanded(
-                                      child: OutlinedButton.icon(
-                                        onPressed: () {
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                            const SnackBar(
-                                              content: Text(
-                                                  'Kode OTP WhatsApp dikirimkan ke nomor Anda.'),
-                                            ),
-                                          );
-                                        },
-                                        icon: const Icon(Icons.chat_bubble_outline_rounded,
-                                            size: 18, color: Color(0xFF16A34A)),
-                                        label: const Text(
-                                          'WhatsApp',
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w600,
-                                            color: AppColors.textPrimary,
-                                          ),
-                                        ),
-                                        style: OutlinedButton.styleFrom(
-                                          padding: const EdgeInsets.symmetric(vertical: 10),
-                                          backgroundColor: AppColors.surfaceContainerLow,
-                                          side: BorderSide.none,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(14),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-
-                                const SizedBox(height: 18),
 
                                 // Register footer text
                                 Center(

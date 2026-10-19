@@ -368,7 +368,7 @@ class ProfilePage extends StatelessWidget {
                           ),
                         ),
                         const Text(
-                          'Bengkel Poin',
+                          'Poin BengkelRidho',
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w600,

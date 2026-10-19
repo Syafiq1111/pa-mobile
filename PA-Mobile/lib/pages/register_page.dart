@@ -450,14 +450,14 @@ class _RegisterPageState extends State<RegisterPage> {
                             onChanged: (_) => setState(() {}),
                             suffix: confirmController.text.isNotEmpty
                                 ? Icon(
-                                    passwordsMatch
-                                        ? Icons.check_circle_rounded
-                                        : Icons.cancel_rounded,
-                                    size: 20,
-                                    color: passwordsMatch
-                                        ? AppColors.primary
-                                        : AppColors.danger,
-                                  )
+                              passwordsMatch
+                                  ? Icons.check_circle_rounded
+                                  : Icons.cancel_rounded,
+                              size: 20,
+                              color: passwordsMatch
+                                  ? AppColors.primary
+                                  : AppColors.danger,
+                            )
                                 : null,
                           ),
 
@@ -559,78 +559,26 @@ class _RegisterPageState extends State<RegisterPage> {
                               ),
                               child: isLoading
                                   ? const SizedBox(
-                                      width: 20,
-                                      height: 20,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        color: Colors.white,
-                                      ),
-                                    )
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
                                   : const Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        Text(
-                                          'Daftar Sekarang',
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w700,
-                                          ),
-                                        ),
-                                        SizedBox(width: 8),
-                                        Icon(Icons.arrow_forward_rounded, size: 18),
-                                      ],
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    'Daftar Sekarang',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w700,
                                     ),
-                            ),
-                          ),
-
-                          const SizedBox(height: 16),
-
-                          // Quick social divider
-                          const Row(
-                            children: [
-                              Expanded(child: Divider(color: AppColors.border)),
-                              Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 10),
-                                child: Text(
-                                  'atau daftar cepat',
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    color: AppColors.outline,
-                                    fontWeight: FontWeight.w500,
                                   ),
-                                ),
-                              ),
-                              Expanded(child: Divider(color: AppColors.border)),
-                            ],
-                          ),
-
-                          const SizedBox(height: 14),
-
-                          // Google Quick Register
-                          OutlinedButton.icon(
-                            onPressed: () {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Pendaftaran Google segera hadir.'),
-                                ),
-                              );
-                            },
-                            icon: const Icon(Icons.g_mobiledata_rounded,
-                                size: 24, color: Color(0xFF4285F4)),
-                            label: const Text(
-                              'Lanjutkan dengan Google',
-                              style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.textPrimary,
-                              ),
-                            ),
-                            style: OutlinedButton.styleFrom(
-                              minimumSize: const Size(double.infinity, 44),
-                              backgroundColor: AppColors.surfaceContainerLow,
-                              side: BorderSide.none,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(16),
+                                  SizedBox(width: 8),
+                                  Icon(Icons.arrow_forward_rounded, size: 18),
+                                ],
                               ),
                             ),
                           ),
