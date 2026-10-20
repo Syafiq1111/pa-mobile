@@ -1,9 +1,6 @@
 # BengkelKOM-Ridho
 
 BengkelKOM-Ridho adalah aplikasi toko peralatan komputer berbasis **Flutter dan Dart**. Aplikasi ini menyediakan fitur autentikasi pengguna, katalog produk, pencarian dan filter, keranjang belanja, checkout, riwayat pesanan, serta pengelolaan alamat pengiriman. Data aplikasi terhubung dengan **Firebase Authentication** dan **Cloud Firestore**.
-# BengkelKOM-Ridho
-
-BengkelKOM-Ridho adalah aplikasi toko peralatan komputer berbasis **Flutter dan Dart**. Aplikasi ini menyediakan fitur autentikasi pengguna, katalog produk, pencarian dan filter, keranjang belanja, checkout, riwayat pesanan, serta pengelolaan alamat pengiriman. Data aplikasi terhubung dengan **Firebase Authentication** dan **Cloud Firestore**.
 
 > Kode aplikasi Flutter berada di folder `PA-Mobile/`. Jalankan perintah Flutter dari dalam folder tersebut.
 
