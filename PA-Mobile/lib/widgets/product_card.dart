@@ -28,8 +28,8 @@ class ProductCard extends StatelessWidget {
             final subtotal = product.price * selectedQty;
 
             return Container(
-              decoration: const BoxDecoration(
-                color: AppColors.surface,
+              decoration: BoxDecoration(
+                color: context.appSurface,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
               ),
               padding: EdgeInsets.fromLTRB(
@@ -48,41 +48,41 @@ class ProductCard extends StatelessWidget {
                       width: 40,
                       height: 4,
                       decoration: BoxDecoration(
-                        color: AppColors.border,
+                        color: context.appBorder,
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 14),
+                  SizedBox(height: 14),
 
                   // Header Modal
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
+                      Text(
                         'Konfirmasi Pesanan',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w800,
-                          color: AppColors.textPrimary,
+                          color: context.appTextPrimary,
                         ),
                       ),
                       IconButton(
                         onPressed: () => Navigator.pop(modalContext),
                         padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
-                        icon: const Icon(Icons.close_rounded,
-                            size: 20, color: AppColors.outline),
+                        constraints: BoxConstraints(minWidth: 32, minHeight: 32),
+                        icon: Icon(Icons.close_rounded,
+                            size: 20, color: context.appOutline),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 10),
+                  SizedBox(height: 10),
 
                   // Info Produk
                   Container(
-                    padding: const EdgeInsets.all(12),
+                    padding: EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: AppColors.surfaceContainerLow,
+                      color: context.appSurfaceContainerLow,
                       borderRadius: BorderRadius.circular(18),
                     ),
                     child: Row(
@@ -102,17 +102,17 @@ class ProductCard extends StatelessWidget {
                             fit: BoxFit.contain,
                           ),
                         ),
-                        const SizedBox(width: 12),
+                        SizedBox(width: 12),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
                                 product.brand.toUpperCase(),
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 10,
                                   fontWeight: FontWeight.w700,
-                                  color: AppColors.primary,
+                                  color: context.appPrimary,
                                   letterSpacing: 0.4,
                                 ),
                               ),
@@ -120,28 +120,28 @@ class ProductCard extends StatelessWidget {
                                 product.name,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 13,
                                   fontWeight: FontWeight.w700,
-                                  color: AppColors.textPrimary,
+                                  color: context.appTextPrimary,
                                 ),
                               ),
-                              const SizedBox(height: 2),
+                              SizedBox(height: 2),
                               Text(
                                 formatRupiah(product.price),
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w800,
-                                  color: AppColors.primary,
+                                  color: context.appPrimary,
                                 ),
                               ),
                               Text(
                                 inCart > 0
                                     ? 'Sisa $availableStock unit ($inCart di keranjang)'
                                     : 'Stok tersedia: $availableStock unit',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 10,
-                                  color: AppColors.textSecondary,
+                                  color: context.appTextSecondary,
                                 ),
                               ),
                             ],
@@ -151,24 +151,24 @@ class ProductCard extends StatelessWidget {
                     ),
                   ),
 
-                  const SizedBox(height: 18),
+                  SizedBox(height: 18),
 
                   // Kuantitas Selector
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
+                      Text(
                         'Jumlah',
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w700,
-                          color: AppColors.textPrimary,
+                          color: context.appTextPrimary,
                         ),
                       ),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 3),
+                        padding: EdgeInsets.symmetric(horizontal: 4, vertical: 3),
                         decoration: BoxDecoration(
-                          color: AppColors.surfaceContainerLow,
+                          color: context.appSurfaceContainerLow,
                           borderRadius: BorderRadius.circular(30),
                         ),
                         child: Row(
@@ -185,25 +185,25 @@ class ProductCard extends StatelessWidget {
                                   shape: BoxShape.circle,
                                   color: selectedQty > 1
                                       ? Colors.white
-                                      : AppColors.surfaceContainerHigh,
+                                      : context.appSurfaceContainerHigh,
                                 ),
                                 child: Icon(
                                   Icons.remove,
                                   size: 16,
                                   color: selectedQty > 1
-                                      ? AppColors.textPrimary
-                                      : AppColors.outlineVariant,
+                                      ? context.appTextPrimary
+                                      : context.appOutlineVariant,
                                 ),
                               ),
                             ),
                             Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 14),
+                              padding: EdgeInsets.symmetric(horizontal: 14),
                               child: Text(
                                 '$selectedQty',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w800,
-                                  color: AppColors.textPrimary,
+                                  color: context.appTextPrimary,
                                 ),
                               ),
                             ),
@@ -218,10 +218,10 @@ class ProductCard extends StatelessWidget {
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
                                   color: selectedQty < availableStock
-                                      ? AppColors.primary
-                                      : AppColors.surfaceContainerHighest,
+                                      ? context.appPrimary
+                                      : context.appSurfaceContainerHighest,
                                 ),
-                                child: const Icon(
+                                child: Icon(
                                   Icons.add,
                                   size: 16,
                                   color: Colors.white,
@@ -234,9 +234,9 @@ class ProductCard extends StatelessWidget {
                     ],
                   ),
 
-                  const SizedBox(height: 16),
-                  const Divider(color: AppColors.borderSubtle),
-                  const SizedBox(height: 8),
+                  SizedBox(height: 16),
+                  Divider(color: context.appBorderSubtle),
+                  SizedBox(height: 8),
 
                   // Subtotal & Tombol Tambah
                   Row(
@@ -245,24 +245,24 @@ class ProductCard extends StatelessWidget {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
+                          Text(
                             'Subtotal',
                             style: TextStyle(
                               fontSize: 11,
-                              color: AppColors.textSecondary,
+                              color: context.appTextSecondary,
                             ),
                           ),
                           Text(
                             formatRupiah(subtotal),
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w900,
-                              color: AppColors.primary,
+                              color: context.appPrimary,
                             ),
                           ),
                         ],
                       ),
-                      const SizedBox(width: 16),
+                      SizedBox(width: 16),
                       Expanded(
                         child: SizedBox(
                           height: 46,
@@ -280,9 +280,9 @@ class ProductCard extends StatelessWidget {
                                   SnackBar(
                                     content: Row(
                                       children: [
-                                        const Icon(Icons.check_circle_rounded,
+                                        Icon(Icons.check_circle_rounded,
                                             color: Colors.white, size: 18),
-                                        const SizedBox(width: 8),
+                                        SizedBox(width: 8),
                                         Expanded(
                                           child: Text(
                                             '$selectedQty ${product.name} dimasukkan ke keranjang',
@@ -290,22 +290,22 @@ class ProductCard extends StatelessWidget {
                                         ),
                                       ],
                                     ),
-                                    backgroundColor: AppColors.primaryDark,
+                                    backgroundColor: context.appPrimaryDark,
                                     behavior: SnackBarBehavior.floating,
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(10),
                                     ),
-                                    duration: const Duration(milliseconds: 1200),
+                                    duration: Duration(milliseconds: 1200),
                                   ),
                                 );
                             },
-                            icon: const Icon(Icons.add_shopping_cart_rounded, size: 18),
-                            label: const Text(
+                            icon: Icon(Icons.add_shopping_cart_rounded, size: 18),
+                            label: Text(
                               'Tambah ke Keranjang',
                               style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
                             ),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.primary,
+                              backgroundColor: context.appPrimary,
                               foregroundColor: Colors.white,
                               elevation: 0,
                               shadowColor: Colors.transparent,
@@ -337,15 +337,15 @@ class ProductCard extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.appSurface,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.borderSubtle, width: 1.2),
+        border: Border.all(color: context.appBorderSubtle, width: 1.2),
       ),
       clipBehavior: Clip.antiAlias,
       child: Stack(
         children: [
           Padding(
-            padding: const EdgeInsets.all(10),
+            padding: EdgeInsets.all(10),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -354,7 +354,7 @@ class ProductCard extends StatelessWidget {
                   width: double.infinity,
                   height: imageHeight,
                   decoration: BoxDecoration(
-                    color: AppColors.surfaceContainerLow,
+                    color: context.appSurfaceContainerLow,
                     borderRadius: BorderRadius.circular(16),
                   ),
                   clipBehavior: Clip.antiAlias,
@@ -372,13 +372,13 @@ class ProductCard extends StatelessWidget {
                             color: Colors.white.withValues(alpha: 0.8),
                             alignment: Alignment.center,
                             child: Container(
-                              padding: const EdgeInsets.symmetric(
+                              padding: EdgeInsets.symmetric(
                                   horizontal: 10, vertical: 4),
                               decoration: BoxDecoration(
-                                color: AppColors.textPrimary,
+                                color: context.appTextPrimary,
                                 borderRadius: BorderRadius.circular(6),
                               ),
-                              child: const Text(
+                              child: Text(
                                 'HABIS',
                                 style: TextStyle(
                                   fontSize: 11,
@@ -394,43 +394,43 @@ class ProductCard extends StatelessWidget {
                   ),
                 ),
 
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
 
                 // Rating & Terjual
                 Row(
                   children: [
-                    const Icon(Icons.star_rounded, size: 15, color: Color(0xFFE69B00)),
-                    const SizedBox(width: 3),
+                    Icon(Icons.star_rounded, size: 15, color: Color(0xFFE69B00)),
+                    SizedBox(width: 3),
                     Text(
                       '${product.rating}',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
-                        color: AppColors.textPrimary,
+                        color: context.appTextPrimary,
                       ),
                     ),
-                    const SizedBox(width: 4),
+                    SizedBox(width: 4),
                     Text(
                       '• ${product.sold} terjual',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 10,
-                        color: AppColors.outline,
+                        color: context.appOutline,
                       ),
                     ),
                   ],
                 ),
 
-                const SizedBox(height: 4),
+                SizedBox(height: 4),
 
                 // Product Name
                 Text(
                   product.name,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.textPrimary,
+                    color: context.appTextPrimary,
                     height: 1.2,
                   ),
                 ),
@@ -438,27 +438,27 @@ class ProductCard extends StatelessWidget {
                 // Brand / Category Tag
                 Text(
                   product.brand.toUpperCase(),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w600,
                     letterSpacing: 0.4,
-                    color: AppColors.primary,
+                    color: context.appPrimary,
                   ),
                 ),
 
-                const Spacer(),
+                Spacer(),
 
                 // Price
                 Text(
                   formatRupiah(product.price),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w800,
-                    color: AppColors.textPrimary,
+                    color: context.appTextPrimary,
                   ),
                 ),
 
-                const SizedBox(height: 6),
+                SizedBox(height: 6),
 
                 // Tombol + Keranjang (selalu konsisten dan bersih di katalog)
                 SizedBox(
@@ -468,15 +468,15 @@ class ProductCard extends StatelessWidget {
                       ? Container(
                           alignment: Alignment.center,
                           decoration: BoxDecoration(
-                            color: AppColors.surfaceContainerHigh,
+                            color: context.appSurfaceContainerHigh,
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(
                             soldOut ? 'Habis' : 'Maks. di keranjang',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w600,
-                              color: AppColors.outline,
+                              color: context.appOutline,
                             ),
                           ),
                         )
@@ -490,7 +490,7 @@ class ProductCard extends StatelessWidget {
                           ),
                           label: Text(
                             inCart > 0 ? '+ Keranjang ($inCart)' : '+ Keranjang',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w700,
                             ),
@@ -498,9 +498,9 @@ class ProductCard extends StatelessWidget {
                           style: ElevatedButton.styleFrom(
                             padding: EdgeInsets.zero,
                             backgroundColor: inCart > 0
-                                ? AppColors.primary.withValues(alpha: 0.15)
-                                : AppColors.primary.withValues(alpha: 0.1),
-                            foregroundColor: AppColors.primary,
+                                ? context.appPrimary.withValues(alpha: 0.15)
+                                : context.appPrimary.withValues(alpha: 0.1),
+                            foregroundColor: context.appPrimary,
                             elevation: 0,
                             shadowColor: Colors.transparent,
                             shape: RoundedRectangleBorder(
@@ -523,12 +523,12 @@ class ProductCard extends StatelessWidget {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: Colors.white.withValues(alpha: 0.9),
-                border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
+                border: Border.all(color: Color(0xFFE2E8F0), width: 1),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.favorite_border_rounded,
                 size: 16,
-                color: AppColors.outline,
+                color: context.appOutline,
               ),
             ),
           ),

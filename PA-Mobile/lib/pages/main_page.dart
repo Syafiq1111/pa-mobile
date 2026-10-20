@@ -106,7 +106,7 @@ class _MainPageState extends State<MainPage> {
         });
       },
       child: Scaffold(
-        backgroundColor: AppColors.background,
+        backgroundColor: context.appBackground,
         body: Stack(
           children: [
             SafeArea(bottom: false, child: page),
@@ -125,10 +125,10 @@ class _MainPageState extends State<MainPage> {
                       constraints: const BoxConstraints(maxWidth: 380),
                       height: 64,
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.96),
+                        color: context.appSurface.withValues(alpha: 0.96),
                         borderRadius: BorderRadius.circular(40),
                         border: Border.all(
-                          color: const Color(0xFFE2E8F0),
+                          color: context.appBorder,
                           width: 1.2,
                         ),
                       ),
@@ -248,7 +248,7 @@ class _MainPageState extends State<MainPage> {
                   Icon(
                     icon,
                     size: 22,
-                    color: const Color(0xFF64748B),
+                    color: context.appTextSecondary,
                   ),
 
                   // Badge jumlah item hanya muncul pada tab keranjang.
@@ -262,7 +262,7 @@ class _MainPageState extends State<MainPage> {
                           vertical: 1,
                         ),
                         decoration: BoxDecoration(
-                          color: AppColors.secondary,
+                          color: context.appSecondary,
                           borderRadius: BorderRadius.circular(10),
                         ),
                         constraints: const BoxConstraints(
@@ -272,7 +272,7 @@ class _MainPageState extends State<MainPage> {
                         child: Text(
                           '$cartCount',
                           textAlign: TextAlign.center,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 9,
                             fontWeight: FontWeight.w800,
                             color: Colors.white,
@@ -285,7 +285,7 @@ class _MainPageState extends State<MainPage> {
               const SizedBox(height: 2),
               Text(
                 label,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 10,
                   fontWeight: FontWeight.w500,
                   color: Color(0xFF64748B),

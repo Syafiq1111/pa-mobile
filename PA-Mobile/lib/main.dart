@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:pa_mobile/firebase_options.dart';
 import 'package:pa_mobile/providers/address_provider.dart';
 import 'package:pa_mobile/providers/cart_provider.dart';
+import 'package:pa_mobile/providers/theme_provider.dart';
 import 'package:pa_mobile/pages/auth_gate.dart';
 import 'package:pa_mobile/theme/app_colors.dart';
 
@@ -27,6 +28,7 @@ Future<void> main() async {
             providers: [
               ChangeNotifierProvider(create: (_) => CartProvider()),
               ChangeNotifierProvider(create: (_) => AddressProvider()),
+              ChangeNotifierProvider(create: (_) => ThemeProvider()),
             ],
             child: const MyApp(),
           ),
@@ -111,8 +113,48 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = context.watch<ThemeProvider>();
+
     return MaterialApp(
       title: 'BengkelKOM',
+      themeMode: themeProvider.themeMode,
+      darkTheme: ThemeData(
+        useMaterial3: true,
+        brightness: Brightness.dark,
+        scaffoldBackgroundColor: AppColorsDark.background,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: AppColorsDark.primary,
+          brightness: Brightness.dark,
+        ).copyWith(
+          surface: AppColorsDark.surface,
+          primary: AppColorsDark.primary,
+          onPrimary: AppColorsDark.background,
+          secondary: AppColorsDark.secondary,
+          onSecondary: AppColorsDark.background,
+          error: AppColorsDark.danger,
+        ),
+        cardColor: const Color(0xFF1A1A1A),
+        dividerColor: const Color(0xFF2A2A2A),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Color(0xFF1A1A1A),
+          foregroundColor: Colors.white,
+          elevation: 0,
+          scrolledUnderElevation: 0,
+          surfaceTintColor: Colors.transparent,
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            elevation: 0,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          ),
+        ),
+        snackBarTheme: SnackBarThemeData(
+          backgroundColor: const Color(0xFF2A2A2A),
+          contentTextStyle: const TextStyle(color: Colors.white, fontSize: 13),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ),
+      ),
       theme: ThemeData(
         useMaterial3: true,
         brightness: Brightness.light,

@@ -29,9 +29,9 @@ class CartProductCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.appSurface,
         borderRadius: BorderRadius.circular(20),
         boxShadow: AppStyle.softShadow,
       ),
@@ -43,7 +43,7 @@ class CartProductCard extends StatelessWidget {
             width: 76,
             height: 76,
             decoration: BoxDecoration(
-              color: AppColors.surfaceContainerLow,
+              color: context.appSurfaceContainerLow,
               borderRadius: BorderRadius.circular(16),
             ),
             clipBehavior: Clip.antiAlias,
@@ -54,7 +54,7 @@ class CartProductCard extends StatelessWidget {
               fit: BoxFit.contain,
             ),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: 12),
 
           // Details
           Expanded(
@@ -66,20 +66,20 @@ class CartProductCard extends StatelessWidget {
                   children: [
                     Text(
                       product.brand.toUpperCase(),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
                         letterSpacing: 0.5,
-                        color: AppColors.primary,
+                        color: context.appPrimary,
                       ),
                     ),
                     InkWell(
                       onTap: onRemove,
                       borderRadius: BorderRadius.circular(20),
                       child: Padding(
-                        padding: const EdgeInsets.all(4),
+                        padding: EdgeInsets.all(4),
                         child: Icon(Icons.delete_outline_rounded,
-                            size: 18, color: AppColors.outline.withValues(alpha: 0.8)),
+                            size: 18, color: context.appOutline.withValues(alpha: 0.8)),
                       ),
                     ),
                   ],
@@ -88,17 +88,17 @@ class CartProductCard extends StatelessWidget {
                   product.name,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.textPrimary,
+                    color: context.appTextPrimary,
                   ),
                 ),
                 Text(
                   'Stok: $maxQuantity unit',
-                  style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                  style: TextStyle(fontSize: 11, color: context.appTextSecondary),
                 ),
-                const SizedBox(height: 6),
+                SizedBox(height: 6),
 
                 // Price and Modern Stepper Pill
                 Row(
@@ -106,18 +106,18 @@ class CartProductCard extends StatelessWidget {
                   children: [
                     Text(
                       formatRupiah(product.price),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w800,
-                        color: AppColors.primary,
+                        color: context.appPrimary,
                       ),
                     ),
 
                     // Stepper Pill
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                      padding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
                       decoration: BoxDecoration(
-                        color: AppColors.surfaceContainerLow,
+                        color: context.appSurfaceContainerLow,
                         borderRadius: BorderRadius.circular(30),
                       ),
                       child: Row(
@@ -129,27 +129,27 @@ class CartProductCard extends StatelessWidget {
                             child: Container(
                               width: 26,
                               height: 26,
-                              decoration: const BoxDecoration(
+                              decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                color: AppColors.surface,
+                                color: context.appSurface,
                               ),
                               child: Icon(
                                 Icons.remove,
                                 size: 14,
                                 color: quantity > 1
-                                    ? AppColors.textPrimary
-                                    : AppColors.outlineVariant,
+                                    ? context.appTextPrimary
+                                    : context.appOutlineVariant,
                               ),
                             ),
                           ),
                           Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 10),
+                            padding: EdgeInsets.symmetric(horizontal: 10),
                             child: Text(
                               '$quantity',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w700,
-                                color: AppColors.textPrimary,
+                                color: context.appTextPrimary,
                               ),
                             ),
                           ),
@@ -162,10 +162,10 @@ class CartProductCard extends StatelessWidget {
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
                                 color: quantity < maxQuantity
-                                    ? AppColors.primaryContainer
-                                    : AppColors.surfaceContainerHighest,
+                                    ? context.appPrimaryContainer
+                                    : context.appSurfaceContainerHighest,
                               ),
-                              child: const Icon(
+                              child: Icon(
                                 Icons.add,
                                 size: 14,
                                 color: Colors.white,

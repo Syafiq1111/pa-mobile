@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:pa_mobile/models/category.dart';
+import 'package:pa_mobile/pages/store_chat_page.dart';
 import 'package:pa_mobile/providers/cart_provider.dart';
 import 'package:pa_mobile/theme/app_colors.dart';
 import 'package:pa_mobile/widgets/filter_chip_button.dart';
@@ -36,34 +37,35 @@ class _MyHomePageState extends State<MyHomePage> {
         }).toList();
 
         return CustomScrollView(
-          key: const PageStorageKey<String>('home_scroll'),
-          physics: const BouncingScrollPhysics(),
+          key: PageStorageKey<String>('home_scroll'),
+          physics: BouncingScrollPhysics(),
           slivers: [
             SliverToBoxAdapter(child: _buildHeader(context)),
             SliverToBoxAdapter(child: _buildSearchBar()),
             SliverToBoxAdapter(child: _buildPromoBanner()),
             SliverToBoxAdapter(child: _buildCategoriesSection()),
+            SliverToBoxAdapter(child: _buildDigitalWallet(context)),
             SliverToBoxAdapter(child: _buildDealsHeader(visibleProducts.length)),
 
             if (cart.isLoading)
-              const SliverToBoxAdapter(
+              SliverToBoxAdapter(
                 child: Padding(
                   padding: EdgeInsets.symmetric(vertical: 40),
                   child: Center(
-                    child: CircularProgressIndicator(color: AppColors.primary),
+                    child: CircularProgressIndicator(color: context.appPrimary),
                   ),
                 ),
               )
             else if (cart.errorMessage != null)
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
+                  padding: EdgeInsets.symmetric(vertical: 40, horizontal: 20),
                   child: Center(
                     child: Text(
                       cart.errorMessage!,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        color: AppColors.danger,
+                      style: TextStyle(
+                        color: context.appDanger,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -73,19 +75,19 @@ class _MyHomePageState extends State<MyHomePage> {
             else if (visibleProducts.isEmpty)
                 SliverToBoxAdapter(
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 20),
+                    padding: EdgeInsets.symmetric(vertical: 48, horizontal: 20),
                     child: Center(
                       child: Column(
                         children: [
                           Icon(Icons.search_off_rounded,
-                              size: 54, color: AppColors.outline.withValues(alpha: 0.5)),
-                          const SizedBox(height: 10),
-                          const Text(
+                              size: 54, color: context.appOutline.withValues(alpha: 0.5)),
+                          SizedBox(height: 10),
+                          Text(
                             'Produk tidak ditemukan',
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
-                              color: AppColors.textSecondary,
+                              color: context.appTextSecondary,
                             ),
                           ),
                         ],
@@ -95,12 +97,12 @@ class _MyHomePageState extends State<MyHomePage> {
                 )
               else
                 SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                  padding: EdgeInsets.fromLTRB(16, 0, 16, 16),
                   sliver: SliverProductGrid(products: visibleProducts),
                 ),
 
             SliverToBoxAdapter(child: _buildGuaranteeBanner()),
-            const SliverToBoxAdapter(
+            SliverToBoxAdapter(
               child: Padding(
                 padding: EdgeInsets.only(top: 14, bottom: 6),
                 child: Center(
@@ -108,13 +110,13 @@ class _MyHomePageState extends State<MyHomePage> {
                     '© 2025 BengkelKOM. Jl. P. Antasari, Samarinda.',
                     style: TextStyle(
                       fontSize: 11,
-                      color: AppColors.outline,
+                      color: context.appOutline,
                     ),
                   ),
                 ),
               ),
             ),
-            const SliverToBoxAdapter(child: SizedBox(height: 160)),
+            SliverToBoxAdapter(child: SizedBox(height: 160)),
           ],
         );
       },
@@ -124,7 +126,7 @@ class _MyHomePageState extends State<MyHomePage> {
   // Header Brand & Delivery Location
   Widget _buildHeader(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 14, 16, 8),
+      padding: EdgeInsets.fromLTRB(16, 14, 16, 8),
       child: Column(
         children: [
           Row(
@@ -141,24 +143,25 @@ class _MyHomePageState extends State<MyHomePage> {
                       fit: BoxFit.cover,
                       cacheWidth: (34 * MediaQuery.devicePixelRatioOf(context)).round(),
                       errorBuilder: (context, error, stackTrace) =>
-                      const SizedBox(width: 34, height: 34),
+                      SizedBox(width: 34, height: 34),
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  const Text.rich(
+
+                  SizedBox(width: 10),
+                  Text.rich(
                     TextSpan(
                       text: 'Bengkel',
                       style: TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.w800,
-                        color: AppColors.primary,
+                        color: context.appPrimary,
                         letterSpacing: -0.5,
                       ),
                       children: [
                         TextSpan(
                           text: 'KOM',
                           style: TextStyle(
-                            color: AppColors.primaryContainer,
+                            color: context.appPrimaryContainer,
                             fontWeight: FontWeight.w800,
                           ),
                         ),
@@ -170,12 +173,12 @@ class _MyHomePageState extends State<MyHomePage> {
               Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                     decoration: BoxDecoration(
-                      color: AppColors.surfaceContainerHigh,
+                      color: context.appSurfaceContainerHigh,
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    child: const Row(
+                    child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
@@ -183,15 +186,30 @@ class _MyHomePageState extends State<MyHomePage> {
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w700,
-                            color: AppColors.textSecondary,
+                            color: context.appTextSecondary,
                           ),
                         ),
                         SizedBox(width: 2),
-                        Icon(Icons.expand_more, size: 14, color: AppColors.textSecondary),
+                        Icon(Icons.expand_more, size: 14, color: context.appTextSecondary),
                       ],
                     ),
                   ),
-                  const SizedBox(width: 8),
+
+                  SizedBox(width: 8),
+                  SizedBox(
+                    width: 36,
+                    height: 36,
+                    child: IconButton(
+                      tooltip: 'Chat toko',
+                      padding: EdgeInsets.zero,
+                      constraints: BoxConstraints.tightFor(width: 36, height: 36),
+                      onPressed: () => Navigator.of(context).push(
+                        MaterialPageRoute<void>(builder: (_) => StoreChatPage()),
+                      ),
+                      icon: Icon(Icons.chat_bubble_outline_rounded, size: 20, color: context.appPrimary),
+                    ),
+                  ),
+                  SizedBox(width: 8),
                   Stack(
                     clipBehavior: Clip.none,
                     children: [
@@ -199,11 +217,11 @@ class _MyHomePageState extends State<MyHomePage> {
                         width: 36,
                         height: 36,
                         decoration: BoxDecoration(
-                          color: AppColors.surfaceContainerHigh.withValues(alpha: 0.8),
+                          color: context.appSurfaceContainerHigh.withValues(alpha: 0.8),
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(Icons.notifications_none_rounded,
-                            size: 20, color: AppColors.textPrimary),
+                        child: Icon(Icons.notifications_none_rounded,
+                            size: 20, color: context.appTextPrimary),
                       ),
                       Positioned(
                         top: 2,
@@ -211,8 +229,8 @@ class _MyHomePageState extends State<MyHomePage> {
                         child: Container(
                           width: 8,
                           height: 8,
-                          decoration: const BoxDecoration(
-                            color: AppColors.secondary,
+                          decoration: BoxDecoration(
+                            color: context.appSecondary,
                             shape: BoxShape.circle,
                           ),
                         ),
@@ -223,13 +241,13 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ],
           ),
-          const SizedBox(height: 10),
+          SizedBox(height: 10),
 
           // Location Strip
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
-              color: AppColors.surfaceContainerLow.withValues(alpha: 0.9),
+              color: context.appSurfaceContainerLow.withValues(alpha: 0.9),
               borderRadius: BorderRadius.circular(14),
             ),
             child: Row(
@@ -238,13 +256,13 @@ class _MyHomePageState extends State<MyHomePage> {
                   width: 28,
                   height: 28,
                   decoration: BoxDecoration(
-                    color: AppColors.primaryContainer.withValues(alpha: 0.2),
+                    color: context.appPrimaryContainer.withValues(alpha: 0.2),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.location_on, size: 16, color: AppColors.primary),
+                  child: Icon(Icons.location_on, size: 16, color: context.appPrimary),
                 ),
-                const SizedBox(width: 8),
-                const Expanded(
+                SizedBox(width: 8),
+                Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -253,14 +271,14 @@ class _MyHomePageState extends State<MyHomePage> {
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w700,
-                          color: AppColors.textPrimary,
+                          color: context.appTextPrimary,
                         ),
                       ),
                       Text(
                         'BTM Layout, Antasari 75119',
                         style: TextStyle(
                           fontSize: 10,
-                          color: AppColors.textSecondary,
+                          color: context.appTextSecondary,
                         ),
                       ),
                     ],
@@ -277,33 +295,33 @@ class _MyHomePageState extends State<MyHomePage> {
   // Rounded Search Bar
   Widget _buildSearchBar() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       child: Container(
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: context.appSurface,
           borderRadius: BorderRadius.circular(30),
-          border: Border.all(color: AppColors.border, width: 1.2),
+          border: Border.all(color: context.appBorder, width: 1.2),
         ),
         child: TextField(
-          style: const TextStyle(fontSize: 13, color: AppColors.textPrimary),
+          style: TextStyle(fontSize: 13, color: context.appTextPrimary),
           onChanged: (value) => setState(() => searchQuery = value.trim().toLowerCase()),
           decoration: InputDecoration(
             border: InputBorder.none,
             hintText: 'Cari komponen, sparepart, laptop...',
-            hintStyle: const TextStyle(fontSize: 13, color: AppColors.outline),
-            contentPadding: const EdgeInsets.symmetric(vertical: 12),
-            prefixIcon: const Icon(Icons.search_rounded, size: 22, color: AppColors.outline),
+            hintStyle: TextStyle(fontSize: 13, color: context.appOutline),
+            contentPadding: EdgeInsets.symmetric(vertical: 12),
+            prefixIcon: Icon(Icons.search_rounded, size: 22, color: context.appOutline),
             suffixIcon: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Container(
                   height: 18,
                   width: 1,
-                  color: AppColors.border,
+                  color: context.appBorder,
                 ),
                 IconButton(
                   onPressed: () {},
-                  icon: const Icon(Icons.mic_none_rounded, size: 18, color: AppColors.primary),
+                  icon: Icon(Icons.mic_none_rounded, size: 18, color: context.appPrimary),
                 ),
               ],
             ),
@@ -319,14 +337,14 @@ class _MyHomePageState extends State<MyHomePage> {
     final screenWidth = MediaQuery.sizeOf(context).width;
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+      padding: EdgeInsets.fromLTRB(16, 12, 16, 8),
       child: Container(
         width: double.infinity,
         height: 140,
         decoration: BoxDecoration(
-          color: const Color(0xFFDAF5E4), // warna cadangan jika foto gagal dimuat
+          color: Color(0xFFDAF5E4), // warna cadangan jika foto gagal dimuat
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: const Color(0xFFC3ECCF), width: 1),
+          border: Border.all(color: Color(0xFFC3ECCF), width: 1),
         ),
         clipBehavior: Clip.antiAlias,
         child: Stack(
@@ -337,11 +355,11 @@ class _MyHomePageState extends State<MyHomePage> {
                 'assets/images/promoBanner.png',
                 fit: BoxFit.cover,
                 cacheWidth: (screenWidth * pixelRatio).round(),
-                errorBuilder: (context, error, stackTrace) => const SizedBox.shrink(),
+                errorBuilder: (context, error, stackTrace) => SizedBox.shrink(),
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.all(16),
               child: Row(
                 children: [
                   Expanded(
@@ -349,40 +367,40 @@ class _MyHomePageState extends State<MyHomePage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text(
+                        Text(
                           'Promo Weekend',
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
-                            color: AppColors.textSecondary,
+                            color: context.appTextSecondary,
                           ),
                         ),
-                        const SizedBox(height: 2),
-                        const Text(
+                        SizedBox(height: 2),
+                        Text(
                           '25% OFF',
                           style: TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.w900,
-                            color: AppColors.textPrimary,
+                            color: context.appTextPrimary,
                             letterSpacing: -0.5,
                           ),
                         ),
-                        const Text(
+                        Text(
                           '*Untuk Komponen & Servis',
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w900,
-                            color: AppColors.textPrimary,
+                            color: context.appTextPrimary,
                           ),
                         ),
-                        const SizedBox(height: 8),
+                        SizedBox(height: 8),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 5),
                           decoration: BoxDecoration(
-                            color: AppColors.primary,
+                            color: context.appPrimary,
                             borderRadius: BorderRadius.circular(20),
                           ),
-                          child: const Row(
+                          child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
@@ -413,25 +431,25 @@ class _MyHomePageState extends State<MyHomePage> {
   // Kategori Hardware Grid / Row with Squircle Cards
   Widget _buildCategoriesSection() {
     final colors = [
-      AppColors.primary,
-      AppColors.tertiaryContainer,
-      AppColors.secondaryContainer,
-      const Color(0xFF6D3DA3),
-      AppColors.accentYellow,
-      AppColors.primaryContainer,
+      context.appPrimary,
+      context.appTertiaryContainer,
+      context.appSecondaryContainer,
+      Color(0xFF6D3DA3),
+      context.appAccentYellow,
+      context.appPrimaryContainer,
     ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 10),
-          child: const Text(
+          padding: EdgeInsets.fromLTRB(16, 16, 16, 10),
+          child: Text(
             'Kategori',
             style: TextStyle(
               fontSize: 17,
               fontWeight: FontWeight.w700,
-              color: AppColors.textPrimary,
+              color: context.appTextPrimary,
             ),
           ),
         ),
@@ -439,10 +457,10 @@ class _MyHomePageState extends State<MyHomePage> {
           height: 94,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
-            physics: const BouncingScrollPhysics(),
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            physics: BouncingScrollPhysics(),
+            padding: EdgeInsets.symmetric(horizontal: 16),
             itemCount: categoryList.length,
-            separatorBuilder: (context, index) => const SizedBox(width: 12),
+            separatorBuilder: (context, index) => SizedBox(width: 12),
             itemBuilder: (context, index) {
               final cat = categoryList[index];
               final catColor = colors[index % colors.length];
@@ -461,13 +479,13 @@ class _MyHomePageState extends State<MyHomePage> {
                       ),
                       child: Icon(cat.icon, size: 26, color: Colors.white),
                     ),
-                    const SizedBox(height: 6),
+                    SizedBox(height: 6),
                     Text(
                       cat.name,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
-                        color: AppColors.textPrimary,
+                        color: context.appTextPrimary,
                       ),
                     ),
                   ],
@@ -481,43 +499,108 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   // Deals Header & Filter Chips
+    Widget _buildDigitalWallet(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return Padding(
+      padding: EdgeInsets.fromLTRB(16, 14, 16, 4),
+      child: Container(
+        padding: EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(colors: [colors.primary, colors.tertiary], begin: Alignment.topLeft, end: Alignment.bottomRight),
+          borderRadius: BorderRadius.circular(22),
+          boxShadow: AppStyle.cardShadow,
+        ),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Row(children: [
+            Icon(Icons.account_balance_wallet_rounded, color: colors.onPrimary),
+            SizedBox(width: 8),
+            Expanded(child: Text('Dompet Digital', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: colors.onPrimary))),
+            Text('DEMO', style: TextStyle(fontSize: 9, fontWeight: FontWeight.w800, color: colors.onPrimary.withValues(alpha: .8))),
+          ]),
+          SizedBox(height: 12),
+          Text('Saldo BengkelPay', style: TextStyle(fontSize: 11, color: colors.onPrimary.withValues(alpha: .8))),
+          Text('Rp250.000', style: TextStyle(fontSize: 25, fontWeight: FontWeight.w900, color: colors.onPrimary)),
+          SizedBox(height: 14),
+          Container(height: 1, color: colors.onPrimary.withValues(alpha: .2)),
+          SizedBox(height: 10),
+          Row(children: [
+            Expanded(child: _walletAction(context, Icons.add_rounded, 'Top up', () => _walletMessage(context, 'Top up BengkelPay (simulasi)'))),
+            Expanded(child: _walletAction(context, Icons.receipt_long_rounded, 'Riwayat', () => _walletMessage(context, 'Belum ada transaksi dompet.'))),
+            Expanded(child: _walletAction(context, Icons.credit_score_rounded, 'PayLater', () => _showPayLater(context))),
+          ]),
+        ]),
+      ),
+    );
+  }
+
+  Widget _walletAction(BuildContext context, IconData icon, String label, VoidCallback onTap) {
+    final foreground = Theme.of(context).colorScheme.onPrimary;
+    return InkWell(onTap: onTap, borderRadius: BorderRadius.circular(12), child: Padding(
+      padding: EdgeInsets.symmetric(vertical: 4),
+      child: Column(children: [Icon(icon, color: foreground, size: 21), SizedBox(height: 5),
+        Text(label, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: foreground))]),
+    ));
+  }
+
+  void _walletMessage(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  void _showPayLater(BuildContext context) {
+    showModalBottomSheet<void>(context: context, backgroundColor: context.appSurface,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      builder: (sheetContext) => Padding(padding: EdgeInsets.fromLTRB(20, 20, 20, 28),
+        child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text('BengkelPayLater', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: context.appTextPrimary)),
+          SizedBox(height: 12),
+          Text('Limit demo tersedia: Rp2.000.000', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: context.appTextPrimary)),
+          SizedBox(height: 6),
+          Text('Simulasi cicilan 0% hingga 3 bulan. Hanya contoh tampilan; belum terhubung ke layanan kredit atau pembayaran.', style: TextStyle(fontSize: 12, height: 1.5, color: context.appTextSecondary)),
+          SizedBox(height: 16),
+          SizedBox(width: double.infinity, child: FilledButton(onPressed: () => Navigator.pop(sheetContext), child: Text('Mengerti'))),
+        ]),
+      ),
+    );
+  }
+
+  // Deals Header & Filter Chips
   Widget _buildDealsHeader(int count) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 10),
+          padding: EdgeInsets.fromLTRB(16, 16, 16, 10),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Row(
                 children: [
-                  const Text(
+                  Text(
                     'Deals Terlaris',
                     style: TextStyle(
                       fontSize: 17,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.textPrimary,
+                      color: context.appTextPrimary,
                     ),
                   ),
-                  const SizedBox(width: 8),
+
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                     decoration: BoxDecoration(
-                      color: AppColors.secondaryContainer.withValues(alpha: 0.15),
+                      color: context.appSecondaryContainer.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    child: const Row(
+                    child: Row(
                       children: [
                         Icon(Icons.local_fire_department,
-                            size: 14, color: AppColors.secondary),
+                            size: 14, color: context.appSecondary),
                         SizedBox(width: 2),
                         Text(
                           'Flash Sale',
                           style: TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.w700,
-                            color: AppColors.secondary,
+                            color: context.appSecondary,
                           ),
                         ),
                       ],
@@ -527,15 +610,15 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
               Text(
                 '$count produk',
-                style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                style: TextStyle(fontSize: 12, color: context.appTextSecondary),
               ),
             ],
           ),
         ),
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
-          physics: const BouncingScrollPhysics(),
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          physics: BouncingScrollPhysics(),
+          padding: EdgeInsets.symmetric(horizontal: 16),
           child: Row(
             children: [
               FilterChipButton(
@@ -552,7 +635,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ],
           ),
         ),
-        const SizedBox(height: 14),
+        SizedBox(height: 14),
       ],
     );
   }
@@ -560,11 +643,11 @@ class _MyHomePageState extends State<MyHomePage> {
   // Garansi Servis Samarinda Micro-Banner
   Widget _buildGuaranteeBanner() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+      padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
       child: Container(
-        padding: const EdgeInsets.all(14),
+        padding: EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: AppColors.surfaceContainerLow,
+          color: context.appSurfaceContainerLow,
           borderRadius: BorderRadius.circular(20),
         ),
         child: Row(
@@ -573,14 +656,14 @@ class _MyHomePageState extends State<MyHomePage> {
               width: 44,
               height: 44,
               decoration: BoxDecoration(
-                color: AppColors.primaryContainer.withValues(alpha: 0.2),
+                color: context.appPrimaryContainer.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(14),
               ),
-              child: const Icon(Icons.verified_user_rounded,
-                  size: 24, color: AppColors.primary),
+              child: Icon(Icons.verified_user_rounded,
+                  size: 24, color: context.appPrimary),
             ),
-            const SizedBox(width: 12),
-            const Expanded(
+            SizedBox(width: 12),
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -589,20 +672,20 @@ class _MyHomePageState extends State<MyHomePage> {
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.textPrimary,
+                      color: context.appTextPrimary,
                     ),
                   ),
                   Text(
                     'Teknisi tersertifikasi, gratis konsultasi & cek fisik unit.',
                     style: TextStyle(
                       fontSize: 11,
-                      color: AppColors.textSecondary,
+                      color: context.appTextSecondary,
                     ),
                   ),
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right, size: 20, color: AppColors.outline),
+            Icon(Icons.chevron_right, size: 20, color: context.appOutline),
           ],
         ),
       ),

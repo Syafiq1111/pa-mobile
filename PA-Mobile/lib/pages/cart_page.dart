@@ -55,13 +55,13 @@ class _CartPageState extends State<CartPage> {
             // Area utama berisi informasi keranjang dan detail pembayaran.
             Expanded(
               child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
+                physics: BouncingScrollPhysics(),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  padding: EdgeInsets.symmetric(horizontal: 16),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const SizedBox(height: 14),
+                      SizedBox(height: 14),
 
                       // Header keranjang dan informasi jaminan toko.
                       Row(
@@ -69,41 +69,41 @@ class _CartPageState extends State<CartPage> {
                         children: [
                           Row(
                             children: [
-                              const BengkelKomLogo(
+                              BengkelKomLogo(
                                 size: 32,
                                 borderRadius: 10,
                                 showShadow: false,
                               ),
-                              const SizedBox(width: 10),
+                              SizedBox(width: 10),
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const Text(
+                                  Text(
                                     'Keranjang Belanja',
                                     style: TextStyle(
                                       fontSize: 20,
                                       fontWeight: FontWeight.w800,
-                                      color: AppColors.textPrimary,
+                                      color: context.appTextPrimary,
                                       letterSpacing: -0.4,
                                     ),
                                   ),
-                                  const SizedBox(height: 2),
+                                  SizedBox(height: 2),
                                   Row(
                                     children: [
                                       Container(
                                         width: 8,
                                         height: 8,
-                                        decoration: const BoxDecoration(
+                                        decoration: BoxDecoration(
                                           shape: BoxShape.circle,
-                                          color: AppColors.primaryContainer,
+                                          color: context.appPrimaryContainer,
                                         ),
                                       ),
-                                      const SizedBox(width: 6),
+                                      SizedBox(width: 6),
                                       Text(
                                         '${cart.totalItems} item siap dikirim dari Samarinda',
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                           fontSize: 11,
-                                          color: AppColors.textSecondary,
+                                          color: context.appTextSecondary,
                                         ),
                                       ),
                                     ],
@@ -115,22 +115,22 @@ class _CartPageState extends State<CartPage> {
 
                           // Label yang menunjukkan identitas toko resmi.
                           Container(
-                            padding: const EdgeInsets.symmetric(
+                            padding: EdgeInsets.symmetric(
                               horizontal: 10,
                               vertical: 5,
                             ),
                             decoration: BoxDecoration(
-                              color: AppColors.primaryFixed.withValues(
+                              color: context.appPrimaryFixed.withValues(
                                 alpha: 0.4,
                               ),
                               borderRadius: BorderRadius.circular(20),
                             ),
-                            child: const Row(
+                            child: Row(
                               children: [
                                 Icon(
                                   Icons.verified_rounded,
                                   size: 14,
-                                  color: AppColors.primary,
+                                  color: context.appPrimary,
                                 ),
                                 SizedBox(width: 4),
                                 Text(
@@ -138,7 +138,7 @@ class _CartPageState extends State<CartPage> {
                                   style: TextStyle(
                                     fontSize: 10,
                                     fontWeight: FontWeight.w700,
-                                    color: AppColors.primary,
+                                    color: context.appPrimary,
                                   ),
                                 ),
                               ],
@@ -147,31 +147,31 @@ class _CartPageState extends State<CartPage> {
                         ],
                       ),
 
-                      const SizedBox(height: 14),
+                      SizedBox(height: 14),
 
                       // Kolom pencarian untuk menyaring produk di keranjang.
                       Container(
                         decoration: BoxDecoration(
-                          color: AppColors.surface,
+                          color: context.appSurface,
                           borderRadius: BorderRadius.circular(30),
                           boxShadow: AppStyle.softShadow,
                         ),
                         child: TextField(
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 13,
-                            color: AppColors.textPrimary,
+                            color: context.appTextPrimary,
                           ),
                           onChanged: (value) {
                             setState(() {
                               searchQuery = value.trim().toLowerCase();
                             });
                           },
-                          decoration: const InputDecoration(
+                          decoration: InputDecoration(
                             border: InputBorder.none,
                             hintText: 'Cari item di keranjang...',
                             hintStyle: TextStyle(
                               fontSize: 12,
-                              color: AppColors.outline,
+                              color: context.appOutline,
                             ),
                             contentPadding: EdgeInsets.symmetric(
                               vertical: 11,
@@ -179,19 +179,19 @@ class _CartPageState extends State<CartPage> {
                             prefixIcon: Icon(
                               Icons.search_rounded,
                               size: 20,
-                              color: AppColors.outline,
+                              color: context.appOutline,
                             ),
                           ),
                         ),
                       ),
 
-                      const SizedBox(height: 16),
+                      SizedBox(height: 16),
 
                       // Menampilkan daftar produk atau pesan kondisi keranjang.
                       if (cartItems.isEmpty)
                         Container(
                           width: double.infinity,
-                          padding: const EdgeInsets.symmetric(vertical: 40),
+                          padding: EdgeInsets.symmetric(vertical: 40),
                           child: Center(
                             child: Column(
                               children: [
@@ -199,24 +199,24 @@ class _CartPageState extends State<CartPage> {
                                   width: 70,
                                   height: 70,
                                   decoration: BoxDecoration(
-                                    color: AppColors.surfaceContainerLow,
+                                    color: context.appSurfaceContainerLow,
                                     shape: BoxShape.circle,
                                   ),
-                                  child: const Icon(
+                                  child: Icon(
                                     Icons.shopping_bag_outlined,
                                     size: 34,
-                                    color: AppColors.outline,
+                                    color: context.appOutline,
                                   ),
                                 ),
-                                const SizedBox(height: 12),
+                                SizedBox(height: 12),
                                 Text(
                                   cart.cartProducts.isEmpty
                                       ? 'Keranjang Anda masih kosong'
                                       : 'Produk tidak ditemukan di keranjang',
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w600,
-                                    color: AppColors.textSecondary,
+                                    color: context.appTextSecondary,
                                   ),
                                 ),
                               ],
@@ -226,12 +226,12 @@ class _CartPageState extends State<CartPage> {
                       else
                         ListView.separated(
                           shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
+                          physics: NeverScrollableScrollPhysics(),
                           itemCount: cartItems.length,
 
                           // Memberikan jarak antarproduk pada daftar keranjang.
                           separatorBuilder: (context, index) =>
-                          const SizedBox(height: 12),
+                          SizedBox(height: 12),
 
                           // Membuat kartu produk beserta kontrol jumlah dan hapus.
                           itemBuilder: (context, index) {
@@ -258,13 +258,13 @@ class _CartPageState extends State<CartPage> {
 
                       // Informasi tambahan hanya ditampilkan jika keranjang berisi produk.
                       if (cart.cartProducts.isNotEmpty) ...[
-                        const SizedBox(height: 16),
+                        SizedBox(height: 16),
 
                         // Kartu informasi garansi dan pemeriksaan produk.
                         Container(
-                          padding: const EdgeInsets.all(14),
+                          padding: EdgeInsets.all(14),
                           decoration: BoxDecoration(
-                            color: AppColors.primaryFixed.withValues(
+                            color: context.appPrimaryFixed.withValues(
                               alpha: 0.3,
                             ),
                             borderRadius: BorderRadius.circular(20),
@@ -275,18 +275,18 @@ class _CartPageState extends State<CartPage> {
                               Container(
                                 width: 36,
                                 height: 36,
-                                decoration: const BoxDecoration(
-                                  color: AppColors.primaryContainer,
+                                decoration: BoxDecoration(
+                                  color: context.appPrimaryContainer,
                                   shape: BoxShape.circle,
                                 ),
-                                child: const Icon(
+                                child: Icon(
                                   Icons.verified_user_rounded,
                                   size: 20,
                                   color: Colors.white,
                                 ),
                               ),
-                              const SizedBox(width: 12),
-                              const Expanded(
+                              SizedBox(width: 12),
+                              Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
@@ -295,7 +295,7 @@ class _CartPageState extends State<CartPage> {
                                       style: TextStyle(
                                         fontSize: 12,
                                         fontWeight: FontWeight.w700,
-                                        color: AppColors.primaryDark,
+                                        color: context.appPrimaryDark,
                                       ),
                                     ),
                                     SizedBox(height: 2),
@@ -303,7 +303,7 @@ class _CartPageState extends State<CartPage> {
                                       'Semua hardware & peripheral diuji fungsi dan kelistrikannya oleh teknisi sebelum dikirim via kurir instan.',
                                       style: TextStyle(
                                         fontSize: 11,
-                                        color: AppColors.textSecondary,
+                                        color: context.appTextSecondary,
                                         height: 1.3,
                                       ),
                                     ),
@@ -314,20 +314,20 @@ class _CartPageState extends State<CartPage> {
                           ),
                         ),
 
-                        const SizedBox(height: 14),
+                        SizedBox(height: 14),
 
                         // Bagian voucher yang menampilkan kode diskon toko.
                         Container(
-                          padding: const EdgeInsets.all(14),
+                          padding: EdgeInsets.all(14),
                           decoration: BoxDecoration(
-                            color: AppColors.surface,
+                            color: context.appSurface,
                             borderRadius: BorderRadius.circular(20),
                             boxShadow: AppStyle.softShadow,
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Row(
+                              Row(
                                 mainAxisAlignment:
                                 MainAxisAlignment.spaceBetween,
                                 children: [
@@ -336,7 +336,7 @@ class _CartPageState extends State<CartPage> {
                                       Icon(
                                         Icons.confirmation_number_rounded,
                                         size: 18,
-                                        color: AppColors.secondary,
+                                        color: context.appSecondary,
                                       ),
                                       SizedBox(width: 6),
                                       Text(
@@ -344,7 +344,7 @@ class _CartPageState extends State<CartPage> {
                                         style: TextStyle(
                                           fontSize: 13,
                                           fontWeight: FontWeight.w700,
-                                          color: AppColors.textPrimary,
+                                          color: context.appTextPrimary,
                                         ),
                                       ),
                                     ],
@@ -354,41 +354,41 @@ class _CartPageState extends State<CartPage> {
                                     style: TextStyle(
                                       fontSize: 11,
                                       fontWeight: FontWeight.w700,
-                                      color: AppColors.secondary,
+                                      color: context.appSecondary,
                                     ),
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 10),
+                              SizedBox(height: 10),
                               Row(
                                 children: [
                                   Expanded(
                                     child: Container(
-                                      padding: const EdgeInsets.symmetric(
+                                      padding: EdgeInsets.symmetric(
                                         horizontal: 12,
                                         vertical: 8,
                                       ),
                                       decoration: BoxDecoration(
-                                        color: AppColors.surfaceContainerLow,
+                                        color: context.appSurfaceContainerLow,
                                         borderRadius: BorderRadius.circular(12),
                                       ),
                                       child: Row(
                                         children: [
-                                          const Icon(
+                                          Icon(
                                             Icons.sell_outlined,
                                             size: 16,
-                                            color: AppColors.outline,
+                                            color: context.appOutline,
                                           ),
-                                          const SizedBox(width: 8),
+                                          SizedBox(width: 8),
                                           Expanded(
                                             child: TextField(
                                               controller: voucherController,
-                                              style: const TextStyle(
+                                              style: TextStyle(
                                                 fontSize: 12,
                                                 fontWeight: FontWeight.w700,
-                                                color: AppColors.primary,
+                                                color: context.appPrimary,
                                               ),
-                                              decoration: const InputDecoration(
+                                              decoration: InputDecoration(
                                                 border: InputBorder.none,
                                                 isDense: true,
                                                 contentPadding: EdgeInsets.zero,
@@ -399,27 +399,27 @@ class _CartPageState extends State<CartPage> {
                                       ),
                                     ),
                                   ),
-                                  const SizedBox(width: 8),
+                                  SizedBox(width: 8),
 
                                   // Label status voucher yang ditampilkan pada antarmuka.
                                   Container(
-                                    padding: const EdgeInsets.symmetric(
+                                    padding: EdgeInsets.symmetric(
                                       horizontal: 14,
                                       vertical: 10,
                                     ),
                                     decoration: BoxDecoration(
-                                      color: AppColors.secondaryContainer,
+                                      color: context.appSecondaryContainer,
                                       borderRadius: BorderRadius.circular(12),
                                       boxShadow: [
                                         BoxShadow(
-                                          color: AppColors.secondaryContainer
+                                          color: context.appSecondaryContainer
                                               .withValues(alpha: 0.3),
                                           blurRadius: 8,
-                                          offset: const Offset(0, 3),
+                                          offset: Offset(0, 3),
                                         ),
                                       ],
                                     ),
-                                    child: const Text(
+                                    child: Text(
                                       'Tersimpan',
                                       style: TextStyle(
                                         fontSize: 12,
@@ -434,13 +434,13 @@ class _CartPageState extends State<CartPage> {
                           ),
                         ),
 
-                        const SizedBox(height: 14),
+                        SizedBox(height: 14),
 
                         // Menampilkan informasi pengiriman dan alamat tujuan.
                         Container(
-                          padding: const EdgeInsets.all(14),
+                          padding: EdgeInsets.all(14),
                           decoration: BoxDecoration(
-                            color: AppColors.surface,
+                            color: context.appSurface,
                             borderRadius: BorderRadius.circular(20),
                             boxShadow: AppStyle.softShadow,
                           ),
@@ -450,28 +450,28 @@ class _CartPageState extends State<CartPage> {
                                 width: 38,
                                 height: 38,
                                 decoration: BoxDecoration(
-                                  color: AppColors.tertiaryContainer.withValues(
+                                  color: context.appTertiaryContainer.withValues(
                                     alpha: 0.2,
                                   ),
                                   shape: BoxShape.circle,
                                 ),
-                                child: const Icon(
+                                child: Icon(
                                   Icons.two_wheeler_rounded,
                                   size: 20,
-                                  color: AppColors.tertiary,
+                                  color: context.appTertiary,
                                 ),
                               ),
-                              const SizedBox(width: 12),
+                              SizedBox(width: 12),
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    const Text(
+                                    Text(
                                       'Instan Samarinda Kota (1-2 Jam)',
                                       style: TextStyle(
                                         fontSize: 12,
                                         fontWeight: FontWeight.w700,
-                                        color: AppColors.textPrimary,
+                                        color: context.appTextPrimary,
                                       ),
                                     ),
 
@@ -482,31 +482,31 @@ class _CartPageState extends State<CartPage> {
                                           : 'Kirim ke: ${mainAddress.name} - ${mainAddress.detail}',
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontSize: 11,
-                                        color: AppColors.textSecondary,
+                                        color: context.appTextSecondary,
                                       ),
                                     ),
                                   ],
                                 ),
                               ),
                               Container(
-                                padding: const EdgeInsets.symmetric(
+                                padding: EdgeInsets.symmetric(
                                   horizontal: 8,
                                   vertical: 4,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: AppColors.primaryFixed.withValues(
+                                  color: context.appPrimaryFixed.withValues(
                                     alpha: 0.4,
                                   ),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
-                                child: const Text(
+                                child: Text(
                                   'GRATIS',
                                   style: TextStyle(
                                     fontSize: 10,
                                     fontWeight: FontWeight.w800,
-                                    color: AppColors.primary,
+                                    color: context.appPrimary,
                                   ),
                                 ),
                               ),
@@ -514,28 +514,28 @@ class _CartPageState extends State<CartPage> {
                           ),
                         ),
 
-                        const SizedBox(height: 14),
+                        SizedBox(height: 14),
 
                         // Ringkasan biaya produk, pengiriman, dan asuransi.
                         Container(
-                          padding: const EdgeInsets.all(16),
+                          padding: EdgeInsets.all(16),
                           decoration: BoxDecoration(
-                            color: AppColors.surface,
+                            color: context.appSurface,
                             borderRadius: BorderRadius.circular(20),
                             boxShadow: AppStyle.softShadow,
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
+                              Text(
                                 'Ringkasan Pembayaran',
                                 style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w700,
-                                  color: AppColors.textPrimary,
+                                  color: context.appTextPrimary,
                                 ),
                               ),
-                              const SizedBox(height: 10),
+                              SizedBox(height: 10),
 
                               // Menampilkan subtotal seluruh produk dalam keranjang.
                               Row(
@@ -544,25 +544,25 @@ class _CartPageState extends State<CartPage> {
                                 children: [
                                   Text(
                                     'Subtotal Produk (${cart.totalItems} item)',
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontSize: 12,
-                                      color: AppColors.textSecondary,
+                                      color: context.appTextSecondary,
                                     ),
                                   ),
                                   Text(
                                     formatRupiah(cart.grandTotal),
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontSize: 12,
                                       fontWeight: FontWeight.w600,
-                                      color: AppColors.textPrimary,
+                                      color: context.appTextPrimary,
                                     ),
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 8),
+                              SizedBox(height: 8),
 
                               // Menampilkan ongkos kirim normal dan biaya setelah diskon.
-                              const Row(
+                              Row(
                                 mainAxisAlignment:
                                 MainAxisAlignment.spaceBetween,
                                 children: [
@@ -572,7 +572,7 @@ class _CartPageState extends State<CartPage> {
                                         'Ongkos Kirim Kurir Bengkel',
                                         style: TextStyle(
                                           fontSize: 12,
-                                          color: AppColors.textSecondary,
+                                          color: context.appTextSecondary,
                                         ),
                                       ),
                                     ],
@@ -583,7 +583,7 @@ class _CartPageState extends State<CartPage> {
                                         'Rp 15.000',
                                         style: TextStyle(
                                           fontSize: 11,
-                                          color: AppColors.outline,
+                                          color: context.appOutline,
                                           decoration:
                                           TextDecoration.lineThrough,
                                         ),
@@ -594,17 +594,17 @@ class _CartPageState extends State<CartPage> {
                                         style: TextStyle(
                                           fontSize: 12,
                                           fontWeight: FontWeight.w700,
-                                          color: AppColors.primary,
+                                          color: context.appPrimary,
                                         ),
                                       ),
                                     ],
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 8),
+                              SizedBox(height: 8),
 
                               // Menampilkan biaya asuransi perangkat.
-                              const Row(
+                              Row(
                                 mainAxisAlignment:
                                 MainAxisAlignment.spaceBetween,
                                 children: [
@@ -612,7 +612,7 @@ class _CartPageState extends State<CartPage> {
                                     'Biaya Asuransi Perangkat',
                                     style: TextStyle(
                                       fontSize: 12,
-                                      color: AppColors.textSecondary,
+                                      color: context.appTextSecondary,
                                     ),
                                   ),
                                   Text(
@@ -620,15 +620,15 @@ class _CartPageState extends State<CartPage> {
                                     style: TextStyle(
                                       fontSize: 12,
                                       fontWeight: FontWeight.w700,
-                                      color: AppColors.primary,
+                                      color: context.appPrimary,
                                     ),
                                   ),
                                 ],
                               ),
-                              const Padding(
+                              Padding(
                                 padding: EdgeInsets.symmetric(vertical: 10),
                                 child: Divider(
-                                  color: AppColors.surfaceContainerHigh,
+                                  color: context.appSurfaceContainerHigh,
                                 ),
                               ),
 
@@ -637,20 +637,20 @@ class _CartPageState extends State<CartPage> {
                                 mainAxisAlignment:
                                 MainAxisAlignment.spaceBetween,
                                 children: [
-                                  const Text(
+                                  Text(
                                     'Total Pembayaran',
                                     style: TextStyle(
                                       fontSize: 13,
                                       fontWeight: FontWeight.w700,
-                                      color: AppColors.textPrimary,
+                                      color: context.appTextPrimary,
                                     ),
                                   ),
                                   Text(
                                     formatRupiah(cart.grandTotal),
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w800,
-                                      color: AppColors.primary,
+                                      color: context.appPrimary,
                                     ),
                                   ),
                                 ],
@@ -679,21 +679,21 @@ class _CartPageState extends State<CartPage> {
                   16,
                   88 + MediaQuery.of(context).padding.bottom,
                 ),
-                padding: const EdgeInsets.symmetric(
+                padding: EdgeInsets.symmetric(
                   horizontal: 16,
                   vertical: 12,
                 ),
                 decoration: BoxDecoration(
-                  color: AppColors.surface,
+                  color: context.appSurface,
                   borderRadius: BorderRadius.circular(24),
                   border: Border.all(
-                    color: const Color(0xFFE2E8F0),
+                    color: Color(0xFFE2E8F0),
                   ),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withValues(alpha: 0.08),
                       blurRadius: 20,
-                      offset: const Offset(0, -2),
+                      offset: Offset(0, -2),
                     ),
                   ],
                 ),
@@ -704,25 +704,25 @@ class _CartPageState extends State<CartPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Text(
+                        Text(
                           'Total Tagihan',
                           style: TextStyle(
                             fontSize: 11,
-                            color: AppColors.textSecondary,
+                            color: context.appTextSecondary,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
                         Text(
                           formatRupiah(cart.grandTotal),
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 17,
                             fontWeight: FontWeight.w900,
-                            color: AppColors.primary,
+                            color: context.appPrimary,
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(width: 14),
+                    SizedBox(width: 14),
 
                     // Tombol checkout dinonaktifkan selama transaksi diproses.
                     Expanded(
@@ -733,10 +733,10 @@ class _CartPageState extends State<CartPage> {
                               ? widget.onCheckout
                               : null,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.primary,
+                            backgroundColor: context.appPrimary,
                             foregroundColor: Colors.white,
                             elevation: 2,
-                            shadowColor: AppColors.primary.withValues(
+                            shadowColor: context.appPrimary.withValues(
                               alpha: 0.35,
                             ),
                             shape: RoundedRectangleBorder(
@@ -746,7 +746,7 @@ class _CartPageState extends State<CartPage> {
 
                           // Menampilkan indikator proses atau jumlah item checkout.
                           child: cart.isCheckingOut
-                              ? const SizedBox(
+                              ? SizedBox(
                             width: 20,
                             height: 20,
                             child: CircularProgressIndicator(
@@ -757,14 +757,14 @@ class _CartPageState extends State<CartPage> {
                               : Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const Icon(
+                              Icon(
                                 Icons.shopping_bag_rounded,
                                 size: 18,
                               ),
-                              const SizedBox(width: 8),
+                              SizedBox(width: 8),
                               Text(
                                 'Checkout (${cart.totalItems})',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 13,
                                   fontWeight: FontWeight.w700,
                                 ),
@@ -783,3 +783,4 @@ class _CartPageState extends State<CartPage> {
     );
   }
 }
+  

@@ -17,21 +17,21 @@ class FilterChipButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(right: 8),
+      padding: EdgeInsets.only(right: 8),
       child: InkWell(
         onTap: onPressed,
         borderRadius: BorderRadius.circular(30),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
-            color: selected ? AppColors.primary : AppColors.surfaceContainerHigh,
+            color: selected ? context.appPrimary : context.appSurfaceContainerHigh,
             borderRadius: BorderRadius.circular(30),
             boxShadow: selected
                 ? [
                     BoxShadow(
-                      color: AppColors.primary.withValues(alpha: 0.25),
+                      color: context.appPrimary.withValues(alpha: 0.25),
                       blurRadius: 8,
-                      offset: const Offset(0, 2),
+                      offset: Offset(0, 2),
                     ),
                   ]
                 : null,
@@ -41,7 +41,7 @@ class FilterChipButton extends StatelessWidget {
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w700,
-              color: selected ? Colors.white : AppColors.textSecondary,
+              color: selected ? Colors.white : context.appTextSecondary,
             ),
           ),
         ),
