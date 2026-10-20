@@ -1,52 +1,77 @@
-import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:pa_mobile/theme/app_colors.dart';
 
-// Gambar produk dengan ukuran kotak tetap (tidak berubah mengikuti gambar asli).
-// - width null  : selebar parent, tinggi tetap
-// - fit cover   : gambar mengisi penuh kotak (ganti ke BoxFit.contain jika
-//                 ingin gambar utuh tanpa terpotong)
-// - ResizeImage : gambar didecode sesuai ukuran tampil, bukan ukuran file asli,
-//                 sehingga scroll dan buka halaman jauh lebih ringan
+// Gambar produk dengan ukuran tetap.
+// - Jika path diawali http:// atau https:// gambar diambil dari internet (Image.network)
+// - Jika tidak, gambar diambil dari folder assets (Image.asset)
+// Apa pun ukuran file aslinya, bingkainya selalu sama (BoxFit.cover memotong kelebihan).
 class ProductImage extends StatelessWidget {
   final String path;
-  final double? width;
+  final double width;
   final double height;
   final BoxFit fit;
+  final double radius;
 
   const ProductImage({
     super.key,
     required this.path,
     required this.height,
-    this.width,
+    this.width = double.infinity,
     this.fit = BoxFit.cover,
+    this.radius = 6,
   });
+
+  bool get isNetwork => path.startsWith('http://') || path.startsWith('https://');
+
+  // Tampilan jika gambar gagal dimuat (link salah, diblokir, atau tidak ada internet)
+  Widget _buildError(BuildContext context, Object error, StackTrace? stackTrace) {
+    return const Center(
+      child: Icon(Icons.broken_image_outlined, size: 28, color: AppColors.outline),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    final pixelRatio = MediaQuery.devicePixelRatioOf(context);
-    final boxWidth = width ?? MediaQuery.sizeOf(context).width / 2;
-    final decodeWidth = (math.max(boxWidth, height) * pixelRatio).round();
-
-    // Mendukung asset lokal maupun URL jika nanti field image berisi link
-    final ImageProvider provider =
-    path.startsWith('http') ? NetworkImage(path) : AssetImage(path);
-
-    return SizedBox(
-      width: width ?? double.infinity,
+    return Container(
+      width: width,
       height: height,
-      child: ColoredBox(
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
         color: AppColors.surfaceLight,
-        child: Image(
-          image: ResizeImage(provider, width: decodeWidth),
-          fit: fit,
-          gaplessPlayback: true,
-          filterQuality: FilterQuality.medium,
-          errorBuilder: (context, error, stackTrace) => const Center(
-            child: Icon(Icons.image_not_supported_outlined,
-                size: 28, color: AppColors.textSecondary),
-          ),
-        ),
+        borderRadius: BorderRadius.circular(radius),
+      ),
+      child: isNetwork
+          ? Image.network(
+        path,
+        width: width,
+        height: height,
+        fit: fit,
+        // Gambar didecode dengan ukuran kecil agar hemat memori dan tidak berat
+        cacheWidth: 400,
+        // Indikator loading selama gambar diunduh
+        loadingBuilder: (context, child, progress) {
+          if (progress == null) return child;
+          return const Center(
+            child: SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: AppColors.primary,
+              ),
+            ),
+          );
+        },
+        errorBuilder: _buildError,
+      )
+          : Image.asset(
+        path,
+        width: width,
+        height: height,
+        fit: fit,
+        cacheWidth: 400,
+        gaplessPlayback: true,
+        errorBuilder: _buildError,
       ),
     );
   }
