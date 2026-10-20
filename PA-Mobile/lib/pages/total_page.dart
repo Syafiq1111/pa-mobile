@@ -15,6 +15,10 @@ class TotalPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Warna ikon/teks di atas warna aksen: gelap pada mode gelap (aksen terang),
+    // putih pada mode terang (aksen gelap), agar selalu terbaca.
+    final onAccent = context.isDarkMode ? AppColorsDark.background : Colors.white;
+
     return Padding(
       // Memberikan jarak pada sisi kiri dan kanan halaman.
       padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -26,24 +30,24 @@ class TotalPage extends StatelessWidget {
             width: 64,
             height: 64,
             decoration: BoxDecoration(
-              color: AppColors.success,
+              color: context.appSuccess,
               borderRadius: AppStyle.card,
             ),
-            child: const Icon(
+            child: Icon(
               Icons.check,
               size: 38,
-              color: Colors.white,
+              color: onAccent,
             ),
           ),
           const SizedBox(height: 24),
 
           // Menampilkan informasi bahwa pembayaran telah berhasil.
-          const Text(
+          Text(
             'Pembayaran Berhasil',
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: AppColors.textPrimary,
+              color: context.appTextPrimary,
             ),
           ),
           const SizedBox(height: 20),
@@ -56,18 +60,18 @@ class TotalPage extends StatelessWidget {
               horizontal: 16,
             ),
             decoration: BoxDecoration(
-              color: AppColors.surface,
-              border: Border.all(color: AppColors.border),
+              color: context.appSurface,
+              border: Border.all(color: context.appBorder),
               borderRadius: AppStyle.card,
             ),
             child: Column(
               children: [
                 // Label untuk menjelaskan nilai yang ditampilkan.
-                const Text(
+                Text(
                   'Total pembayaran',
                   style: TextStyle(
                     fontSize: 12,
-                    color: AppColors.textSecondary,
+                    color: context.appTextSecondary,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -75,10 +79,10 @@ class TotalPage extends StatelessWidget {
                 // Memformat total pembayaran ke dalam mata uang Rupiah.
                 Text(
                   formatRupiah(total),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.textPrimary,
+                    color: context.appTextPrimary,
                   ),
                 ),
               ],
@@ -87,12 +91,12 @@ class TotalPage extends StatelessWidget {
           const SizedBox(height: 12),
 
           // Menampilkan ucapan terima kasih kepada pelanggan.
-          const Text(
+          Text(
             'Terima kasih sudah berbelanja di BengkelKOM-Ridho',
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 12,
-              color: AppColors.textSecondary,
+              color: context.appTextSecondary,
             ),
           ),
           const SizedBox(height: 28),
@@ -106,8 +110,8 @@ class TotalPage extends StatelessWidget {
               onPressed: onBack,
               style: ElevatedButton.styleFrom(
                 elevation: 0,
-                backgroundColor: AppColors.primary,
-                foregroundColor: Colors.white,
+                backgroundColor: context.appPrimary,
+                foregroundColor: onAccent,
                 shape: RoundedRectangleBorder(
                   borderRadius: AppStyle.small,
                 ),

@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:pa_mobile/models/category.dart';
@@ -28,6 +27,13 @@ class _CategoryPageState extends State<CategoryPage> {
   int sortMode = 0; // 0: Terlaris, 1: Harga Terendah, 2: Harga Tertinggi, 3: Rating Tertinggi
   int? minPrice;
   int? maxPrice;
+
+  // Memilih warna sesuai mode terang atau gelap.
+  Color _c(Color light, Color dark) => context.isDarkMode ? dark : light;
+
+  // Warna teks dan ikon di atas latar berwarna (primary / accent).
+  Color get _onColor =>
+      context.isDarkMode ? AppColorsDark.background : Colors.white;
 
   // Mengubah kode pengurutan menjadi teks yang ditampilkan pada antarmuka.
   String _getSortLabel(int mode) {
@@ -92,8 +98,8 @@ class _CategoryPageState extends State<CategoryPage> {
               constraints: BoxConstraints(
                 maxHeight: MediaQuery.of(context).size.height * 0.88,
               ),
-              decoration: const BoxDecoration(
-                color: Colors.white,
+              decoration: BoxDecoration(
+                color: context.appSurface,
                 borderRadius: BorderRadius.vertical(
                   top: Radius.circular(28),
                 ),
@@ -108,7 +114,7 @@ class _CategoryPageState extends State<CategoryPage> {
                       width: 44,
                       height: 4,
                       decoration: BoxDecoration(
-                        color: const Color(0xFFCBD5E1),
+                        color: context.appOutlineVariant,
                         borderRadius: BorderRadius.circular(2),
                       ),
                     ),
@@ -126,22 +132,22 @@ class _CategoryPageState extends State<CategoryPage> {
                               width: 36,
                               height: 36,
                               decoration: BoxDecoration(
-                                color: AppColors.primary,
+                                color: context.appPrimary,
                                 borderRadius: BorderRadius.circular(12),
                               ),
-                              child: const Icon(
+                              child: Icon(
                                 Icons.tune_rounded,
                                 size: 20,
-                                color: Colors.white,
+                                color: _onColor,
                               ),
                             ),
                             const SizedBox(width: 12),
-                            const Text(
+                            Text(
                               'Filter & Urutkan',
                               style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.w800,
-                                color: AppColors.textPrimary,
+                                color: context.appTextPrimary,
                                 letterSpacing: -0.3,
                               ),
                             ),
@@ -166,25 +172,25 @@ class _CategoryPageState extends State<CategoryPage> {
                                   vertical: 6,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFFFFF1EE),
+                                  color: _c(const Color(0xFFFFF1EE), const Color(0xFF3A2420)),
                                   borderRadius: BorderRadius.circular(20),
                                   border: Border.all(
-                                    color: const Color(0xFFFFDAD2),
+                                    color: _c(const Color(0xFFFFDAD2), const Color(0xFF5C3A33)),
                                   ),
                                 ),
-                                child: const Row(
+                                child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     Icon(
                                       Icons.restart_alt_rounded,
                                       size: 14,
-                                      color: AppColors.secondary,
+                                      color: context.appSecondary,
                                     ),
                                     SizedBox(width: 4),
                                     Text(
                                       'Reset',
                                       style: TextStyle(
-                                        color: AppColors.secondary,
+                                        color: context.appSecondary,
                                         fontWeight: FontWeight.w700,
                                         fontSize: 12,
                                       ),
@@ -196,12 +202,12 @@ class _CategoryPageState extends State<CategoryPage> {
                             const SizedBox(width: 8),
                             IconButton(
                               onPressed: () => Navigator.pop(modalContext),
-                              icon: const Icon(
+                              icon: Icon(
                                 Icons.close_rounded,
-                                color: AppColors.textSecondary,
+                                color: context.appTextSecondary,
                               ),
                               style: IconButton.styleFrom(
-                                backgroundColor: const Color(0xFFF1F5F9),
+                                backgroundColor: context.appSurfaceContainerLow,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
@@ -212,9 +218,9 @@ class _CategoryPageState extends State<CategoryPage> {
                       ],
                     ),
                   ),
-                  const Divider(
+                  Divider(
                     height: 1,
-                    color: Color(0xFFE2E8F0),
+                    color: context.appBorder,
                   ),
 
                   // Area pengaturan filter yang dapat digulir.
@@ -234,7 +240,7 @@ class _CategoryPageState extends State<CategoryPage> {
                           _modalSectionHeader(
                             title: 'Urutkan Berdasarkan',
                             icon: Icons.sort_rounded,
-                            iconColor: AppColors.accent,
+                            iconColor: context.appAccent,
                           ),
                           const SizedBox(height: 12),
                           Wrap(
@@ -282,7 +288,7 @@ class _CategoryPageState extends State<CategoryPage> {
                           _modalSectionHeader(
                             title: 'Merek Produk',
                             icon: Icons.business_outlined,
-                            iconColor: AppColors.primary,
+                            iconColor: context.appPrimary,
                           ),
                           const SizedBox(height: 12),
                           Wrap(
@@ -313,7 +319,7 @@ class _CategoryPageState extends State<CategoryPage> {
                           _modalSectionHeader(
                             title: 'Rentang Harga (Rp)',
                             icon: Icons.payments_outlined,
-                            iconColor: const Color(0xFF2563EB),
+                            iconColor: _c(const Color(0xFF2563EB), const Color(0xFF60A5FA)),
                           ),
                           const SizedBox(height: 12),
                           Row(
@@ -324,14 +330,14 @@ class _CategoryPageState extends State<CategoryPage> {
                                   hint: 'Harga Min',
                                 ),
                               ),
-                              const Padding(
+                              Padding(
                                 padding: EdgeInsets.symmetric(
                                   horizontal: 10,
                                 ),
                                 child: Text(
                                   '—',
                                   style: TextStyle(
-                                    color: Color(0xFF94A3B8),
+                                    color: context.appTextMuted,
                                     fontWeight: FontWeight.w800,
                                     fontSize: 16,
                                   ),
@@ -405,10 +411,10 @@ class _CategoryPageState extends State<CategoryPage> {
                       20,
                       16 + MediaQuery.of(context).padding.bottom,
                     ),
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
+                    decoration: BoxDecoration(
+                      color: context.appSurface,
                       border: Border(
-                        top: BorderSide(color: Color(0xFFE2E8F0)),
+                        top: BorderSide(color: context.appBorder),
                       ),
                     ),
                     child: SizedBox(
@@ -441,22 +447,22 @@ class _CategoryPageState extends State<CategoryPage> {
 
                           Navigator.pop(modalContext);
                         },
-                        icon: const Icon(
+                        icon: Icon(
                           Icons.check_rounded,
-                          color: Colors.white,
+                          color: _onColor,
                           size: 20,
                         ),
-                        label: const Text(
+                        label: Text(
                           'Terapkan Filter',
                           style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w800,
-                            color: Colors.white,
+                            color: _onColor,
                             letterSpacing: 0.2,
                           ),
                         ),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primary,
+                          backgroundColor: context.appPrimary,
                           elevation: 0,
                           shadowColor: Colors.transparent,
                           shape: RoundedRectangleBorder(
@@ -487,10 +493,10 @@ class _CategoryPageState extends State<CategoryPage> {
         const SizedBox(width: 8),
         Text(
           title,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w800,
-            color: AppColors.textPrimary,
+            color: context.appTextPrimary,
           ),
         ),
       ],
@@ -513,12 +519,12 @@ class _CategoryPageState extends State<CategoryPage> {
           vertical: 9,
         ),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.accent : Colors.white,
+          color: isSelected ? context.appAccent : context.appSurface,
           borderRadius: BorderRadius.circular(24),
           border: Border.all(
             color: isSelected
-                ? AppColors.accent
-                : const Color(0xFFE2E8F0),
+                ? context.appAccent
+                : context.appBorder,
             width: 1.2,
           ),
         ),
@@ -529,8 +535,8 @@ class _CategoryPageState extends State<CategoryPage> {
               icon,
               size: 16,
               color: isSelected
-                  ? Colors.white
-                  : const Color(0xFF64748B),
+                  ? _onColor
+                  : context.appTextSecondary,
             ),
             const SizedBox(width: 6),
             Text(
@@ -541,8 +547,8 @@ class _CategoryPageState extends State<CategoryPage> {
                     ? FontWeight.w800
                     : FontWeight.w600,
                 color: isSelected
-                    ? Colors.white
-                    : AppColors.textPrimary,
+                    ? _onColor
+                    : context.appTextPrimary,
               ),
             ),
           ],
@@ -566,12 +572,12 @@ class _CategoryPageState extends State<CategoryPage> {
           vertical: 9,
         ),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary : Colors.white,
+          color: isSelected ? context.appPrimary : context.appSurface,
           borderRadius: BorderRadius.circular(24),
           border: Border.all(
             color: isSelected
-                ? AppColors.primary
-                : const Color(0xFFE2E8F0),
+                ? context.appPrimary
+                : context.appBorder,
             width: 1.2,
           ),
         ),
@@ -583,8 +589,8 @@ class _CategoryPageState extends State<CategoryPage> {
                 ? FontWeight.w800
                 : FontWeight.w600,
             color: isSelected
-                ? Colors.white
-                : AppColors.textPrimary,
+                ? _onColor
+                : context.appTextPrimary,
           ),
         ),
       ),
@@ -599,10 +605,10 @@ class _CategoryPageState extends State<CategoryPage> {
     return Container(
       height: 46,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appSurface,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: const Color(0xFFCBD5E1),
+          color: context.appOutlineVariant,
           width: 1.2,
         ),
       ),
@@ -615,15 +621,15 @@ class _CategoryPageState extends State<CategoryPage> {
               vertical: 4,
             ),
             decoration: BoxDecoration(
-              color: const Color(0xFFE6F4F1),
+              color: _c(const Color(0xFFE6F4F1), const Color(0xFF1E3B37)),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: const Text(
+            child: Text(
               'Rp',
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w800,
-                color: AppColors.primary,
+                color: context.appPrimary,
               ),
             ),
           ),
@@ -632,16 +638,16 @@ class _CategoryPageState extends State<CategoryPage> {
             child: TextField(
               controller: controller,
               keyboardType: TextInputType.number,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w700,
-                color: AppColors.textPrimary,
+                color: context.appTextPrimary,
               ),
               decoration: InputDecoration(
                 hintText: hint,
-                hintStyle: const TextStyle(
+                hintStyle: TextStyle(
                   fontSize: 12,
-                  color: Color(0xFF94A3B8),
+                  color: context.appTextMuted,
                 ),
                 border: InputBorder.none,
                 isDense: true,
@@ -670,18 +676,18 @@ class _CategoryPageState extends State<CategoryPage> {
             vertical: 6,
           ),
           decoration: BoxDecoration(
-            color: const Color(0xFFFFFBEB),
+            color: _c(const Color(0xFFFFFBEB), const Color(0xFF3A3220)),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
-              color: const Color(0xFFFDE68A),
+              color: _c(const Color(0xFFFDE68A), const Color(0xFF5C4A1F)),
             ),
           ),
           child: Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w700,
-              color: Color(0xFFB45309),
+              color: _c(const Color(0xFFB45309), const Color(0xFFFCD34D)),
             ),
           ),
         ),
@@ -700,22 +706,22 @@ class _CategoryPageState extends State<CategoryPage> {
             Container(
               height: 60,
               padding: const EdgeInsets.symmetric(horizontal: 16),
-              decoration: const BoxDecoration(
-                color: AppColors.surface,
+              decoration: BoxDecoration(
+                color: context.appSurface,
                 border: Border(
-                  bottom: BorderSide(color: AppColors.borderSubtle),
+                  bottom: BorderSide(color: context.appBorderSubtle),
                 ),
               ),
               child: Row(
                 children: [
                   IconButton(
                     onPressed: widget.onBack ?? () => Navigator.pop(context),
-                    icon: const Icon(
+                    icon: Icon(
                       Icons.arrow_back_rounded,
-                      color: AppColors.textPrimary,
+                      color: context.appTextPrimary,
                     ),
                     style: IconButton.styleFrom(
-                      backgroundColor: const Color(0xFFF1F5F9),
+                      backgroundColor: context.appSurfaceContainerLow,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -724,10 +730,10 @@ class _CategoryPageState extends State<CategoryPage> {
                   const SizedBox(width: 14),
                   Text(
                     widget.category.name,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 19,
                       fontWeight: FontWeight.w900,
-                      color: AppColors.textPrimary,
+                      color: context.appTextPrimary,
                       letterSpacing: -0.3,
                     ),
                   ),
@@ -801,11 +807,11 @@ class _CategoryPageState extends State<CategoryPage> {
                             horizontal: 16,
                             vertical: 12,
                           ),
-                          decoration: const BoxDecoration(
-                            color: AppColors.surface,
+                          decoration: BoxDecoration(
+                            color: context.appSurface,
                             border: Border(
                               bottom: BorderSide(
-                                color: AppColors.borderSubtle,
+                                color: context.appBorderSubtle,
                               ),
                             ),
                           ),
@@ -813,10 +819,10 @@ class _CategoryPageState extends State<CategoryPage> {
                             children: [
                               Text(
                                 '${visibleProducts.length} Produk ditemukan',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 13,
                                   fontWeight: FontWeight.w700,
-                                  color: AppColors.textSecondary,
+                                  color: context.appTextSecondary,
                                 ),
                               ),
                               const Spacer(),
@@ -833,12 +839,12 @@ class _CategoryPageState extends State<CategoryPage> {
                                   ),
                                   decoration: BoxDecoration(
                                     color: hasActiveFilter
-                                        ? AppColors.primary
-                                        : Colors.white,
+                                        ? context.appPrimary
+                                        : context.appSurface,
                                     border: Border.all(
                                       color: hasActiveFilter
-                                          ? AppColors.primary
-                                          : AppColors.primary.withValues(
+                                          ? context.appPrimary
+                                          : context.appPrimary.withValues(
                                         alpha: 0.35,
                                       ),
                                       width: 1.2,
@@ -852,8 +858,8 @@ class _CategoryPageState extends State<CategoryPage> {
                                         Icons.tune_rounded,
                                         size: 16,
                                         color: hasActiveFilter
-                                            ? Colors.white
-                                            : AppColors.primary,
+                                            ? _onColor
+                                            : context.appPrimary,
                                       ),
                                       const SizedBox(width: 6),
                                       Text(
@@ -862,8 +868,8 @@ class _CategoryPageState extends State<CategoryPage> {
                                           fontSize: 12,
                                           fontWeight: FontWeight.w800,
                                           color: hasActiveFilter
-                                              ? Colors.white
-                                              : AppColors.primary,
+                                              ? _onColor
+                                              : context.appPrimary,
                                         ),
                                       ),
 
@@ -872,8 +878,8 @@ class _CategoryPageState extends State<CategoryPage> {
                                         const SizedBox(width: 6),
                                         Container(
                                           padding: const EdgeInsets.all(4),
-                                          decoration: const BoxDecoration(
-                                            color: AppColors.accent,
+                                          decoration: BoxDecoration(
+                                            color: context.appAccent,
                                             shape: BoxShape.circle,
                                           ),
                                           constraints: const BoxConstraints(
@@ -883,10 +889,10 @@ class _CategoryPageState extends State<CategoryPage> {
                                           child: Center(
                                             child: Text(
                                               '$_activeFilterCount',
-                                              style: const TextStyle(
+                                              style: TextStyle(
                                                 fontSize: 10,
                                                 fontWeight: FontWeight.w900,
-                                                color: Colors.white,
+                                                color: _onColor,
                                                 height: 1,
                                               ),
                                             ),
@@ -906,7 +912,7 @@ class _CategoryPageState extends State<CategoryPage> {
                       if (hasActiveFilter)
                         SliverToBoxAdapter(
                           child: Container(
-                            color: AppColors.surface,
+                            color: context.appSurface,
                             padding: const EdgeInsets.fromLTRB(
                               16,
                               4,
@@ -922,9 +928,9 @@ class _CategoryPageState extends State<CategoryPage> {
                                   if (sortMode != 0)
                                     _activeFilterPill(
                                       label: _getSortLabel(sortMode),
-                                      bgColor: const Color(0xFFFFF7ED),
-                                      borderColor: const Color(0xFFFED7AA),
-                                      textColor: const Color(0xFFC2410C),
+                                      bgColor: _c(const Color(0xFFFFF7ED), const Color(0xFF3A2A1A)),
+                                      borderColor: _c(const Color(0xFFFED7AA), const Color(0xFF5C4020)),
+                                      textColor: _c(const Color(0xFFC2410C), const Color(0xFFFDBA74)),
                                       icon: Icons.sort_rounded,
                                       onRemove: () {
                                         setState(() => sortMode = 0);
@@ -935,9 +941,9 @@ class _CategoryPageState extends State<CategoryPage> {
                                   if (selectedBrand != 'Semua')
                                     _activeFilterPill(
                                       label: selectedBrand,
-                                      bgColor: const Color(0xFFE6F4F1),
-                                      borderColor: const Color(0xFF80CBC4),
-                                      textColor: AppColors.primary,
+                                      bgColor: _c(const Color(0xFFE6F4F1), const Color(0xFF1E3B37)),
+                                      borderColor: _c(const Color(0xFF80CBC4), const Color(0xFF2E6B63)),
+                                      textColor: context.appPrimary,
                                       icon: Icons.verified_outlined,
                                       onRemove: () {
                                         setState(() {
@@ -950,9 +956,9 @@ class _CategoryPageState extends State<CategoryPage> {
                                   if (minPrice != null || maxPrice != null)
                                     _activeFilterPill(
                                       label: _formatActivePrice(),
-                                      bgColor: const Color(0xFFEFF6FF),
-                                      borderColor: const Color(0xFFBFDBFE),
-                                      textColor: const Color(0xFF1D4ED8),
+                                      bgColor: _c(const Color(0xFFEFF6FF), const Color(0xFF1A2A3E)),
+                                      borderColor: _c(const Color(0xFFBFDBFE), const Color(0xFF2C4A6E)),
+                                      textColor: _c(const Color(0xFF1D4ED8), const Color(0xFF93C5FD)),
                                       icon: Icons.payments_outlined,
                                       onRemove: () {
                                         setState(() {
@@ -972,19 +978,19 @@ class _CategoryPageState extends State<CategoryPage> {
                                         vertical: 5,
                                       ),
                                       decoration: BoxDecoration(
-                                        color: const Color(0xFFFFF1EE),
+                                        color: _c(const Color(0xFFFFF1EE), const Color(0xFF3A2420)),
                                         borderRadius: BorderRadius.circular(20),
                                         border: Border.all(
-                                          color: const Color(0xFFFFDAD2),
+                                          color: _c(const Color(0xFFFFDAD2), const Color(0xFF5C3A33)),
                                         ),
                                       ),
-                                      child: const Row(
+                                      child: Row(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
                                           Icon(
                                             Icons.close_rounded,
                                             size: 12,
-                                            color: AppColors.secondary,
+                                            color: context.appSecondary,
                                           ),
                                           SizedBox(width: 3),
                                           Text(
@@ -992,7 +998,7 @@ class _CategoryPageState extends State<CategoryPage> {
                                             style: TextStyle(
                                               fontSize: 11,
                                               fontWeight: FontWeight.w800,
-                                              color: AppColors.secondary,
+                                              color: context.appSecondary,
                                             ),
                                           ),
                                         ],
@@ -1007,12 +1013,12 @@ class _CategoryPageState extends State<CategoryPage> {
 
                       // Menampilkan indikator saat data produk sedang dimuat.
                       if (cart.isLoading)
-                        const SliverToBoxAdapter(
+                        SliverToBoxAdapter(
                           child: Padding(
                             padding: EdgeInsets.only(top: 40),
                             child: Center(
                               child: CircularProgressIndicator(
-                                color: AppColors.primary,
+                                color: context.appPrimary,
                               ),
                             ),
                           ),
@@ -1031,33 +1037,33 @@ class _CategoryPageState extends State<CategoryPage> {
                                     width: 68,
                                     height: 68,
                                     decoration: BoxDecoration(
-                                      color: const Color(0xFFEDF5FA),
+                                      color: context.appSurfaceContainerLow,
                                       shape: BoxShape.circle,
                                       border: Border.all(
-                                        color: const Color(0xFFD6E3E9),
+                                        color: context.appBorder,
                                       ),
                                     ),
-                                    child: const Icon(
+                                    child: Icon(
                                       Icons.search_off_rounded,
                                       size: 34,
-                                      color: AppColors.textSecondary,
+                                      color: context.appTextSecondary,
                                     ),
                                   ),
                                   const SizedBox(height: 14),
-                                  const Text(
+                                  Text(
                                     'Tidak ada produk yang cocok',
                                     style: TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w800,
-                                      color: AppColors.textPrimary,
+                                      color: context.appTextPrimary,
                                     ),
                                   ),
                                   const SizedBox(height: 6),
-                                  const Text(
+                                  Text(
                                     'Coba sesuaikan atau reset filter Anda',
                                     style: TextStyle(
                                       fontSize: 12,
-                                      color: AppColors.textSecondary,
+                                      color: context.appTextSecondary,
                                     ),
                                   ),
                                   const SizedBox(height: 18),
@@ -1071,8 +1077,8 @@ class _CategoryPageState extends State<CategoryPage> {
                                     ),
                                     label: const Text('Reset Filter'),
                                     style: ElevatedButton.styleFrom(
-                                      backgroundColor: AppColors.primary,
-                                      foregroundColor: Colors.white,
+                                      backgroundColor: context.appPrimary,
+                                      foregroundColor: _onColor,
                                       elevation: 0,
                                       padding: const EdgeInsets.symmetric(
                                         horizontal: 20,
@@ -1164,7 +1170,6 @@ class _CategoryPageState extends State<CategoryPage> {
           ),
           const SizedBox(width: 5),
 
-          // Menghapus filter tertentu tanpa memengaruhi filter lainnya.
           InkWell(
             onTap: onRemove,
             borderRadius: BorderRadius.circular(10),

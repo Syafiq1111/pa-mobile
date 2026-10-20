@@ -60,8 +60,11 @@ class _AddressPageState extends State<AddressPage> {
 
   @override
   Widget build(BuildContext context) {
+    // Warna ikon/teks di atas warna aksen: gelap pada mode gelap, putih pada mode terang.
+    final onAccent = context.isDarkMode ? AppColorsDark.background : Colors.white;
+
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.appBackground,
       appBar: AppBar(
         title: const Text(
           'Alamat Pengiriman',
@@ -86,19 +89,19 @@ class _AddressPageState extends State<AddressPage> {
                       width: double.infinity,
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
-                        color: AppColors.surface,
-                        border: Border.all(color: AppColors.border),
+                        color: context.appSurface,
+                        border: Border.all(color: context.appBorder),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
+                          Text(
                             'Tambah Alamat Baru',
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
-                              color: AppColors.textPrimary,
+                              color: context.appTextPrimary,
                             ),
                           ),
                           const SizedBox(height: 16),
@@ -133,10 +136,10 @@ class _AddressPageState extends State<AddressPage> {
                             const SizedBox(height: 10),
                             Text(
                               errorMessage,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
-                                color: AppColors.danger,
+                                color: context.appDanger,
                               ),
                             ),
                           ],
@@ -150,8 +153,8 @@ class _AddressPageState extends State<AddressPage> {
                               onPressed: saveAddress,
                               style: ElevatedButton.styleFrom(
                                 elevation: 0,
-                                backgroundColor: AppColors.primary,
-                                foregroundColor: Colors.white,
+                                backgroundColor: context.appPrimary,
+                                foregroundColor: onAccent,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
@@ -180,31 +183,31 @@ class _AddressPageState extends State<AddressPage> {
                     const SizedBox(height: 24),
 
                     // Judul bagian yang menampilkan daftar alamat tersimpan.
-                    const Text(
+                    Text(
                       'Alamat Tersimpan',
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: AppColors.textPrimary,
+                        color: context.appTextPrimary,
                       ),
                     ),
                     const SizedBox(height: 12),
 
                     // Menampilkan informasi jika belum ada alamat tersimpan.
                     if (provider.addresses.isEmpty)
-                      const Padding(
-                        padding: EdgeInsets.only(top: 20, bottom: 20),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 20, bottom: 20),
                         child: Text(
                           'Belum ada alamat tersimpan',
                           style: TextStyle(
-                            color: AppColors.textSecondary,
+                            color: context.appTextSecondary,
                           ),
                         ),
                       ),
 
                     // Membuat kartu untuk setiap alamat yang tersedia.
                     for (final address in provider.addresses) ...[
-                      _buildAddressCard(context, provider, address),
+                      _buildAddressCard(context, provider, address, onAccent),
                       const SizedBox(height: 12),
                     ],
                     const SizedBox(height: 8),
@@ -223,6 +226,7 @@ class _AddressPageState extends State<AddressPage> {
       BuildContext context,
       AddressProvider provider,
       Address address,
+      Color onAccent,
       ) {
     // Memeriksa apakah alamat yang ditampilkan merupakan alamat utama.
     final isMain = provider.mainAddressId == address.id;
@@ -231,10 +235,10 @@ class _AddressPageState extends State<AddressPage> {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.appSurface,
         // Memberikan garis tepi berbeda pada alamat yang ditetapkan sebagai utama.
         border: Border.all(
-          color: isMain ? AppColors.primary : AppColors.border,
+          color: isMain ? context.appPrimary : context.appBorder,
           width: isMain ? 2 : 1,
         ),
         borderRadius: BorderRadius.circular(18),
@@ -248,10 +252,10 @@ class _AddressPageState extends State<AddressPage> {
               Expanded(
                 child: Text(
                   address.name,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.textPrimary,
+                    color: context.appTextPrimary,
                   ),
                 ),
               ),
@@ -262,15 +266,15 @@ class _AddressPageState extends State<AddressPage> {
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: AppColors.primary,
+                    color: context.appPrimary,
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Text(
+                  child: Text(
                     'Utama',
                     style: TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      color: onAccent,
                     ),
                   ),
                 ),
@@ -281,9 +285,9 @@ class _AddressPageState extends State<AddressPage> {
           // Menampilkan nomor telepon penerima.
           Text(
             address.phone,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 12,
-              color: AppColors.textSecondary,
+              color: context.appTextSecondary,
             ),
           ),
           const SizedBox(height: 8),
@@ -291,9 +295,9 @@ class _AddressPageState extends State<AddressPage> {
           // Menampilkan detail alamat pengiriman.
           Text(
             address.detail,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 13,
-              color: AppColors.textPrimary,
+              color: context.appTextPrimary,
             ),
           ),
           const SizedBox(height: 12),
@@ -310,8 +314,8 @@ class _AddressPageState extends State<AddressPage> {
                         .setMain(address.id),
                     style: ElevatedButton.styleFrom(
                       elevation: 0,
-                      backgroundColor: AppColors.surfaceLight,
-                      foregroundColor: AppColors.primaryDark,
+                      backgroundColor: context.appSurfaceLight,
+                      foregroundColor: context.appPrimaryDark,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
@@ -336,8 +340,8 @@ class _AddressPageState extends State<AddressPage> {
                     .removeAddress(address.id),
                 style: ElevatedButton.styleFrom(
                   elevation: 0,
-                  backgroundColor: AppColors.surfaceLight,
-                  foregroundColor: AppColors.danger,
+                  backgroundColor: context.appSurfaceLight,
+                  foregroundColor: context.appDanger,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),

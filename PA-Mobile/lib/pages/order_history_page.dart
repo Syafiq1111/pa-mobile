@@ -34,21 +34,21 @@ class OrderHistoryPage extends StatelessWidget {
                   children: [
                     // Menampilkan pesan ketika belum ada riwayat pembelian.
                     if (cart.orders.isEmpty)
-                      const Padding(
-                        padding: EdgeInsets.only(top: 80),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 80),
                         child: Column(
                           children: [
                             Icon(
                               Icons.receipt_long_outlined,
                               size: 64,
-                              color: AppColors.border,
+                              color: context.appBorder,
                             ),
-                            SizedBox(height: 12),
+                            const SizedBox(height: 12),
                             Text(
                               'Belum ada riwayat pembelian',
                               style: TextStyle(
                                 fontSize: 14,
-                                color: AppColors.textSecondary,
+                                color: context.appTextSecondary,
                               ),
                             ),
                           ],
@@ -57,7 +57,7 @@ class OrderHistoryPage extends StatelessWidget {
 
                     // Menampilkan setiap pesanan dalam bentuk kartu.
                     for (final order in cart.orders) ...[
-                      _buildOrderCard(order),
+                      _buildOrderCard(context, order),
                       const SizedBox(height: 14),
                     ],
                   ],
@@ -71,13 +71,16 @@ class OrderHistoryPage extends StatelessWidget {
   }
 
   // Menyusun kartu pesanan yang berisi detail transaksi dan pengiriman.
-  Widget _buildOrderCard(PurchaseOrder order) {
+  Widget _buildOrderCard(BuildContext context, PurchaseOrder order) {
+    // Warna teks di atas badge hijau gelap pada mode gelap, putih pada mode terang.
+    final onAccent = context.isDarkMode ? AppColorsDark.background : Colors.white;
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surface,
-        border: Border.all(color: AppColors.border),
+        color: context.appSurface,
+        border: Border.all(color: context.appBorder),
         borderRadius: BorderRadius.circular(18),
       ),
       child: Column(
@@ -89,10 +92,10 @@ class OrderHistoryPage extends StatelessWidget {
             children: [
               Text(
                 order.id,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
+                  color: context.appTextPrimary,
                 ),
               ),
               Container(
@@ -101,15 +104,15 @@ class OrderHistoryPage extends StatelessWidget {
                   vertical: 4,
                 ),
                 decoration: BoxDecoration(
-                  color: AppColors.success,
+                  color: context.appSuccess,
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Text(
+                child: Text(
                   'Selesai',
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                    color: onAccent,
                   ),
                 ),
               ),
@@ -120,9 +123,9 @@ class OrderHistoryPage extends StatelessWidget {
           // Memformat tanggal transaksi agar mudah dibaca.
           Text(
             formatTanggal(order.date),
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 11,
-              color: AppColors.textSecondary,
+              color: context.appTextSecondary,
             ),
           ),
           const SizedBox(height: 12),
@@ -141,17 +144,17 @@ class OrderHistoryPage extends StatelessWidget {
                           item.name,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.textPrimary,
+                            color: context.appTextPrimary,
                           ),
                         ),
                         Text(
                           '${item.brand} • ${item.quantity} x ${formatRupiah(item.price)}',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 11,
-                            color: AppColors.textSecondary,
+                            color: context.appTextSecondary,
                           ),
                         ),
                       ],
@@ -160,10 +163,10 @@ class OrderHistoryPage extends StatelessWidget {
                   const SizedBox(width: 8),
                   Text(
                     formatRupiah(item.subtotal),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.textPrimary,
+                      color: context.appTextPrimary,
                     ),
                   ),
                 ],
@@ -174,23 +177,23 @@ class OrderHistoryPage extends StatelessWidget {
           Container(
             margin: const EdgeInsets.symmetric(vertical: 6),
             height: 1,
-            color: AppColors.border,
+            color: context.appBorder,
           ),
 
           // Menampilkan alamat tujuan pengiriman pesanan.
-          const Text(
+          Text(
             'Dikirim ke',
             style: TextStyle(
               fontSize: 11,
-              color: AppColors.textSecondary,
+              color: context.appTextSecondary,
             ),
           ),
           const SizedBox(height: 2),
           Text(
             order.address,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 12,
-              color: AppColors.textPrimary,
+              color: context.appTextPrimary,
             ),
           ),
           const SizedBox(height: 10),
@@ -199,19 +202,19 @@ class OrderHistoryPage extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
+              Text(
                 'Total',
                 style: TextStyle(
                   fontSize: 12,
-                  color: AppColors.textSecondary,
+                  color: context.appTextSecondary,
                 ),
               ),
               Text(
                 formatRupiah(order.total),
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.primary,
+                  color: context.appPrimary,
                 ),
               ),
             ],
