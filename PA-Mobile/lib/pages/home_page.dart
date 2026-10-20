@@ -313,7 +313,7 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  // Promo Hero Banner (latar foto dari assets lokal, tanpa Firestore)
+  // Promo Hero Banner (latar foto dari assets lokal)
   Widget _buildPromoBanner() {
     final pixelRatio = MediaQuery.devicePixelRatioOf(context);
     final screenWidth = MediaQuery.sizeOf(context).width;
@@ -334,26 +334,10 @@ class _MyHomePageState extends State<MyHomePage> {
             // Foto latar
             Positioned.fill(
               child: Image.asset(
-                _promoBannerAsset,
+                'assets/images/promoBanner.png',
                 fit: BoxFit.cover,
                 cacheWidth: (screenWidth * pixelRatio).round(),
                 errorBuilder: (context, error, stackTrace) => const SizedBox.shrink(),
-              ),
-            ),
-            // Lapisan putih tipis agar tulisan tetap terbaca di atas foto
-            // (hapus blok ini jika ingin foto tampil penuh)
-            Positioned.fill(
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
-                    colors: [
-                      Colors.white.withValues(alpha: 0.85),
-                      Colors.white.withValues(alpha: 0.30),
-                    ],
-                  ),
-                ),
               ),
             ),
             Padding(
@@ -387,7 +371,8 @@ class _MyHomePageState extends State<MyHomePage> {
                           '*Untuk Komponen & Servis',
                           style: TextStyle(
                             fontSize: 11,
-                            color: AppColors.textSecondary,
+                            fontWeight: FontWeight.w900,
+                            color: AppColors.textPrimary,
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -414,21 +399,6 @@ class _MyHomePageState extends State<MyHomePage> {
                           ),
                         ),
                       ],
-                    ),
-                  ),
-                  // Bulatan depan: foto dari assets lokal
-                  ClipOval(
-                    child: Image.asset(
-                      _promoCircleAsset,
-                      width: 100,
-                      height: 100,
-                      fit: BoxFit.cover,
-                      cacheWidth: (100 * pixelRatio).round(),
-                      errorBuilder: (context, error, stackTrace) => Container(
-                        width: 100,
-                        height: 100,
-                        color: Colors.white.withValues(alpha: 0.6),
-                      ),
                     ),
                   ),
                 ],
