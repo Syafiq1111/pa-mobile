@@ -161,6 +161,8 @@ class _CartPageState extends State<CartPage> {
                             fontSize: 13,
                             color: context.appTextPrimary,
                           ),
+                          // Teks dan placeholder rata tengah secara vertikal, sejajar dengan ikon
+                          textAlignVertical: TextAlignVertical.center,
                           onChanged: (value) {
                             setState(() {
                               searchQuery = value.trim().toLowerCase();
@@ -170,15 +172,18 @@ class _CartPageState extends State<CartPage> {
                             border: InputBorder.none,
                             hintText: 'Cari item di keranjang...',
                             hintStyle: TextStyle(
-                              fontSize: 12,
+                              fontSize: 13,
                               color: context.appOutline,
                             ),
-                            contentPadding: EdgeInsets.symmetric(
-                              vertical: 11,
+                            isDense: true,
+                            contentPadding: EdgeInsets.symmetric(vertical: 14),
+                            prefixIconConstraints: BoxConstraints(
+                              minWidth: 46,
+                              minHeight: 44,
                             ),
                             prefixIcon: Icon(
                               Icons.search_rounded,
-                              size: 20,
+                              size: 22,
                               color: context.appOutline,
                             ),
                           ),
