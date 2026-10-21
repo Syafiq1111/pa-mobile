@@ -36,6 +36,7 @@ dev_dependencies:
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices.
   flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.14.4
 
 # The following section is specific to Flutter packages.
 flutter:
@@ -48,3 +49,12 @@ flutter:
   # Folder asset gambar produk
   assets:
     - assets/images/
+
+# Pengaturan ikon aplikasi (dipakai oleh flutter_launcher_icons)
+flutter_launcher_icons:
+  android: true
+  ios: false
+  image_path: "assets/images/logo.png"
+  adaptive_icon_background: "#FFFFFF"
+  adaptive_icon_foreground: "assets/images/logo.png"
+  adaptive_icon_foreground_inset: 16
