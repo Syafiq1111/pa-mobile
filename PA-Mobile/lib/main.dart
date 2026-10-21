@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:pa_mobile/firebase_options.dart';
 import 'package:pa_mobile/providers/address_provider.dart';
 import 'package:pa_mobile/providers/cart_provider.dart';
+import 'package:pa_mobile/providers/favorite_provider.dart';
 import 'package:pa_mobile/providers/theme_provider.dart';
 import 'package:pa_mobile/pages/auth_gate.dart';
 import 'package:pa_mobile/theme/app_colors.dart';
@@ -25,13 +26,14 @@ Future<void> main() async {
     isLinux
         ? const _UnsupportedPlatformApp()
         : MultiProvider(
-            providers: [
-              ChangeNotifierProvider(create: (_) => CartProvider()),
-              ChangeNotifierProvider(create: (_) => AddressProvider()),
-              ChangeNotifierProvider(create: (_) => ThemeProvider()),
-            ],
-            child: const MyApp(),
-          ),
+      providers: [
+        ChangeNotifierProvider(create: (_) => CartProvider()),
+        ChangeNotifierProvider(create: (_) => AddressProvider()),
+        ChangeNotifierProvider(create: (_) => FavoriteProvider()),
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
+      ],
+      child: const MyApp(),
+    ),
   );
 }
 
@@ -73,7 +75,7 @@ class _UnsupportedPlatformApp extends StatelessWidget {
                 const SizedBox(height: 12),
                 const Text(
                   'Aplikasi ini menggunakan Firebase yang didukung di Android (HP/Emulator) dan Web (Chrome).\n\n'
-                  'Jalankan langsung di HP via USB atau buka di Google Chrome.',
+                      'Jalankan langsung di HP via USB atau buka di Google Chrome.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 13,
@@ -175,7 +177,7 @@ class MyApp extends StatelessWidget {
           selectionHandleColor: AppColors.primary,
         ),
         progressIndicatorTheme:
-            const ProgressIndicatorThemeData(color: AppColors.primary),
+        const ProgressIndicatorThemeData(color: AppColors.primary),
         appBarTheme: const AppBarTheme(
           backgroundColor: AppColors.surface,
           foregroundColor: AppColors.textPrimary,

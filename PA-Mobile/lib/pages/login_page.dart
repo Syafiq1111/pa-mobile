@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:pa_mobile/pages/register_page.dart';
 import 'package:pa_mobile/theme/app_colors.dart';
 import 'package:pa_mobile/utils/auth_messages.dart';
+import 'package:pa_mobile/widgets/app_logo.dart';
 import 'package:pa_mobile/widgets/auth_text_field.dart';
 
 class LoginPage extends StatefulWidget {
@@ -174,10 +175,8 @@ class _LoginPageState extends State<LoginPage> {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        const BengkelKomLogo(
-                          size: 54,
-                          borderRadius: 18,
-                        ),
+                        // Logo dari assets/images/logo.png
+                        const AppLogo(size: 54, radius: 18, showShadow: true),
                         const SizedBox(width: 12),
                         const Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -523,7 +522,7 @@ class _LoginPageState extends State<LoginPage> {
                     // Menampilkan informasi hak cipta dan alamat cabang.
                     const Center(
                       child: Text(
-                        '© 2025 BengkelKOM. Jl. P. Antasari, Samarinda.',
+                        '© 2026 BengkelKOM. Jl. P. Antasari, Samarinda.',
                         style: TextStyle(
                           fontSize: 11,
                           color: AppColors.outline,

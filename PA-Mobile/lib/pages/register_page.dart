@@ -640,7 +640,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     // Informasi hak cipta dan alamat.
                     const SizedBox(height: 24),
                     const Text(
-                      '© 2025 BengkelKOM. Jl. P. Antasari, Samarinda.',
+                      '© 2026 BengkelKOM. Jl. P. Antasari, Samarinda.',
                       style: TextStyle(fontSize: 11, color: AppColors.outline),
                     ),
                     const SizedBox(height: 20),

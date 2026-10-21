@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:pa_mobile/models/category.dart';
+import 'package:pa_mobile/pages/notification_page.dart';
 import 'package:pa_mobile/pages/store_chat_page.dart';
 import 'package:pa_mobile/providers/cart_provider.dart';
 import 'package:pa_mobile/theme/app_colors.dart';
+import 'package:pa_mobile/widgets/app_logo.dart';
 import 'package:pa_mobile/widgets/filter_chip_button.dart';
 import 'package:pa_mobile/widgets/product_grid.dart';
 
-const String _logoAsset = 'assets/images/logo.png';
 const String _promoBannerAsset = 'assets/images/card.png';
 const String _promoCircleAsset = 'assets/images/roundedcard.png';
 
@@ -23,6 +24,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   String searchQuery = '';
   String selectedCategory = 'Semua';
+  bool hasUnreadNotification = true; // titik merah pada ikon lonceng
 
   @override
   Widget build(BuildContext context) {
@@ -107,7 +109,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 padding: EdgeInsets.only(top: 14, bottom: 6),
                 child: Center(
                   child: Text(
-                    '© 2025 BengkelKOM. Jl. P. Antasari, Samarinda.',
+                    '© 2026 BengkelKOM. Jl. P. Antasari, Samarinda.',
                     style: TextStyle(
                       fontSize: 11,
                       color: context.appOutline,
@@ -134,18 +136,8 @@ class _MyHomePageState extends State<MyHomePage> {
             children: [
               Row(
                 children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(10),
-                    child: Image.asset(
-                      _logoAsset,
-                      width: 34,
-                      height: 34,
-                      fit: BoxFit.cover,
-                      cacheWidth: (34 * MediaQuery.devicePixelRatioOf(context)).round(),
-                      errorBuilder: (context, error, stackTrace) =>
-                      SizedBox(width: 34, height: 34),
-                    ),
-                  ),
+                  // Logo dari assets/images/logo.png (ikon cadangan jika gagal dimuat)
+                  AppLogo(size: 34, radius: 10),
 
                   SizedBox(width: 10),
                   Text.rich(
@@ -172,30 +164,6 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
               Row(
                 children: [
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                    decoration: BoxDecoration(
-                      color: context.appSurfaceContainerHigh,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          'ID',
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w700,
-                            color: context.appTextSecondary,
-                          ),
-                        ),
-                        SizedBox(width: 2),
-                        Icon(Icons.expand_more, size: 14, color: context.appTextSecondary),
-                      ],
-                    ),
-                  ),
-
-                  SizedBox(width: 8),
                   SizedBox(
                     width: 36,
                     height: 36,
@@ -210,31 +178,47 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                   ),
                   SizedBox(width: 8),
+                  // Tombol notifikasi: membuka halaman notifikasi
                   Stack(
                     clipBehavior: Clip.none,
                     children: [
-                      Container(
+                      SizedBox(
                         width: 36,
                         height: 36,
-                        decoration: BoxDecoration(
-                          color: context.appSurfaceContainerHigh.withValues(alpha: 0.8),
-                          shape: BoxShape.circle,
+                        child: IconButton(
+                          tooltip: 'Notifikasi',
+                          padding: EdgeInsets.zero,
+                          constraints: BoxConstraints.tightFor(width: 36, height: 36),
+                          style: IconButton.styleFrom(
+                            backgroundColor:
+                            context.appSurfaceContainerHigh.withValues(alpha: 0.8),
+                          ),
+                          onPressed: () {
+                            setState(() => hasUnreadNotification = false);
+                            Navigator.of(context).push(
+                              MaterialPageRoute<void>(builder: (_) => NotificationPage()),
+                            );
+                          },
+                          icon: Icon(Icons.notifications_none_rounded,
+                              size: 20, color: context.appTextPrimary),
                         ),
-                        child: Icon(Icons.notifications_none_rounded,
-                            size: 20, color: context.appTextPrimary),
                       ),
-                      Positioned(
-                        top: 2,
-                        right: 2,
-                        child: Container(
-                          width: 8,
-                          height: 8,
-                          decoration: BoxDecoration(
-                            color: context.appSecondary,
-                            shape: BoxShape.circle,
+                      // Titik merah hilang setelah notifikasi dibuka
+                      if (hasUnreadNotification)
+                        Positioned(
+                          top: 2,
+                          right: 2,
+                          child: IgnorePointer(
+                            child: Container(
+                              width: 8,
+                              height: 8,
+                              decoration: BoxDecoration(
+                                color: context.appSecondary,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
                           ),
                         ),
-                      ),
                     ],
                   ),
                 ],
@@ -304,12 +288,17 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         child: TextField(
           style: TextStyle(fontSize: 13, color: context.appTextPrimary),
+          // Teks dan placeholder rata tengah secara vertikal, sejajar dengan ikon
+          textAlignVertical: TextAlignVertical.center,
           onChanged: (value) => setState(() => searchQuery = value.trim().toLowerCase()),
           decoration: InputDecoration(
             border: InputBorder.none,
             hintText: 'Cari komponen, sparepart, laptop...',
             hintStyle: TextStyle(fontSize: 13, color: context.appOutline),
-            contentPadding: EdgeInsets.symmetric(vertical: 12),
+            isDense: true,
+            contentPadding: EdgeInsets.symmetric(vertical: 14),
+            prefixIconConstraints: BoxConstraints(minWidth: 46, minHeight: 44),
+            suffixIconConstraints: BoxConstraints(minHeight: 44),
             prefixIcon: Icon(Icons.search_rounded, size: 22, color: context.appOutline),
             suffixIcon: Row(
               mainAxisSize: MainAxisSize.min,
@@ -321,6 +310,8 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
                 IconButton(
                   onPressed: () {},
+                  padding: EdgeInsets.zero,
+                  constraints: BoxConstraints(minWidth: 44, minHeight: 44),
                   icon: Icon(Icons.mic_none_rounded, size: 18, color: context.appPrimary),
                 ),
               ],
@@ -499,7 +490,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   // Deals Header & Filter Chips
-    Widget _buildDigitalWallet(BuildContext context) {
+  Widget _buildDigitalWallet(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     return Padding(
       padding: EdgeInsets.fromLTRB(16, 14, 16, 4),
@@ -524,7 +515,7 @@ class _MyHomePageState extends State<MyHomePage> {
           Container(height: 1, color: colors.onPrimary.withValues(alpha: .2)),
           SizedBox(height: 10),
           Row(children: [
-            Expanded(child: _walletAction(context, Icons.add_rounded, 'Top up', () => _walletMessage(context, 'Top up BengkelPay (simulasi)'))),
+            Expanded(child: _walletAction(context, Icons.add_rounded, 'Top up', () => _walletMessage(context, 'Top up BengkelPay'))),
             Expanded(child: _walletAction(context, Icons.receipt_long_rounded, 'Riwayat', () => _walletMessage(context, 'Belum ada transaksi dompet.'))),
             Expanded(child: _walletAction(context, Icons.credit_score_rounded, 'PayLater', () => _showPayLater(context))),
           ]),
@@ -553,7 +544,7 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text('BengkelPayLater', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: context.appTextPrimary)),
           SizedBox(height: 12),
-          Text('Limit dompet tersedia: Rp2.000.000', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: context.appTextPrimary)),
+          Text('Limit paylater tersedia: Rp2.000.000', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: context.appTextPrimary)),
           SizedBox(height: 6),
           Text('Cicilan 0% hingga 3 bulan.', style: TextStyle(fontSize: 12, height: 1.5, color: context.appTextSecondary)),
           SizedBox(height: 16),

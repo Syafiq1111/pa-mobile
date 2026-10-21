@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:pa_mobile/models/product.dart';
 import 'package:pa_mobile/providers/cart_provider.dart';
+import 'package:pa_mobile/providers/favorite_provider.dart';
 import 'package:pa_mobile/theme/app_colors.dart';
 import 'package:pa_mobile/widgets/product_image.dart';
 
@@ -330,9 +331,9 @@ class ProductCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final available =
-        context.select<CartProvider, int>((cart) => cart.availableStock(product));
+    context.select<CartProvider, int>((cart) => cart.availableStock(product));
     final inCart =
-        context.select<CartProvider, int>((cart) => cart.cartQuantities[product.id] ?? 0);
+    context.select<CartProvider, int>((cart) => cart.cartQuantities[product.id] ?? 0);
     final soldOut = product.stock <= 0;
 
     return Container(
@@ -466,73 +467,114 @@ class ProductCard extends StatelessWidget {
                   height: 32,
                   child: available <= 0
                       ? Container(
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(
-                            color: context.appSurfaceContainerHigh,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text(
-                            soldOut ? 'Habis' : 'Maks. di keranjang',
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
-                              color: context.appOutline,
-                            ),
-                          ),
-                        )
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: context.appSurfaceContainerHigh,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      soldOut ? 'Habis' : 'Maks. di keranjang',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: context.appOutline,
+                      ),
+                    ),
+                  )
                       : ElevatedButton.icon(
-                          onPressed: () => _showAddToCartDialog(context, available, inCart),
-                          icon: Icon(
-                            inCart > 0
-                                ? Icons.shopping_bag_rounded
-                                : Icons.add_shopping_cart_rounded,
-                            size: 14,
-                          ),
-                          label: Text(
-                            inCart > 0 ? '+ Keranjang ($inCart)' : '+ Keranjang',
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            padding: EdgeInsets.zero,
-                            backgroundColor: inCart > 0
-                                ? context.appPrimary.withValues(alpha: 0.15)
-                                : context.appPrimary.withValues(alpha: 0.1),
-                            foregroundColor: context.appPrimary,
-                            elevation: 0,
-                            shadowColor: Colors.transparent,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                          ),
-                        ),
+                    onPressed: () => _showAddToCartDialog(context, available, inCart),
+                    icon: Icon(
+                      inCart > 0
+                          ? Icons.shopping_bag_rounded
+                          : Icons.add_shopping_cart_rounded,
+                      size: 14,
+                    ),
+                    label: Text(
+                      inCart > 0 ? '+ Keranjang ($inCart)' : '+ Keranjang',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      padding: EdgeInsets.zero,
+                      backgroundColor: inCart > 0
+                          ? context.appPrimary.withValues(alpha: 0.15)
+                          : context.appPrimary.withValues(alpha: 0.1),
+                      foregroundColor: context.appPrimary,
+                      elevation: 0,
+                      shadowColor: Colors.transparent,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                    ),
+                  ),
                 ),
               ],
             ),
           ),
 
-          // Favorite Icon Button
+          // Tombol favorit: ditekan untuk menyimpan / menghapus produk dari favorit
           Positioned(
-            top: 14,
-            left: 14,
-            child: Container(
-              width: 28,
-              height: 28,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.white.withValues(alpha: 0.9),
-                border: Border.all(color: Color(0xFFE2E8F0), width: 1),
-              ),
-              child: Icon(
-                Icons.favorite_border_rounded,
-                size: 16,
-                color: context.appOutline,
-              ),
-            ),
+            top: 6,
+            left: 6,
+            child: _FavoriteButton(product: product),
           ),
         ],
+      ),
+    );
+  }
+}
+
+// Tombol hati pada kartu produk.
+// Area sentuh 44px agar mudah ditekan, tampilan lingkaran tetap 28px.
+class _FavoriteButton extends StatelessWidget {
+  final Product product;
+
+  const _FavoriteButton({required this.product});
+
+  @override
+  Widget build(BuildContext context) {
+    // select: hanya tombol ini yang dibangun ulang saat status favorit berubah.
+    final isFavorite = context
+        .select<FavoriteProvider, bool>((fav) => fav.isFavorite(product.id));
+
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () {
+        context.read<FavoriteProvider>().toggle(product);
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(
+            SnackBar(
+              content: Text(
+                isFavorite
+                    ? '${product.name} dihapus dari favorit'
+                    : '${product.name} ditambahkan ke favorit',
+              ),
+              duration: const Duration(milliseconds: 900),
+            ),
+          );
+      },
+      child: Padding(
+        padding: const EdgeInsets.all(8),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
+          width: 28,
+          height: 28,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.white.withValues(alpha: 0.9),
+            border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
+          ),
+          child: Icon(
+            isFavorite
+                ? Icons.favorite_rounded
+                : Icons.favorite_border_rounded,
+            size: 16,
+            color: isFavorite ? const Color(0xFFE53935) : context.appOutline,
+          ),
+        ),
       ),
     );
   }
